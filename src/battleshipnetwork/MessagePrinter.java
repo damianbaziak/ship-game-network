@@ -100,18 +100,23 @@ public class MessagePrinter {
         for (String s : GreetingStatic) {
             for (char c : s.toCharArray()) {
                 System.out.print(c);
-                Thread.sleep(2);
+                System.out.flush();
+                Thread.sleep(1);
             }
             System.out.println();
         }
-            Thread.sleep(3000);
-            clearScreen();
+        Thread.sleep(3000);
+        clearScreen();
 
 
-            System.out.print("LET'S START...");
-            Thread.sleep(3000);
-            clearScreen();
-        }
+        System.out.print("LET'S START.");
+        Thread.sleep(1000);
+        System.out.print(".");
+        Thread.sleep(1000);
+        System.out.print(".");
+        Thread.sleep(1000);
+        clearScreen();
+    }
 
 
     private static void clearScreen() {
@@ -120,4 +125,4 @@ public class MessagePrinter {
         }
     }
 
-    }
+}

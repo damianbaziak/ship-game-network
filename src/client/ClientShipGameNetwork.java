@@ -16,7 +16,8 @@ public class ClientShipGameNetwork {
     private static final int gameBoardLength = 10;
     private static final char water = '-';
     private static final char ship = 'S';
-    private static final int numberOfOneMastedShip = 4;
+    private static final int singleMastedShipNumber = 4;
+    private static final int twoMastedShipNumber = 3;
 
     public static void main(String[] args) throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
@@ -36,24 +37,25 @@ public class ClientShipGameNetwork {
             }
 
             char[][] gameBoard = createGameBoard();
-            placeOneMastedShips(numberOfOneMastedShip, gameBoard, water, ship, scanner, output);
+
+            placeSingleMastedShips(gameBoard, water, ship, scanner, output);
 
 
         } catch (IOException e) {
-            System.out.println("Błąd połączenia z serwerem: " + e.getMessage());
+            System.out.println("Error connecting to server: " + e.getMessage());
         }
     }
 
-    private static char[][] placeOneMastedShips(
-            int numberOfOneMastedShip, char[][] gameBoard, char water, char ship, Scanner scanner, PrintWriter output) {
-
-        printThisClientGameBoard(gameBoard, water, ship);
-        System.out.println("Place your four One Masted Ships");
+    private static char[][] placeSingleMastedShips(
+            char[][] gameBoard, char water, char ship, Scanner scanner, PrintWriter output) {
 
         int placedShips = 0;
+        System.out.println("Place your four One-Masted Ships");
 
-        while (placedShips < numberOfOneMastedShip) {
-            System.out.printf("Enter coordinates for Ship %d of 4 (One-Masted) (e.g. A5): %n", placedShips + 1);
+        while (placedShips < singleMastedShipNumber) {
+            System.out.println();
+            printThisClientGameBoard(gameBoard, ship);
+            System.out.printf("Enter coordinates for Ship %d of 4 (One-Masted) (e.g. A5):%n", placedShips + 1);
             String input = scanner.nextLine();
 
             // Walidacja wejścia
@@ -63,32 +65,105 @@ public class ClientShipGameNetwork {
             }
 
             char colChar = input.charAt(0);
-            char rowNumber = input.charAt(1);
+            String rowNumber = input.substring(1);
+            char firstCharOfRowNumber = rowNumber.charAt(0);
 
             if (!Character.isLetter(colChar)) {
                 System.out.println("The first character should be a letter.");
                 continue;
             }
 
-            if (!Character.isDigit(rowNumber)) {
+            if (!Character.isDigit(firstCharOfRowNumber)) {
                 System.out.println("The second character should be a digit");
                 continue;
             }
 
             int col = Character.toUpperCase(colChar) - 'A';
-            int row = rowNumber - 1;   // 1->0, 2->1, ...
+            int row = Integer.parseInt(rowNumber) - 1;
 
             char possiblePlacement = gameBoard[row][col];
 
             if (possiblePlacement != water) {
-                gameBoard[row][col] = ship;
-                placedShips++;
+                System.out.println("Cannot place ship here, position already taken!");
+                continue;
             }
 
-        }
+            // Sprawdzamy sąsiednie pola, czy są wolne
+            boolean canPlaceShip = true;
 
+            // Sprawdzanie dolnego pola
+            if (row < gameBoard.length - 1 && gameBoard[row + 1][col] != water) {
+                canPlaceShip = false;
+            }
+            // Sprawdzanie górnego pola
+            if (row > 0 && gameBoard[row - 1][col] != water) {
+                canPlaceShip = false;
+            }
+            // Sprawdzanie lewego pola
+            if (col > 0 && gameBoard[row][col - 1] != water) {
+                canPlaceShip = false;
+            }
+            // Sprawdzanie prawego pola
+            if (col < gameBoard[0].length - 1 && gameBoard[row][col + 1] != water) {
+                canPlaceShip = false;
+            }
+            // Lewo-góra
+            if (row > 0 && col > 0 && gameBoard[row - 1][col - 1] != water) {
+                canPlaceShip = false;
+            }
+            // Lewo-dół
+            if (row < gameBoard.length - 1 && col > 0 && gameBoard[row + 1][col - 1] != water) {
+                canPlaceShip = false;
+            }
+            // Prawo-góra
+            if (row > 0 && col < gameBoard[0].length - 1 && gameBoard[row - 1][col + 1] != water) {
+                canPlaceShip = false;
+            }
+            // Prawo-dół
+            if (row < gameBoard.length - 1 && col < gameBoard[0].length - 1 && gameBoard[row + 1][col + 1] != water) {
+                canPlaceShip = false;
+            }
+            // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
+            if (!canPlaceShip) {
+                System.out.println("Cannot place ship here. There is another ship nearby.");
+                continue;
+            }
+            gameBoard[row][col] = ship;
+            placedShips++;
+        }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("All single-masted ships have been placed".toUpperCase());
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return placeTwoMastedShips(gameBoard, water, ship, scanner, output);
+
+    }
+
+    private static char[][] placeTwoMastedShips(
+            char[][] gameBoard, char water, char ship, Scanner scanner, PrintWriter output) {
+
+        int placedShips = 0;
+        System.out.println();
+        System.out.println("Place your three Two-Masted Ships");
+
+        while (placedShips < twoMastedShipNumber) {
+            System.out.println();
+            printThisClientGameBoard(gameBoard, ship);
+            System.out.printf("Enter coordinates for Ship %d of 3 (Two-Masted) (e.g. A5):%n", placedShips + 1);
+            String input = scanner.nextLine();
+
+
+        }
         return gameBoard;
     }
+
 
     private static char[][] createGameBoard() {
         char[][] gameBoard = new char[gameBoardLength][gameBoardLength];
@@ -111,7 +186,7 @@ public class ClientShipGameNetwork {
         }
     }
 
-    private static void printThisClientGameBoard(char[][] gameBoard, char water, char ship) {
+    private static void printThisClientGameBoard(char[][] gameBoard, char ship) {
         // Ten kod wyswietla nazwy kolumn
         int gameBoardLength = gameBoard.length;
         char[] rowName = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'J'};
@@ -140,7 +215,7 @@ public class ClientShipGameNetwork {
         for (int col = 0; col < gameBoardLength; col++) {
             char position = gameBoard[9][col];
             if (position == ship) {
-                System.out.print(water + "  ");
+                System.out.print(ship + "  ");
             } else {
                 System.out.print(position + "  ");
             }
@@ -149,6 +224,15 @@ public class ClientShipGameNetwork {
         System.out.println();
         System.out.println();
     }
+
+    /*
+    private static char[][] updateThisClientGameBoard(char[][] gameBoard, int col, int row) {
+        gameBoard[row][col];
+        return gameBoard;
+    }
+
+     */
+
 }
 
 
