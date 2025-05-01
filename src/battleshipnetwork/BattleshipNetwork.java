@@ -41,6 +41,18 @@ public class BattleshipNetwork {
             output1.println("START");
             // output2.println("START");
 
+            // Waiting for the players to finish placing ships
+
+            String messageFromPlayerOne = input1.readLine();
+            //String messageFromPlayerTwo = input2.readLine();
+
+            Thread.sleep(2000);
+
+            if ("ships placed".equalsIgnoreCase(messageFromPlayerOne)) {
+                output1.println("The war has begun");
+            }
+
+
 
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
