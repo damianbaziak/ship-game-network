@@ -1,8 +1,7 @@
 package client;
 
 import battleshipnetwork.MessagePrinter;
-import client.ship.SingleMastedShip;
-import client.ship.TwoMastedShip;
+import client.ship.*;
 import client.ship.service.Coordinate;
 import client.ship.service.ShipService;
 
@@ -11,8 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 
 public class ClientShipGameNetwork {
     private static final String SERVER_IP = "localhost";  // Server IP
@@ -56,7 +54,7 @@ public class ClientShipGameNetwork {
             System.out.println("Message from the server: " + serverMessageToWarBeginning);
 
             if ("The war has begun".equalsIgnoreCase(serverMessageToWarBeginning)) {
-                runningGame(myBoard, opponentBoard, water, ship, hit, miss, scanner, input);
+                runningGame(myBoard, opponentBoard, water, ship, hit, miss, scanner, input, output);
             }
 
 
@@ -66,21 +64,75 @@ public class ClientShipGameNetwork {
     }
 
     private static void runningGame(char[][] gameBoard, char[][] opponentBoard, char water, char ship, char hit,
-                                    char miss, Scanner scanner, BufferedReader input)
+                                    char miss, Scanner scanner, BufferedReader input, PrintWriter output)
             throws IOException {
+        List<Ship> myShips = shipService.getShips();
+        List<Coordinate> hitCoordinates = new ArrayList<>();
 
         boolean gameRunning = true;
 
         while (gameRunning) {
+
             showEntireGameBoard(gameBoard, opponentBoard, ship, hit, miss);
 
-            System.out.println("Enter coordinates for the shot:");
-            scanner.nextLine();
+            String whoStarts = input.readLine();
 
+            if ("Player 1 starts".equalsIgnoreCase(whoStarts)) {
+                System.out.println("You start! Enter the target coordinates: ");
+                String myShot = scanner.nextLine();
+                output.println(myShot);
+            } else if (whoStarts.equalsIgnoreCase("Please wait")) {
+                System.out.println("Opponent is firing. Waiting for their shot...");
+                String opponentShot = input.readLine();
+
+                String rowNumber = opponentShot.substring(1);
+                int row = Integer.parseInt(rowNumber) - 1;
+                int col = Integer.parseInt(String.valueOf(Character.toUpperCase(opponentShot.charAt(0)))) - 'A';
+
+                Coordinate opponentShotCoordinate = new Coordinate(row, col);
+
+                if (!hitCoordinates.contains(opponentShotCoordinate)) {
+                    hitCoordinates.add(opponentShotCoordinate);
+
+                    Optional<Ship> hitShip = myShips.stream()
+                            .filter(s -> s.getCoordinates().contains(opponentShotCoordinate))
+                            .findFirst();
+
+                    hitShip.ifPresent(s -> {
+                        s.getCoordinates().remove(opponentShotCoordinate);
+                    });
+
+
+                    if (hitShip.get().getSize() == 1) {
+                        output.println("You hit a single-masted ship!".toUpperCase());
+                        System.out.println("Opponent hit your single-masted ship!".toUpperCase());
+
+                    } else if (hitShip.get().getSize() == 2) {
+                        output.println("You hit a two-masted ship!".toUpperCase());
+                        System.out.println("Opponent hit your two-masted ship!".toUpperCase());
+
+                    } else if (hitShip.get().getSize() == 3) {
+                        output.println("You hit a three-masted ship!".toUpperCase());
+                        System.out.println("Opponent hit your three-masted ship!".toUpperCase());
+
+                    } else if (hitShip.get().getSize() == 4) {
+                        output.println("You hit a four-masted ship!".toUpperCase());
+                        System.out.println("Opponent hit your four-masted ship!".toUpperCase());
+                    }
+
+
+                } else {
+                    output.println("You missed".toUpperCase());
+                    System.out.println("Opponent missed!".toUpperCase());
+                }
+                continue;
+
+
+            }
 
         }
-
     }
+
     private static void showEntireGameBoard(char[][] gameBoard, char[][] opponentBoard, char ship, char hit, char miss) {
         displayMyBoard(gameBoard, ship);
         displayOpponentBoard(opponentBoard);
@@ -95,7 +147,6 @@ public class ClientShipGameNetwork {
         System.out.println("Place your four Single-Masted Ships");
 
         while (placedShips < singleMastedShipNumber) {
-            System.out.println();
             displayMyBoard(gameBoard, ship);
             System.out.printf("Enter coordinates for the %d of 3 Single-Masted Ship (e.g. A5):%n", placedShips + 1);
             String input = scanner.nextLine();
@@ -718,6 +769,12 @@ public class ClientShipGameNetwork {
             gameBoard[thirdRow][thirdCol] = ship;
             placedThreeMastedShips++;
 
+            Coordinate firstCoordinate = new Coordinate(row, col);
+            Coordinate secondCoordinate = new Coordinate(secondRow, secondCol);
+            Coordinate thirdCoordinate = new Coordinate(thirdRow, thirdCol);
+            ThreeMastedShip threeMastedShip = new ThreeMastedShip(firstCoordinate, secondCoordinate, thirdCoordinate);
+            shipService.addShip(threeMastedShip);
+
         }
         try {
             Thread.sleep(1000);
@@ -1129,6 +1186,15 @@ public class ClientShipGameNetwork {
             gameBoard[thirdRow][thirdCol] = ship;
             gameBoard[fourthRow][fourthCol] = ship;
             placedFourMastedShips++;
+
+            Coordinate firstCoordinate = new Coordinate(row, col);
+            Coordinate secondCoordinate = new Coordinate(secondRow, secondCol);
+            Coordinate thirdCoordinate = new Coordinate(thirdRow, thirdCol);
+            Coordinate fourthCoordinate = new Coordinate(fourthRow, fourthCol);
+            FourMastedShip fourMastedShip =
+                    new FourMastedShip(firstCoordinate, secondCoordinate, thirdCoordinate, fourthCoordinate);
+            shipService.addShip(fourMastedShip);
+
         }
         displayMyBoard(gameBoard, ship);
 
@@ -1161,27 +1227,62 @@ public class ClientShipGameNetwork {
     }
 
 
-    private static void displayOpponentBoard(char[][] opponent) {
+    private static void displayOpponentBoard(char[][] opponentBoard) {
         System.out.println();
-        for (char[] row : opponent) {
-            for (int j = 0; j < opponent.length; j++) {
-                System.out.print(row[j] + " ");
+        System.out.println("          OPPONENT BOARD");
+        System.out.println();
+
+        // Ten kod wyswietla nazwy kolumn
+        int gameBoardLength = opponentBoard.length;
+        char[] rowName = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'J'};
+        System.out.print("   ");
+        for (int i = 0; i < gameBoardLength; i++) {
+            System.out.print(rowName[i] + "  ");
+        }
+        System.out.println();
+
+        // Ten kod wyswietla wszystkie wiersze bez dziesiatego
+        for (int row = 0; row < 9; row++) {
+            System.out.print(" ");
+            System.out.print(row + 1 + " ");
+            for (int col = 0; col < gameBoardLength; col++) {
+                char position = opponentBoard[row][col];
+                if (position == ship) {
+                    System.out.print(ship + "  ");
+                } else {
+                    System.out.print(position + "  ");
+                }
             }
             System.out.println();
         }
-        for (int i = 0; i < 3; i++) {
-            System.out.println();
+
+        // This code displays the tenth row of the board.
+        System.out.print(10 + " ");
+        for (int col = 0; col < gameBoardLength; col++) {
+            char position = opponentBoard[9][col];
+            if (position == ship) {
+                System.out.print(ship + "  ");
+            } else {
+                System.out.print(position + "  ");
+            }
         }
+
+        // ***
+        System.out.println();
+        System.out.println();
     }
 
 
     private static void displayMyBoard(char[][] myBoard, char ship) {
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 3; i++) {
             System.out.println();
         }
+        System.out.println("            MY BOARD");
+        System.out.println();
+
         // Ten kod wyswietla nazwy kolumn
         int gameBoardLength = myBoard.length;
-        char[] rowName = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'J'};
+        char[] rowName = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
         System.out.print("   ");
         for (int i = 0; i < gameBoardLength; i++) {
             System.out.print(rowName[i] + "  ");
@@ -1203,6 +1304,7 @@ public class ClientShipGameNetwork {
             System.out.println();
         }
 
+        // This code displays the tenth row of the board.
         System.out.print(10 + " ");
         for (int col = 0; col < gameBoardLength; col++) {
             char position = myBoard[9][col];
@@ -1212,6 +1314,7 @@ public class ClientShipGameNetwork {
                 System.out.print(position + "  ");
             }
         }
+
         // ***
         System.out.println();
         System.out.println();
