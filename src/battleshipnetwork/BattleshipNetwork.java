@@ -49,7 +49,7 @@ public class BattleshipNetwork {
             Thread.sleep(2000);
 
             if ("ships placed".equalsIgnoreCase(messageFromPlayerOne)) {
-                output1.println("The war has begun.");
+                output1.println("The war has begun.a");
                 output1.println("Player one's turn.");
                 //output2.println("Please wait");
             }
