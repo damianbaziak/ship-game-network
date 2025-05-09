@@ -79,7 +79,7 @@ public class ClientShipGameNetwork {
 
             if ("Player one's turn.".equalsIgnoreCase(whoseTurnIsIt)
                     || "Player two's turn.".equalsIgnoreCase(whoseTurnIsIt)) {
-                makeShot(opponentBoard, scanner, input, output);
+                makeShot(myBoard, opponentBoard, scanner, input, output, ship, hit, miss);
             } else {
                 opponentShot(myBoard, myShips, hitCoordinates, scanner, input, output);
             }
@@ -110,7 +110,7 @@ public class ClientShipGameNetwork {
 
         if (hitCoordinates.contains(opponentShotCoordinate)) {
             System.out.println("The opponent shot at a location that was already fired upon.".toUpperCase());
-            output.println("This shot has been already taken.");
+            output.println("This shot has been already fired.");
             Thread.sleep(1000);
         } else {
             hitCoordinates.add(opponentShotCoordinate);
@@ -235,12 +235,15 @@ public class ClientShipGameNetwork {
         }
     }
 
-    private static void makeShot(char[][] opponentBoard, Scanner scanner, BufferedReader input, PrintWriter output)
+    private static void makeShot(
+            char[][] myBoard, char[][] opponentBoard, Scanner scanner, BufferedReader input, PrintWriter output,
+            char ship, char hit, char miss)
             throws IOException, InterruptedException {
 
         boolean youHitYouTurn = true;
 
         while (youHitYouTurn) {
+            showEntireGameBoard(myBoard, opponentBoard, ship, hit, miss);
 
             System.out.println("Your turn! Enter the target coordinates: ");
             String myShot = scanner.nextLine();
@@ -248,7 +251,7 @@ public class ClientShipGameNetwork {
             boolean isValidInput = validateInputFields(myShot);
             if (!isValidInput) continue;
 
-            char colChar = myShot.charAt(0);
+            // char colChar = myShot.charAt(0);
 
             String rowNumber = myShot.substring(1);
             // char firstCharOfRowNumber = rowNumber.charAt(0);
@@ -394,9 +397,9 @@ public class ClientShipGameNetwork {
         return true;
     }
 
-    private static void showEntireGameBoard(char[][] gameBoard, char[][] opponentBoard, char ship, char hit,
+    private static void showEntireGameBoard(char[][] myBoard, char[][] opponentBoard, char ship, char hit,
                                             char miss) {
-        displayMyBoard(gameBoard, ship);
+        displayMyBoard(myBoard, ship);
         displayOpponentBoard(opponentBoard);
 
     }
