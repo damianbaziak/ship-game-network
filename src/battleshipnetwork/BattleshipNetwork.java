@@ -9,6 +9,13 @@ import java.net.Socket;
 
 public class BattleshipNetwork {
     private static final int PORT = 5050;
+    private static final String YOU_TURN = "Your turn.";
+    private static final String START = "START";
+    private static final String PLEASE_WAIT = "Please wait.";
+    private static final String ALREADY_FIRED = "already fired";
+    private static final String MISSED = "Missed.";
+    private static final String SHIPS_PLACED= "Ships placed.";
+    private static final String THE_WAR_HAS_BEGUN= "The war has begun.";
 
     public static void main(String[] args) throws IOException {
 
@@ -33,24 +40,27 @@ public class BattleshipNetwork {
             PrintWriter output2 = new PrintWriter(player2.getOutputStream(), true);
 
 
-            Thread.sleep(3000);
+            Thread.sleep(1000);
 
             // Informujemy graczy, że mogą zaczynać
-            output1.println("START");
-            output2.println("START");
+            output1.println(START);
+            output2.println(START);
 
             // Waiting for the players to finish placing ships
             String messageFromPlayerOne = input1.readLine();
             String messageFromPlayerTwo = input2.readLine();
+            System.out.println(messageFromPlayerTwo);
+            System.out.println(messageFromPlayerOne);
 
-            Thread.sleep(2000);
+            // Thread.sleep(2000);
 
-            if ("ships placed".equalsIgnoreCase(messageFromPlayerOne)
-                    && "ship placed".equalsIgnoreCase(messageFromPlayerTwo)) {
-                //output1.println("The war has begun.a");
-                output1.println("Player one's turn.");
-                output2.println("Please wait");
+            if (isReady(messageFromPlayerOne) && isReady(messageFromPlayerTwo)) {
+                output1.println(THE_WAR_HAS_BEGUN);
+                output2.println(THE_WAR_HAS_BEGUN);
+                Thread.sleep(1000);
             }
+            output1.println(YOU_TURN);
+            output2.println(PLEASE_WAIT);
 
             boolean gameRunning = true;
             while (gameRunning) {
@@ -64,7 +74,9 @@ public class BattleshipNetwork {
                 output1.println(playerTwosSecondReport);
                 output1.println(playerTwosThirdReport);
 
-                if (playerTwosReport.contains("already fired") || playerTwosReport.contains("Missed.")) {
+                if (playerTwosReport.contains(ALREADY_FIRED) || playerTwosReport.contains(MISSED)) {
+                    output2.println(YOU_TURN);
+                    output1.println(PLEASE_WAIT);
                     playerTwoShooting(input2, input1, output2, output1);
                 }
             }
@@ -91,11 +103,17 @@ public class BattleshipNetwork {
             output2.println(playerOnesSecondReport);
             output2.println(playerOnesThirdReport);
 
-            if (playerOnesReport.contains("already fired") || playerOnesReport.contains("Missed.")) {
+            if (playerOnesReport.contains(ALREADY_FIRED) || playerOnesReport.contains(MISSED)) {
+                output1.println(YOU_TURN);
+                output2.println(PLEASE_WAIT);
                 playerTwoShooting = false;
 
             }
         }
+    }
+
+    private static boolean isReady(String message) {
+        return SHIPS_PLACED.equalsIgnoreCase(message);
     }
 
 }

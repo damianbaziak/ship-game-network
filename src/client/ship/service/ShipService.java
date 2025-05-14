@@ -13,7 +13,7 @@ public class ShipService {
         ships.add(ship);
     }
 
-    public void removeSingleMastedShip(Ship ship) {
+    public void removeShip(Ship ship) {
         ships.remove(ship);
     }
 

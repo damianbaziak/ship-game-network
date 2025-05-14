@@ -91,7 +91,7 @@ public class MessagePrinter {
             }
             System.out.println();
         }
-        makeSpace();
+        //makeSpace();
 
     }
 
