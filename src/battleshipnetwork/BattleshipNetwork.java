@@ -16,6 +16,7 @@ public class BattleshipNetwork {
     private static final String MISSED = "Missed.";
     private static final String SHIPS_PLACED= "Ships placed.";
     private static final String THE_WAR_HAS_BEGUN= "The war has begun.";
+    private static final String YOU_WIN = "You win";
 
     public static void main(String[] args) throws IOException {
 
@@ -70,9 +71,11 @@ public class BattleshipNetwork {
                 String playerTwosReport = input2.readLine();
                 String playerTwosSecondReport = input2.readLine();
                 String playerTwosThirdReport = input2.readLine();
+                String playerTwosFourthReport = input2.readLine();
                 output1.println(playerTwosReport);
                 output1.println(playerTwosSecondReport);
                 output1.println(playerTwosThirdReport);
+                output1.println(playerTwosFourthReport);
 
                 if (playerTwosReport.contains(ALREADY_FIRED) || playerTwosReport.contains(MISSED)) {
                     output2.println(YOU_TURN);
@@ -91,23 +94,24 @@ public class BattleshipNetwork {
     private static void playerTwoShooting(
             BufferedReader input2, BufferedReader input1, PrintWriter output2, PrintWriter output1) throws
             IOException {
-        boolean playerTwoShooting = true;
-        while (playerTwoShooting) {
+        boolean playerTwoIsShooting = true;
+        while (playerTwoIsShooting) {
             String playerTwosShot = input2.readLine();
             output1.println(playerTwosShot);
 
             String playerOnesReport = input1.readLine();
             String playerOnesSecondReport = input1.readLine();
             String playerOnesThirdReport = input1.readLine();
+            String playerOnesFourthReport = input1.readLine();
             output2.println(playerOnesReport);
             output2.println(playerOnesSecondReport);
             output2.println(playerOnesThirdReport);
+            output2.println(playerOnesFourthReport);
 
             if (playerOnesReport.contains(ALREADY_FIRED) || playerOnesReport.contains(MISSED)) {
                 output1.println(YOU_TURN);
                 output2.println(PLEASE_WAIT);
-                playerTwoShooting = false;
-
+                playerTwoIsShooting = false;
             }
         }
     }

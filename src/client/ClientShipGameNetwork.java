@@ -42,7 +42,7 @@ public class ClientShipGameNetwork {
             // Odbieramy wiadomość od serwera
             String serverMessage = input.readLine();
             if ("START".equals(serverMessage)) {
-                MessagePrinter.printGreeting();
+                MessagePrinter.displayGreeting();
             }
 
             char[][] myBoard = createBoard();
@@ -85,15 +85,6 @@ public class ClientShipGameNetwork {
             }
 
 
-            if (myShips.isEmpty()) {
-                System.out.println("Opponent sunk all your ships. You lost the battle!".toUpperCase());
-                output.println("All ships have been sunk. You win.");
-                Thread.sleep(1000);
-                System.out.println("GAME OVER");
-                gameRunning = false;
-            }
-
-
         }
     }
 
@@ -103,7 +94,7 @@ public class ClientShipGameNetwork {
             throws IOException, InterruptedException {
 
         boolean opponentHitYouWait = true;
-        
+
         while (opponentHitYouWait) {
             showEntireGameBoard(myBoard, opponentBoard, ship, hit, miss);
 
@@ -124,6 +115,7 @@ public class ClientShipGameNetwork {
             if (hitCoordinates.contains(opponentShotCoordinate)) {
                 System.out.println("The opponent shot at a location that was already fired upon.".toUpperCase());
                 output.println("This shot has been already fired.");
+                output.println("");
                 output.println("");
                 output.println("");
                 Thread.sleep(1000);
@@ -167,6 +159,12 @@ public class ClientShipGameNetwork {
 
                         } else output.println("");
 
+                        if (areAllShipsSunk(myShips, output)) {
+                            opponentHitYouWait = false;
+                        } else {
+                            output.println("");
+                        }
+
                     } else if (myShip.getSize() == 2) {
                         System.out.println("Opponent hit your Two-Masted Ship!".toUpperCase());
                         System.out.println();
@@ -176,7 +174,7 @@ public class ClientShipGameNetwork {
                         if (myShip.getCoordinates().isEmpty()) {
                             System.out.println("Opponent sunk one of your Two-Masted Ships!".toUpperCase());
                             System.out.println();
-                            output.println("You sunk a Two-Masted Ship.");
+                            output.println("You've sunk a Two-Masted Ship.");
                             shipService.removeShip(myShip);
                             Thread.sleep(1000);
 
@@ -193,11 +191,16 @@ public class ClientShipGameNetwork {
 
                         } else output.println("");
 
+                        if (areAllShipsSunk(myShips, output)) {
+                            opponentHitYouWait = false;
+                        } else {
+                            output.println("");
+                        }
 
                     } else if (myShip.getSize() == 3) {
                         System.out.println("Opponent hit your three-masted ship!".toUpperCase());
                         System.out.println();
-                        output.println("You've hit a three-masted ship.");
+                        output.println("You hit a three-masted ship.");
                         Thread.sleep(1000);
 
                         if (myShip.getCoordinates().isEmpty()) {
@@ -219,6 +222,12 @@ public class ClientShipGameNetwork {
                             Thread.sleep(1000);
 
                         } else output.println();
+
+                        if (areAllShipsSunk(myShips, output)) {
+                            opponentHitYouWait = false;
+                        } else {
+                            output.println("");
+                        }
 
                     } else if (hitShip.get().getSize() == 4) {
 
@@ -246,6 +255,12 @@ public class ClientShipGameNetwork {
                             Thread.sleep(1000);
 
                         } else output.println("");
+
+                        if (areAllShipsSunk(myShips, output)) {
+                            opponentHitYouWait = false;
+                        } else {
+                            output.println("");
+                        }
                     }
 
                 } else {
@@ -258,6 +273,17 @@ public class ClientShipGameNetwork {
                 }
             }
         }
+    }
+
+    private static boolean areAllShipsSunk(List<Ship> myShips, PrintWriter output) throws InterruptedException {
+        if (myShips.isEmpty()) {
+            System.out.println("Opponent sunk all your ships. You lost the battle!".toUpperCase());
+            output.println("All ships have been sunk. You win.");
+            Thread.sleep(1000);
+            MessagePrinter.displayYouLose();
+            return true;
+        }
+        return false;
     }
 
     private static void makeShot(
@@ -290,6 +316,7 @@ public class ClientShipGameNetwork {
             String opponentReport = input.readLine();
             String secondOpponentReport = input.readLine();
             String thirdOpponentReport = input.readLine();
+            String fourthOpponentReport = input.readLine();
 
 
             if ("This shot has been already fired.".equalsIgnoreCase(opponentReport)) {
@@ -315,8 +342,12 @@ public class ClientShipGameNetwork {
 
                     if (!thirdOpponentReport.isBlank()
                             && "All Single-Masted Ships have been sunk.".equalsIgnoreCase(thirdOpponentReport)) {
-                        System.out.println("All Single-Masted Ships hav e been sunk!".toUpperCase());
+                        System.out.println("All Single-Masted Ships have been sunk!".toUpperCase());
                         Thread.sleep(1000);
+                    }
+
+                    if (didPLayerWin(fourthOpponentReport)) {
+                        youHitYouTurn = false;
                     }
 
                 } else if ("You hit a two-masted ship.".equalsIgnoreCase(opponentReport)) {
@@ -336,6 +367,11 @@ public class ClientShipGameNetwork {
                         Thread.sleep(1000);
                     }
 
+                    if (didPLayerWin(fourthOpponentReport)) {
+                        youHitYouTurn = false;
+                    }
+
+
                 } else if ("You hit a three-masted ship.".equalsIgnoreCase(opponentReport)) {
                     System.out.println("You hit a three-masted ship!".toUpperCase());
                     System.out.println();
@@ -352,6 +388,11 @@ public class ClientShipGameNetwork {
                         System.out.println("All Three-Masted Ships have been sunk!".toUpperCase());
                         Thread.sleep(1000);
                     }
+
+                    if (didPLayerWin(fourthOpponentReport)) {
+                        youHitYouTurn = false;
+                    }
+
 
                 } else if ("You hit a four-masted ship.".equalsIgnoreCase(opponentReport)) {
                     System.out.println("You hit a four-masted ship!".toUpperCase());
@@ -370,6 +411,11 @@ public class ClientShipGameNetwork {
                         Thread.sleep(1000);
                     }
 
+                    if (didPLayerWin(fourthOpponentReport)) {
+                        youHitYouTurn = false;
+                    }
+
+
                 }
                 opponentBoard[row][col] = hit;
 
@@ -385,6 +431,17 @@ public class ClientShipGameNetwork {
         }
 
 
+    }
+
+    private static boolean didPLayerWin(String fourthOpponentReport) throws InterruptedException {
+        if (!fourthOpponentReport.isBlank()
+                && "All ships have been sunk. You win.".equalsIgnoreCase(fourthOpponentReport)) {
+            System.out.println("All ships have been sunk. You win!".toUpperCase());
+            Thread.sleep(1000);
+            MessagePrinter.displayYouWin();
+            return true;
+        }
+        return false;
     }
 
     private static boolean validateInputFields(String input) {

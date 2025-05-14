@@ -1,103 +1,74 @@
 package battleshipnetwork;
 
-import java.io.PrintWriter;
-
 public class MessagePrinter {
-    private static final String[] GreetingStatic = {
-            "#     # ####### #        #####   ####### #     # #######",
-            "#  #  # #       #       #     #  #     # ##   ## #",
-            "#  #  # #       #       #        #     # # # # # #",
-            "#  #  # #####   #       #        #     # #  #  # #####",
-            "#  #  # #       #       #        #     # #     # #",
-            "#  #  # #       #       #     #  #     # #     # #",
-            " ## ##  ####### #######  #####   ####### #     # #######",
-            "                                                        ",
-            "                                                        ",
-            "                ####### #######                         ",
-            "                   #    #     #                         ",
-            "                   #    #     #                         ",
-            "                   #    #     #                         ",
-            "                   #    #     #                         ",
-            "                   #    #     #                         ",
-            "                   #    #######                         ",
-            "                                                        ",
-            "                                                        ",
-            "              ####### #     # #######                   ",
-            "                 #    #     # #                         ",
-            "                 #    #     # #                         ",
-            "                 #    ####### #####                     ",
-            "                 #    #     # #                         ",
-            "                 #    #     # #                         ",
-            "                 #    #     # #######                   ",
-            "                                                        ",
-            "                                                        ",
-            " #####  #     # ### ######      #####     #    #     # #######",
-            "#     # #     #  #  #     #    #     #   # #   ##   ## #       ",
-            "#       #     #  #  #     #    #        #   #  # # # # #       ",
-            " #####  #######  #  ######     #  #### #     # #  #  # #####   ",
-            "      # #     #  #  #          #     # ####### #     # #       ",
-            "#     # #     #  #  #          #     # #     # #     # #       ",
-            " #####  #     # ### #           #####  #     # #     # ####### "
+
+    private static final String[] YOU_LOSE_STRING = {
+            "#     # ####### #     #    #       #######  #####  #######    ### ### ###",
+            " #   #  #     # #     #    #       #     # #     # #          ### ### ###",
+            "  # #   #     # #     #    #       #     # #       #          ### ### ###",
+            "   #    #     # #     #    #       #     #  #####  #####       #   #   # ",
+            "   #    #     # #     #    #       #     #       # #                     ",
+            "   #    #     # #     #    #       #     # #     # #          ### ### ###",
+            "   #    #######  #####     ####### #######  #####  #######    ### ### ###",
+
+
     };
 
-    public static void displayMiss() {
-        String[] miss = {
-                "╔╦╗ ╦ ╔═╗ ╔═╗  ┬",
-                "║║║ ║ ╚═╗ ╚═╗  │",
-                "╩ ╩ ╩ ╚═╝ ╚═╝  o"
-        };
-        printShotMessages(miss);
-    }
-
-    public static void displayHit() {
-        String[] hit = {
-                "╦ ╦ ╦ ╔╦╗  ┬",
-                "╠═╣ ║  ║   │",
-                "╩ ╩ ╩  ╩   o"
-        };
-        printShotMessages(hit);
-    }
-
-    public static void displayAlreadyHit() {
-        String[] alreadyHit = {
-                "╔═╗ ╦   ╦═╗ ╔═╗ ╔═╗╔╦╗ ╦ ╦   ╦ ╦ ╦ ╔╦╗ ┬",
-                "╠═╣ ║   ╠╦╝ ║╣  ╠═╣ ║║ ╚╦╝   ╠═╣ ║  ║  │",
-                "╩ ╩ ╩═╝ ╩╚═ ╚═╝ ╩ ╩═╩╝  ╩    ╩ ╩ ╩  ╩  o"
-        };
-        printShotMessages(alreadyHit);
-    }
+    private static final String[] YOU_WIN_STRING = {
+            "#     # ####### #     #    #     # ### #     #    ### ### ###",
+            " #   #  #     # #     #    #  #  #  #  ##    #    ### ### ###",
+            "  # #   #     # #     #    #  #  #  #  # #   #    ### ### ###",
+            "   #    #     # #     #    #  #  #  #  #  #  #     #   #   # ",
+            "   #    #     # #     #    #  #  #  #  #   # #               ",
+            "   #    #     # #     #    #  #  #  #  #    ##    ### ### ###",
+            "   #    #######  #####      ## ##  ### #     #    ### ### ###"
+    };
+    private static final String[] GREETING_STRING = {
+            "         #     # ####### #        #####   ####### #     # #######          ",
+            "         #  #  # #       #       #     #  #     # ##   ## #                ",
+            "         #  #  # #       #       #        #     # # # # # #                ",
+            "         #  #  # #####   #       #        #     # #  #  # #####            ",
+            "         #  #  # #       #       #        #     # #     # #                ",
+            "         #  #  # #       #       #     #  #     # #     # #                ",
+            "          ## ##  ####### #######  #####   ####### #     # #######           ",
+            "                                                                           ",
+            "                                                                           ",
+            "                          ####### #######                                  ",
+            "                             #    #     #                                  ",
+            "                             #    #     #                                  ",
+            "                             #    #     #                                  ",
+            "                             #    #     #                                  ",
+            "                             #    #     #                                  ",
+            "                             #    #######                                  ",
+            "                                                                           ",
+            "                                                                           ",
+            "                        ####### #     # #######                            ",
+            "                           #    #     # #                                  ",
+            "                           #    #     # #                                  ",
+            "                           #    ####### #####                              ",
+            "                           #    #     # #                                  ",
+            "                           #    #     # #                                  ",
+            "                           #    #     # #######                            ",
+            "                                                                           ",
+            "                                                                           ",
+            "######     #    ####### ####### #       #######  #####  #     # ### ###### ",
+            "#     #   # #      #       #    #       #       #     # #     #  #  #     #",
+            "#     #  #   #     #       #    #       #       #       #     #  #  #     #",
+            "######  #     #    #       #    #       #####    #####  #######  #  ###### ",
+            "#     # #######    #       #    #       #             # #     #  #  #      ",
+            "#     # #     #    #       #    #       #       #     # #     #  #  #      ",
+            "######  #     #    #       #    ####### #######  #####  #     # ### #      "
+    };
 
 
     // =========================
-    // === AUXILIARY METHODS ===
+    // ===      METHODS      ===
     // =========================
 
-    private static void makeSpace() {
-        for (int i = 0; i < 3; i++) {
-            System.out.println();
-        }
-    }
 
-    private static void printShotMessages(String[] strings) {
-        for (int s = 0; s < 3; s++) {
-            for (char c : strings[s].toCharArray()) {
-                System.out.print(c);
-                System.out.flush();
-                try {
-                    Thread.sleep(2);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            System.out.println();
-        }
-        //makeSpace();
-
-    }
-
-    public static void printGreeting() throws InterruptedException {
+    public static void displayGreeting() throws InterruptedException {
         clearScreen();
-        for (String s : GreetingStatic) {
+        for (String s : GREETING_STRING) {
             for (char c : s.toCharArray()) {
                 System.out.print(c);
                 System.out.flush();
@@ -118,6 +89,71 @@ public class MessagePrinter {
         clearScreen();
     }
 
+    public static void displayMiss() {
+        String[] miss = {
+                "╔╦╗ ╦ ╔═╗ ╔═╗  ┬",
+                "║║║ ║ ╚═╗ ╚═╗  │",
+                "╩ ╩ ╩ ╚═╝ ╚═╝  o"
+        };
+        printMessage(miss);
+    }
+
+    public static void displayHit() {
+        String[] hit = {
+                "╦ ╦ ╦ ╔╦╗  ┬",
+                "╠═╣ ║  ║   │",
+                "╩ ╩ ╩  ╩   o"
+        };
+        printMessage(hit);
+    }
+
+    public static void displayAlreadyHit() {
+        String[] alreadyHit = {
+                "╔═╗ ╦   ╦═╗ ╔═╗ ╔═╗╔╦╗ ╦ ╦   ╦ ╦ ╦ ╔╦╗ ┬",
+                "╠═╣ ║   ╠╦╝ ║╣  ╠═╣ ║║ ╚╦╝   ╠═╣ ║  ║  │",
+                "╩ ╩ ╩═╝ ╩╚═ ╚═╝ ╩ ╩═╩╝  ╩    ╩ ╩ ╩  ╩  o"
+        };
+        printMessage(alreadyHit);
+    }
+
+    public static void displayYouWin() {
+        printMessage(YOU_WIN_STRING);
+    }
+
+    public static void displayYouLose() {
+        printMessage(YOU_LOSE_STRING);
+    }
+
+    // =========================
+    // === AUXILIARY METHODS ===
+
+    // =========================
+
+    /*
+    private static void makeSpace() {
+        for (int i = 0; i < 3; i++) {
+            System.out.println();
+        }
+    }
+
+     */
+
+    private static void printMessage(String[] strings) {
+        for (String s : strings) {
+            for (char c : s.toCharArray()) {
+                System.out.print(c);
+                System.out.flush();
+                try {
+                    Thread.sleep(2);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            System.out.println();
+        }
+        //makeSpace();
+
+    }
 
     private static void clearScreen() {
         for (int i = 0; i < 40; i++) {
