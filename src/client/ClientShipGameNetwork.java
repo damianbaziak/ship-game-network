@@ -66,6 +66,7 @@ public class ClientShipGameNetwork {
     private static void runningGame(char[][] myBoard, char[][] opponentBoard, char water, char ship, char hit,
                                     char miss, Scanner scanner, BufferedReader input, PrintWriter output)
             throws IOException, InterruptedException {
+
         List<Ship> myShips = shipService.getShips();
         List<Coordinate> hitCoordinates = new ArrayList<>();
 
@@ -73,14 +74,14 @@ public class ClientShipGameNetwork {
 
         while (gameRunning) {
 
-            showEntireGameBoard(myBoard, opponentBoard, ship, hit, miss);
+            //showEntireGameBoard(myBoard, opponentBoard, ship, hit, miss);
 
             String whoseTurnIsIt = input.readLine();
 
             if ("Your turn.".equalsIgnoreCase(whoseTurnIsIt)) {
                 makeShot(myBoard, opponentBoard, scanner, input, output, ship, hit, miss);
             } else {
-                opponentShot(myBoard, myShips, hitCoordinates, scanner, input, output);
+                opponentShot(myBoard, opponentBoard, myShips, hitCoordinates, scanner, input, output, ship, hit, miss);
             }
 
 
@@ -97,154 +98,164 @@ public class ClientShipGameNetwork {
     }
 
     private static void opponentShot(
-            char[][] myBoard, List<Ship> myShips, List<Coordinate> hitCoordinates, Scanner scanner,
-            BufferedReader input, PrintWriter output) throws IOException, InterruptedException {
-        System.out.println("Opponent is firing. Waiting for their shot...");
-        String opponentShot = input.readLine();
-        System.out.println("Opponent has fired at " + opponentShot);
-        Thread.sleep(1000);
+            char[][] myBoard, char[][] opponentBoard, List<Ship> myShips, List<Coordinate> hitCoordinates,
+            Scanner scanner, BufferedReader input, PrintWriter output, char ship, char hit, char miss)
+            throws IOException, InterruptedException {
 
-        String rowNumber = opponentShot.substring(1);
-        int row = Integer.parseInt(rowNumber) - 1;
-        int col = Integer.parseInt(String.valueOf(Character.toUpperCase(opponentShot.charAt(0)) - 'A'));
+        boolean opponentHitYouWait = true;
+        
+        while (opponentHitYouWait) {
+            showEntireGameBoard(myBoard, opponentBoard, ship, hit, miss);
 
-        Coordinate opponentShotCoordinate = new Coordinate(row, col);
-
-        System.out.println("Checking if shot has already been fired at: " + opponentShotCoordinate);
-        System.out.println("Current hit coordinates: " + hitCoordinates);
-
-        if (hitCoordinates.contains(opponentShotCoordinate)) {
-            System.out.println("The opponent shot at a location that was already fired upon.".toUpperCase());
-            output.println("This shot has been already fired.");
-            output.println("");
-            output.println("");
+            System.out.println("Opponent is firing. Waiting for their shot...");
+            String opponentShot = input.readLine();
+            System.out.println("Opponent has fired at " + opponentShot);
             Thread.sleep(1000);
-        } else {
-            hitCoordinates.add(opponentShotCoordinate);
 
-            Optional<Ship> hitShip = myShips.stream()
-                    .filter(s -> s.getCoordinates().contains(opponentShotCoordinate))
-                    .findFirst();
+            String rowNumber = opponentShot.substring(1);
+            int row = Integer.parseInt(rowNumber) - 1;
+            int col = Integer.parseInt(String.valueOf(Character.toUpperCase(opponentShot.charAt(0)) - 'A'));
 
-            if (hitShip.isPresent()) {
-                Ship myShip = hitShip.get();
-                myShip.getCoordinates().remove(opponentShotCoordinate);
+            Coordinate opponentShotCoordinate = new Coordinate(row, col);
 
-                myBoard[row][col] = hit;
+            System.out.println("Checking if shot has already been fired at: " + opponentShotCoordinate);
+            System.out.println("Current hit coordinates: " + hitCoordinates);
 
-                if (myShip.getSize() == 1) {
-                    System.out.println("Opponent hit your single-masted ship!".toUpperCase());
-                    System.out.println();
-                    output.println("You hit a single-masted ship.");
-                    Thread.sleep(1000);
-
-                    if (myShip.getCoordinates().isEmpty()) {
-                        System.out.println("Opponent sunk one of your Single-Masted Ships!".toUpperCase());
-                        System.out.println();
-                        output.println("You've sunk a single-masted ship.");
-                        shipService.removeShip(myShip);
-                        Thread.sleep(1000);
-
-                    } else output.println("");
-
-                    boolean allOneMastedShipsSunk = myShips.stream()
-                            .filter(s -> s.getSize() == 1)
-                            .allMatch(s -> s.getCoordinates().isEmpty());
-
-                    if (allOneMastedShipsSunk) {
-                        System.out.println("Opponent has sunk all of your Single-Masted Ships!".toUpperCase());
-                        output.println("All Single-Masted Ships have been sunk.");
-                        Thread.sleep(1000);
-
-                    } else output.println("");
-
-                } else if (myShip.getSize() == 2) {
-                    System.out.println("Opponent hit your Two-Masted Ship!".toUpperCase());
-                    System.out.println();
-                    output.println("You hit a two-masted ship.");
-                    Thread.sleep(1000);
-
-                    if (myShip.getCoordinates().isEmpty()) {
-                        System.out.println("Opponent sunk one of your Two-Masted Ships!".toUpperCase());
-                        System.out.println();
-                        output.println("You sunk a Two-Masted Ship.");
-                        shipService.removeShip(myShip);
-                        Thread.sleep(1000);
-
-                    } else output.println("");
-
-                    boolean allTwoMastedShipsSunk = myShips.stream()
-                            .filter(s -> s.getSize() == 2)
-                            .allMatch(s -> s.getCoordinates().isEmpty());
-
-                    if (allTwoMastedShipsSunk) {
-                        System.out.println("Opponent has sunk all of your Two-Masted Ships!".toUpperCase());
-                        output.println("All Two-Masted Ships have been sunk.");
-                        Thread.sleep(1000);
-
-                    } else output.println("");
-
-
-                } else if (myShip.getSize() == 3) {
-                    System.out.println("Opponent hit your three-masted ship!".toUpperCase());
-                    System.out.println();
-                    output.println("You've hit a three-masted ship.");
-                    Thread.sleep(1000);
-
-                    if (myShip.getCoordinates().isEmpty()) {
-                        System.out.println("Opponent sunk one of your Three-Masted Ships!".toUpperCase());
-                        System.out.println();
-                        output.println("You've sunk a Three-Masted Ship.");
-                        shipService.removeShip(myShip);
-                        Thread.sleep(1000);
-
-                    } else output.println("");
-
-                    boolean allThreeMastedShipsSunk = myShips.stream()
-                            .filter(s -> s.getSize() == 3)
-                            .allMatch(s -> s.getCoordinates().isEmpty());
-
-                    if (allThreeMastedShipsSunk) {
-                        System.out.println("Opponent has sunk all of your Three-Masted Ships!".toUpperCase());
-                        output.println("All Three-Masted Ships have been sunk.");
-                        Thread.sleep(1000);
-
-                    } else output.println();
-
-                } else if (hitShip.get().getSize() == 4) {
-
-                    System.out.println("Opponent hit your four-masted ship!".toUpperCase());
-                    System.out.println();
-                    output.println("You hit a four-masted ship.");
-                    Thread.sleep(1000);
-
-                    if (myShip.getCoordinates().isEmpty()) {
-                        System.out.println("Opponent sunk your Four-Masted Ship!".toUpperCase());
-                        System.out.println();
-                        output.println("You've sunk a Four-Masted Ship.");
-                        shipService.removeShip(myShip);
-                        Thread.sleep(1000);
-
-                    } else output.println("");
-
-                    boolean allFourMastedShipsSunk = myShips.stream()
-                            .filter(s -> s.getSize() == 4)
-                            .allMatch(s -> s.getCoordinates().isEmpty());
-
-                    if (allFourMastedShipsSunk) {
-                        System.out.println("Opponent has sunk all of your Three-Masted Ships!".toUpperCase());
-                        output.println("All Three-Masted Ships have been sunk.");
-                        Thread.sleep(1000);
-
-                    } else output.println("");
-                }
-
-            } else {
-                System.out.println("Opponent missed!".toUpperCase());
-                output.println("Missed.");
+            if (hitCoordinates.contains(opponentShotCoordinate)) {
+                System.out.println("The opponent shot at a location that was already fired upon.".toUpperCase());
+                output.println("This shot has been already fired.");
                 output.println("");
                 output.println("");
                 Thread.sleep(1000);
+                opponentHitYouWait = false;
+            } else {
+                hitCoordinates.add(opponentShotCoordinate);
+
+                Optional<Ship> hitShip = myShips.stream()
+                        .filter(s -> s.getCoordinates().contains(opponentShotCoordinate))
+                        .findFirst();
+
+                if (hitShip.isPresent()) {
+                    Ship myShip = hitShip.get();
+                    myShip.getCoordinates().remove(opponentShotCoordinate);
+
+                    myBoard[row][col] = hit;
+
+                    if (myShip.getSize() == 1) {
+                        System.out.println("Opponent hit your single-masted ship!".toUpperCase());
+                        System.out.println();
+                        output.println("You hit a single-masted ship.");
+                        Thread.sleep(1000);
+
+                        if (myShip.getCoordinates().isEmpty()) {
+                            System.out.println("Opponent sunk one of your Single-Masted Ships!".toUpperCase());
+                            System.out.println();
+                            output.println("You've sunk a single-masted ship.");
+                            shipService.removeShip(myShip);
+                            Thread.sleep(1000);
+
+                        } else output.println("");
+
+                        boolean allOneMastedShipsSunk = myShips.stream()
+                                .filter(s -> s.getSize() == 1)
+                                .allMatch(s -> s.getCoordinates().isEmpty());
+
+                        if (allOneMastedShipsSunk) {
+                            System.out.println("Opponent has sunk all of your Single-Masted Ships!".toUpperCase());
+                            output.println("All Single-Masted Ships have been sunk.");
+                            Thread.sleep(1000);
+
+                        } else output.println("");
+
+                    } else if (myShip.getSize() == 2) {
+                        System.out.println("Opponent hit your Two-Masted Ship!".toUpperCase());
+                        System.out.println();
+                        output.println("You hit a two-masted ship.");
+                        Thread.sleep(1000);
+
+                        if (myShip.getCoordinates().isEmpty()) {
+                            System.out.println("Opponent sunk one of your Two-Masted Ships!".toUpperCase());
+                            System.out.println();
+                            output.println("You sunk a Two-Masted Ship.");
+                            shipService.removeShip(myShip);
+                            Thread.sleep(1000);
+
+                        } else output.println("");
+
+                        boolean allTwoMastedShipsSunk = myShips.stream()
+                                .filter(s -> s.getSize() == 2)
+                                .allMatch(s -> s.getCoordinates().isEmpty());
+
+                        if (allTwoMastedShipsSunk) {
+                            System.out.println("Opponent has sunk all of your Two-Masted Ships!".toUpperCase());
+                            output.println("All Two-Masted Ships have been sunk.");
+                            Thread.sleep(1000);
+
+                        } else output.println("");
+
+
+                    } else if (myShip.getSize() == 3) {
+                        System.out.println("Opponent hit your three-masted ship!".toUpperCase());
+                        System.out.println();
+                        output.println("You've hit a three-masted ship.");
+                        Thread.sleep(1000);
+
+                        if (myShip.getCoordinates().isEmpty()) {
+                            System.out.println("Opponent sunk one of your Three-Masted Ships!".toUpperCase());
+                            System.out.println();
+                            output.println("You've sunk a Three-Masted Ship.");
+                            shipService.removeShip(myShip);
+                            Thread.sleep(1000);
+
+                        } else output.println("");
+
+                        boolean allThreeMastedShipsSunk = myShips.stream()
+                                .filter(s -> s.getSize() == 3)
+                                .allMatch(s -> s.getCoordinates().isEmpty());
+
+                        if (allThreeMastedShipsSunk) {
+                            System.out.println("Opponent has sunk all of your Three-Masted Ships!".toUpperCase());
+                            output.println("All Three-Masted Ships have been sunk.");
+                            Thread.sleep(1000);
+
+                        } else output.println();
+
+                    } else if (hitShip.get().getSize() == 4) {
+
+                        System.out.println("Opponent hit your four-masted ship!".toUpperCase());
+                        System.out.println();
+                        output.println("You hit a four-masted ship.");
+                        Thread.sleep(1000);
+
+                        if (myShip.getCoordinates().isEmpty()) {
+                            System.out.println("Opponent sunk your Four-Masted Ship!".toUpperCase());
+                            System.out.println();
+                            output.println("You've sunk a Four-Masted Ship.");
+                            shipService.removeShip(myShip);
+                            Thread.sleep(1000);
+
+                        } else output.println("");
+
+                        boolean allFourMastedShipsSunk = myShips.stream()
+                                .filter(s -> s.getSize() == 4)
+                                .allMatch(s -> s.getCoordinates().isEmpty());
+
+                        if (allFourMastedShipsSunk) {
+                            System.out.println("Opponent has sunk all of your Three-Masted Ships!".toUpperCase());
+                            output.println("All Three-Masted Ships have been sunk.");
+                            Thread.sleep(1000);
+
+                        } else output.println("");
+                    }
+
+                } else {
+                    System.out.println("Opponent missed!".toUpperCase());
+                    output.println("Missed.");
+                    output.println("");
+                    output.println("");
+                    Thread.sleep(1000);
+                    opponentHitYouWait = false;
+                }
             }
         }
     }
@@ -1571,7 +1582,7 @@ public class ClientShipGameNetwork {
 
 
     private static void displayMyBoard(char[][] myBoard, char ship) {
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             System.out.println();
         }
         System.out.println("            MY BOARD");
