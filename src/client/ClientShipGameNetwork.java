@@ -51,7 +51,7 @@ public class ClientShipGameNetwork {
             placeShips(myBoard, water, ship, scanner, output);
 
             String serverMessageToWarBeginning = input.readLine();
-            System.out.println("Message from the server: " + serverMessageToWarBeginning);
+            // System.out.println("Message from the server: " + serverMessageToWarBeginning);
 
             if ("The war has begun.".equalsIgnoreCase(serverMessageToWarBeginning)) {
                 runningGame(myBoard, opponentBoard, water, ship, hit, miss, scanner, input, output);
@@ -80,12 +80,10 @@ public class ClientShipGameNetwork {
 
             if ("Your turn.".equalsIgnoreCase(whoseTurnIsIt)) {
                 makeShot(myBoard, opponentBoard, scanner, input, output, ship, hit, miss);
+            } else if ("Game over".equalsIgnoreCase(whoseTurnIsIt)) {
+                gameRunning = false;
             } else {
                 opponentShot(myBoard, opponentBoard, myShips, hitCoordinates, scanner, input, output, ship, hit, miss);
-            }
-
-            if (whoseTurnIsIt.equalsIgnoreCase("Game over")) {
-                gameRunning = false;
             }
 
         }
@@ -310,7 +308,7 @@ public class ClientShipGameNetwork {
             showEntireGameBoard(myBoard, opponentBoard, ship, hit, miss);
 
             System.out.println("Your turn! Enter the target coordinates: ");
-            System.out.println(shipService.getShips());
+            // System.out.println(shipService.getShips());
             String myShot = scanner.nextLine();
 
             boolean isValidInput = validateInputFields(myShot);
@@ -347,10 +345,6 @@ public class ClientShipGameNetwork {
                     System.out.println();
                     System.out.println("You hit a single-masted ship!".toUpperCase());
                     Thread.sleep(1000);
-
-                    System.out.println();
-                    System.out.println(secondOpponentReport);
-                    System.out.println();
 
                     if (!secondOpponentReport.isBlank()
                             && "You've sunk a Single-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
@@ -506,13 +500,6 @@ public class ClientShipGameNetwork {
         return true;
     }
 
-    private static void showEntireGameBoard(char[][] myBoard, char[][] opponentBoard, char ship, char hit,
-                                            char miss) {
-        displayMyBoard(myBoard, ship);
-        displayOpponentBoard(opponentBoard);
-
-    }
-
     private static char[][] placeShips(
             char[][] gameBoard, char water, char ship, Scanner scanner, PrintWriter output) {
 
@@ -632,7 +619,10 @@ public class ClientShipGameNetwork {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        System.out.println();
         System.out.println("All Single-Masted ships have been placed!".toUpperCase());
+        System.out.println();
+        System.out.println("Waiting for the opponent...");
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -650,7 +640,6 @@ public class ClientShipGameNetwork {
         System.out.println("Place your three Two-Masted Ships");
 
         while (placedTwoMastedShips < twoMastedShipNumber) {
-            System.out.println();
             displayMyBoard(gameBoard, ship);
             System.out.printf("Enter first coordinate for the %d of 3 Two-Masted Ship (e.g. A5):%n",
                     placedTwoMastedShips + 1);
@@ -852,6 +841,7 @@ public class ClientShipGameNetwork {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        System.out.println();
         System.out.println("All Two-Masted ships have been placed!".toUpperCase());
         try {
             Thread.sleep(1000);
@@ -870,7 +860,6 @@ public class ClientShipGameNetwork {
         System.out.println("Place your three Three-Masted Ships");
 
         while (placedThreeMastedShips < threeMastedShipNumber) {
-            System.out.println();
             displayMyBoard(gameBoard, ship);
             System.out.printf("Enter first coordinate for the %d of 2 Three-Masted Ship (e.g. A5):%n",
                     placedThreeMastedShips + 1);
@@ -1171,6 +1160,7 @@ public class ClientShipGameNetwork {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        System.out.println();
         System.out.println("All Three-Masted ships have been placed!".toUpperCase());
         try {
             Thread.sleep(1000);
@@ -1189,7 +1179,6 @@ public class ClientShipGameNetwork {
         System.out.println("Place your one Four-Masted Ship");
 
         while (placedFourMastedShips < fourMastedShipNumber) {
-            System.out.println();
             displayMyBoard(gameBoard, ship);
             System.out.printf("Enter first coordinate for the %d of 1 Four-Masted Ship (e.g. A5):%n",
                     placedFourMastedShips + 1);
@@ -1594,7 +1583,10 @@ public class ClientShipGameNetwork {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        System.out.println();
         System.out.println("ALL SHIPS HAVE BEEN PLACED!".toUpperCase());
+        displayMyBoard(gameBoard, ship);
+
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -1704,10 +1696,58 @@ public class ClientShipGameNetwork {
                 System.out.print(position + "  ");
             }
         }
+        System.out.println();
+        System.out.println();
+        System.out.println();
+    }
 
-        // ***
+    private static void showEntireGameBoard(char[][] myBoard, char[][] opponentBoard, char ship, char hit,
+                                            char miss) {
+        // displayMyBoard(myBoard, ship);
+        // displayOpponentBoard(opponentBoard);
+
+        for (int i = 0; i < 2; i++) {
+            System.out.println();
+        }
+        System.out.println("            MY BOARD                            OPPONENT BOARD          ");
         System.out.println();
+
+        // Ten kod wyswietla nazwy kolumn
+        int myBoardLength = myBoard.length;
+        int opponentBoardLength = opponentBoard.length;
+        char[] rowName = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', ' ', ' ', ' ', ' ', ' ', ' ',
+                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J' };
+        System.out.print("   ");
+        for (int i = 0; i < myBoardLength + 6 + opponentBoardLength; i++) {
+            System.out.print(rowName[i] + "  ");
+        }
         System.out.println();
+
+        // Ten kod wyswietla wszystkie wiersze bez dziesiatego
+        for (int row = 0; row < 9; row++) {
+            System.out.print(" ");
+            System.out.print(row + 1 + " ");
+            for (int col = 0; col < gameBoardLength; col++) {
+                char position = myBoard[row][col];
+                char position2 = opponentBoard[row][col];
+                if (position == ship) {
+                    System.out.print(ship + "  ");
+                } else {
+                    System.out.print(position + "  ");
+                }
+            }
+            System.out.println();
+        }
+
+
+
+
+
+
+
+
+
+
     }
 
     /*
