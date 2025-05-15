@@ -221,7 +221,7 @@ public class ClientShipGameNetwork {
                             output.println("All Three-Masted Ships have been sunk.");
                             Thread.sleep(1000);
 
-                        } else output.println();
+                        } else output.println("");
 
                         if (areAllShipsSunk(myShips, output)) {
                             opponentHitYouWait = false;
@@ -266,6 +266,7 @@ public class ClientShipGameNetwork {
                 } else {
                     System.out.println("Opponent missed!".toUpperCase());
                     output.println("Missed.");
+                    output.println("");
                     output.println("");
                     output.println("");
                     Thread.sleep(1000);
