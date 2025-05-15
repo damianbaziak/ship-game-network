@@ -17,6 +17,8 @@ public class BattleshipNetwork {
     private static final String SHIPS_PLACED= "Ships placed.";
     private static final String THE_WAR_HAS_BEGUN= "The war has begun.";
     private static final String YOU_WIN = "You win";
+    private static final String PLAYER_ONE_WIN = "Player 1 win";
+    private static final String PLAYER_TWO_WIN = "Player 2 win";
 
     public static void main(String[] args) throws IOException {
 
@@ -77,10 +79,17 @@ public class BattleshipNetwork {
                 output1.println(playerTwosThirdReport);
                 output1.println(playerTwosFourthReport);
 
+                String playerTwosTurn = "";
+
                 if (playerTwosReport.contains(ALREADY_FIRED) || playerTwosReport.contains(MISSED)) {
                     output2.println(YOU_TURN);
                     output1.println(PLEASE_WAIT);
-                    playerTwoShooting(input2, input1, output2, output1);
+                    playerTwosTurn = playerTwoShooting(input2, input1, output2, output1);
+                }
+
+                if (playerTwosReport.equals(YOU_WIN) || (playerTwosTurn != null &&
+                        playerTwosTurn.equals(PLAYER_TWO_WIN))) {
+                    gameRunning = false;
                 }
             }
 
@@ -91,7 +100,7 @@ public class BattleshipNetwork {
     }
 
 
-    private static void playerTwoShooting(
+    private static String playerTwoShooting(
             BufferedReader input2, BufferedReader input1, PrintWriter output2, PrintWriter output1) throws
             IOException {
         boolean playerTwoIsShooting = true;
@@ -113,7 +122,12 @@ public class BattleshipNetwork {
                 output2.println(PLEASE_WAIT);
                 playerTwoIsShooting = false;
             }
+
+            if (playerOnesReport.contains(YOU_WIN)) {
+                return PLAYER_TWO_WIN;
+            }
         }
+        return null;
     }
 
     private static boolean isReady(String message) {
