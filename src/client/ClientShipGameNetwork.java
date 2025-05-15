@@ -139,6 +139,7 @@ public class ClientShipGameNetwork {
                         output.println("You hit a single-masted ship.");
                         Thread.sleep(1000);
 
+
                         if (myShip.getCoordinates().isEmpty()) {
                             System.out.println("Opponent sunk one of your Single-Masted Ships!".toUpperCase());
                             System.out.println();
@@ -334,9 +335,13 @@ public class ClientShipGameNetwork {
                     System.out.println();
                     Thread.sleep(1000);
 
+                    System.out.println();
+                    System.out.println(secondOpponentReport);
+                    System.out.println();
+
                     if (!secondOpponentReport.isBlank()
-                            && "You‘ve sunk a Single-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
-                        System.out.println("You‘ve sunk a Single-Masted Ship!".toUpperCase());
+                            && "You've sunk a Single-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
+                        System.out.println("You've sunk a Single-Masted Ship!".toUpperCase());
                         System.out.println();
                         Thread.sleep(1000);
                     }
@@ -357,8 +362,8 @@ public class ClientShipGameNetwork {
                     Thread.sleep(1000);
 
                     if (!secondOpponentReport.isBlank()
-                            && "You‘ve sunk a Two-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
-                        System.out.println("You‘ve sunk a Two-Masted Ship!".toUpperCase());
+                            && "You've sunk a Two-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
+                        System.out.println("You've sunk a Two-Masted Ship!".toUpperCase());
                         System.out.println();
                     }
 
@@ -379,8 +384,8 @@ public class ClientShipGameNetwork {
                     Thread.sleep(1000);
 
                     if (!secondOpponentReport.isBlank()
-                            && "You‘ve sunk a Three-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
-                        System.out.println("You‘ve sunk a Three-Masted Ship!".toUpperCase());
+                            && "You've sunk a Three-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
+                        System.out.println("You've sunk a Three-Masted Ship!".toUpperCase());
                         System.out.println();
                     }
 
@@ -401,8 +406,8 @@ public class ClientShipGameNetwork {
                     Thread.sleep(1000);
 
                     if (!secondOpponentReport.isBlank()
-                            && "You‘ve sunk a Four-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
-                        System.out.println("You‘ve sunk a Four-Masted Ship!".toUpperCase());
+                            && "You've sunk a Four-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
+                        System.out.println("You've sunk a Four-Masted Ship!".toUpperCase());
                         System.out.println();
                     }
 
