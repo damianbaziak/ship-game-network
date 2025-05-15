@@ -3,7 +3,6 @@ package client.ship;
 import client.ship.service.Coordinate;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ThreeMastedShip extends Ship {
 
@@ -16,13 +15,15 @@ public class ThreeMastedShip extends Ship {
     }
 
     @Override
-    public List<Coordinate> getCoordinates() {
-        return super.getCoordinates();
+    public int getSize() {
+        return 3;
     }
 
     @Override
-    public int getSize() {
-        return 0;
+    public String toString() {
+        return "ThreeMastedShip{" +
+                "coordinates=" + coordinates +
+                '}';
     }
 }
 
