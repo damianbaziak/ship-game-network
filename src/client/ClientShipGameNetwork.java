@@ -252,7 +252,7 @@ public class ClientShipGameNetwork {
 
                         if (allFourMastedShipsSunk) {
                             System.out.println("Opponent has sunk all of your Three-Masted Ships!".toUpperCase());
-                            output.println("All Three-Masted Ships have been sunk.");
+                            output.println("All Four-Masted Ships have been sunk.");
                             Thread.sleep(1000);
 
                         } else output.println("");
@@ -368,7 +368,7 @@ public class ClientShipGameNetwork {
                     }
 
                     if (!thirdOpponentReport.isBlank()
-                            && "All Single-Masted Ships have been sunk.".equalsIgnoreCase(thirdOpponentReport)) {
+                            && "All Two-Masted Ships have been sunk.".equalsIgnoreCase(thirdOpponentReport)) {
                         System.out.println("All Single-Masted Ships have been sunk!".toUpperCase());
                         Thread.sleep(1000);
                     }
