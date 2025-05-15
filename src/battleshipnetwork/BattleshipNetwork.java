@@ -17,8 +17,9 @@ public class BattleshipNetwork {
     private static final String SHIPS_PLACED= "Ships placed.";
     private static final String THE_WAR_HAS_BEGUN= "The war has begun.";
     private static final String YOU_WIN = "You win";
-    private static final String PLAYER_ONE_WIN = "Player 1 win";
+    // private static final String PLAYER_ONE_WIN = "Player 1 win";
     private static final String PLAYER_TWO_WIN = "Player 2 win";
+    private static final String GAME_OVER = "Game over";
 
     public static void main(String[] args) throws IOException {
 
@@ -92,6 +93,8 @@ public class BattleshipNetwork {
                     gameRunning = false;
                 }
             }
+            output1.println(GAME_OVER);
+            output2.println(GAME_OVER);
 
 
         } catch (IOException | InterruptedException e) {

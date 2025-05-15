@@ -117,26 +117,26 @@ public class MessagePrinter {
     }
 
     public static void displayYouWin() {
+        makeSpace();
         printMessage(YOU_WIN_STRING);
     }
 
     public static void displayYouLose() {
+        makeSpace();
         printMessage(YOU_LOSE_STRING);
     }
 
+
     // =========================
     // === AUXILIARY METHODS ===
-
     // =========================
 
-    /*
+
     private static void makeSpace() {
         for (int i = 0; i < 3; i++) {
             System.out.println();
         }
     }
-
-     */
 
     private static void printMessage(String[] strings) {
         for (String s : strings) {
