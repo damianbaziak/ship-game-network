@@ -1184,9 +1184,9 @@ public class ClientShipGameNetwork {
             boolean isValidSecondInput = validateInputFields(secondInput);
             if (!isValidSecondInput) continue;
 
-            char secondColChar = firstInput.charAt(0);
+            char secondColChar = secondInput.charAt(0);
 
-            String secondRowNumber = firstInput.substring(1);
+            String secondRowNumber = secondInput.substring(1);
 
             int secondCol = Character.toUpperCase(secondColChar) - 'A';
             int secondRow = Integer.parseInt(secondRowNumber) - 1;
