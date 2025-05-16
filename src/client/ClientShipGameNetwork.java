@@ -918,14 +918,14 @@ public class ClientShipGameNetwork {
             boolean isValidSecondInput = validateInputFields(secondInput);
             if (!isValidSecondInput) continue;
 
-            char secondColChar = firstInput.charAt(0);
+            char secondColChar = secondInput.charAt(0);
 
-            String secondRowNumber = firstInput.substring(1);
+            String secondRowNumber = secondInput.substring(1);
 
             int secondCol = Character.toUpperCase(secondColChar) - 'A';
             int secondRow = Integer.parseInt(secondRowNumber) - 1;
 
-            // Sprawdzenie czy drugi maszt lezy lezy dokladnie obok pierwszego
+            // Sprawdzenie czy drugi maszt lezy dokladnie obok pierwszego
             boolean isTheSecondAdjacent =
                     (secondRow == row && Math.abs(secondCol - col) == 1) ||
                             (secondCol == col && Math.abs(secondRow - row) == 1);
