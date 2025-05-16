@@ -92,8 +92,9 @@ public class BattleshipNetwork {
                     gameRunning = false;
                 }
             }
-            output1.println(GAME_OVER);
+            Thread.sleep(2000);
             output2.println(GAME_OVER);
+            output1.println(GAME_OVER);
 
 
         } catch (IOException | InterruptedException e) {

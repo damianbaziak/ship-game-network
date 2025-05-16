@@ -371,6 +371,7 @@ public class ClientShipGameNetwork {
                             && "You've sunk a Two-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
                         System.out.println();
                         System.out.println("You've sunk a Two-Masted Ship!".toUpperCase());
+                        Thread.sleep(1000);
                     }
 
                     if (!thirdOpponentReport.isBlank()
@@ -394,6 +395,7 @@ public class ClientShipGameNetwork {
                             && "You've sunk a Three-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
                         System.out.println();
                         System.out.println("You've sunk a Three-Masted Ship!".toUpperCase());
+                        Thread.sleep(1000);
                     }
 
                     if (!thirdOpponentReport.isBlank()
@@ -417,6 +419,7 @@ public class ClientShipGameNetwork {
                             && "You've sunk a Four-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
                         System.out.println();
                         System.out.println("You've sunk a Four-Masted Ship!".toUpperCase());
+                        Thread.sleep(1000);
                     }
 
                     if (!thirdOpponentReport.isBlank()
