@@ -13,7 +13,6 @@ public class MessagePrinter {
 
 
     };
-
     private static final String[] YOU_WIN_STRING = {
             "#     # ####### #     #    #     # ### #     #    ### ### ###",
             " #   #  #     # #     #    #  #  #  #  ##    #    ### ### ###",

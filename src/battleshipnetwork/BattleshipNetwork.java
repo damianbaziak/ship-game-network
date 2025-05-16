@@ -14,8 +14,8 @@ public class BattleshipNetwork {
     private static final String PLEASE_WAIT = "Please wait.";
     private static final String ALREADY_FIRED = "already fired";
     private static final String MISSED = "Missed.";
-    private static final String SHIPS_PLACED= "Ships placed.";
-    private static final String THE_WAR_HAS_BEGUN= "The war has begun.";
+    private static final String SHIPS_PLACED = "Ships placed.";
+    private static final String THE_WAR_HAS_BEGUN = "The war has begun.";
     private static final String YOU_WIN = "You win";
     // private static final String PLAYER_ONE_WIN = "Player 1 win";
     private static final String PLAYER_TWO_WIN = "Player 2 win";
@@ -101,7 +101,6 @@ public class BattleshipNetwork {
             throw new RuntimeException(e);
         }
     }
-
 
     private static String playerTwoShooting(
             BufferedReader input2, BufferedReader input1, PrintWriter output2, PrintWriter output1) throws

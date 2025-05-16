@@ -48,8 +48,6 @@ public class ClientShipGameNetwork {
             char[][] myBoard = createBoard();
             char[][] opponentBoard = createBoard();
 
-            showEntireGameBoard(myBoard, opponentBoard, ship, hit, miss);
-
             placeShips(myBoard, water, ship, scanner, output);
 
             String serverMessageToWarBeginning = input.readLine();
@@ -80,7 +78,7 @@ public class ClientShipGameNetwork {
 
             if ("Your turn.".equalsIgnoreCase(whoseTurnIsIt)) {
                 makeShot(myBoard, opponentBoard, scanner, input, output, ship, hit, miss);
-            } else if ("Game over".equalsIgnoreCase(whoseTurnIsIt)) {
+            } else if ("Game over.".equalsIgnoreCase(whoseTurnIsIt)) {
                 gameRunning = false;
             } else {
                 opponentShot(myBoard, opponentBoard, myShips, hitCoordinates, scanner, input, output, ship, hit, miss);
@@ -97,7 +95,7 @@ public class ClientShipGameNetwork {
         boolean opponentHitYouWait = true;
 
         while (opponentHitYouWait) {
-            showEntireGameBoard(myBoard, opponentBoard, ship, hit, miss);
+            displayEntireGameBoard(myBoard, opponentBoard, ship, hit, miss);
 
             System.out.println("Opponent is firing. Waiting for their shot...");
             String opponentShot = input.readLine();
@@ -116,7 +114,7 @@ public class ClientShipGameNetwork {
 
             if (hitCoordinates.contains(opponentShotCoordinate)) {
                 System.out.println();
-                System.out.println("The opponent shot at a location that was already fired upon.".toUpperCase());
+                System.out.println("The opponent shot at a location that was already fired upon!".toUpperCase());
                 output.println("This shot has been already fired.");
                 output.println("");
                 output.println("");
@@ -258,7 +256,7 @@ public class ClientShipGameNetwork {
 
                         if (allFourMastedShipsSunk) {
                             System.out.println();
-                            System.out.println("Opponent has sunk all of your Three-Masted Ships!".toUpperCase());
+                            System.out.println("Opponent has sunk all of your Four-Masted Ships!".toUpperCase());
                             output.println("All Four-Masted Ships have been sunk.");
                             Thread.sleep(1000);
 
@@ -305,7 +303,7 @@ public class ClientShipGameNetwork {
         boolean youHitYouTurn = true;
 
         while (youHitYouTurn) {
-            showEntireGameBoard(myBoard, opponentBoard, ship, hit, miss);
+            displayEntireGameBoard(myBoard, opponentBoard, ship, hit, miss);
 
             System.out.println("Your turn! Enter the target coordinates: ");
             // System.out.println(shipService.getShips());
@@ -782,49 +780,6 @@ public class ClientShipGameNetwork {
             int secondCol = Character.toUpperCase(secondColChar) - 'A';
             int secondRow = Integer.parseInt(secondRowNumber) - 1;
 
-            /*
-
-            // Walidacja wejścia
-            if (secondInput.length() < 2 || secondInput.length() > 3) {
-                System.out.println("Invalid format. Enter e.g. A5 or B10");
-                continue;
-            }
-
-            char secondColChar = secondInput.charAt(0);
-
-            String secondRowNumber = secondInput.substring(1);
-            char firstCharOfSecondRowNumber = secondRowNumber.charAt(0);
-
-            if (!Character.isLetter(secondColChar)) {
-                System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
-                continue;
-            }
-
-            if (!Character.isDigit(firstCharOfSecondRowNumber)) {
-                System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
-                continue;
-            }
-
-            if ((secondInput.length() == 3) && !(secondRowNumber.equals("10"))) {
-                System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
-                continue;
-            }
-
-            int secondRow = Integer.parseInt(secondRowNumber) - 1;
-            int secondCol = Character.toUpperCase(secondColChar) - 'A';
-
-            // Sprawdzenie czy drugi maszt lezy lezy dokladnie obok pierwszego
-            boolean isAdjacent =
-                    (secondRow == row && Math.abs(secondCol - col) == 1) ||
-                            (secondCol == col && Math.abs(secondRow - row) == 1);
-
-            if (!isAdjacent) {
-                System.out.println("Second mast must be directly next to the first one (vertically or horizontally)!"
-                        .toUpperCase());
-                continue;
-            }
-
-             */
 
             // Pozostala czesc walidacji
             char possiblePlacementForSecondMast = gameBoard[secondRow][secondCol];
@@ -919,38 +874,16 @@ public class ClientShipGameNetwork {
                     placedThreeMastedShips + 1);
             String firstInput = scanner.nextLine();
 
-            if (firstInput.equals("show")) {
-                System.out.println(shipService.getShips());
-            }
 
-            // Walidacja wejścia
-            if (firstInput.length() < 2 || firstInput.length() > 3) {
-                System.out.println("Invalid format. Enter e.g. A5 or B10");
-                continue;
-            }
+            boolean isValidInput = validateInputFields(firstInput);
+            if (!isValidInput) continue;
 
             char colChar = firstInput.charAt(0);
 
             String rowNumber = firstInput.substring(1);
-            char firstCharOfRowNumber = rowNumber.charAt(0);
 
-            if (!Character.isLetter(colChar)) {
-                System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
-                continue;
-            }
-
-            if (!Character.isDigit(firstCharOfRowNumber)) {
-                System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
-                continue;
-            }
-
-            if ((firstInput.length() == 3) && !(rowNumber.equals("10"))) {
-                System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
-                continue;
-            }
-
-            int row = Integer.parseInt(rowNumber) - 1;
             int col = Character.toUpperCase(colChar) - 'A';
+            int row = Integer.parseInt(rowNumber) - 1;
 
             char possiblePlacement = gameBoard[row][col];
 
@@ -1009,41 +942,22 @@ public class ClientShipGameNetwork {
                     placedThreeMastedShips + 1);
             String secondInput = scanner.nextLine();
 
-            // Walidacja wejścia
-            if (secondInput.length() < 2 || secondInput.length() > 3) {
-                System.out.println("Invalid format. Enter e.g. A5 or B10");
-                continue;
-            }
+            boolean isValidSecondInput = validateInputFields(secondInput);
+            if (!isValidSecondInput) continue;
 
-            char secondColChar = secondInput.charAt(0);
+            char secondColChar = firstInput.charAt(0);
 
-            String secondRowNumber = secondInput.substring(1);
-            char firstCharOfSecondRowNumber = secondRowNumber.charAt(0);
+            String secondRowNumber = firstInput.substring(1);
 
-            if (!Character.isLetter(secondColChar)) {
-                System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
-                continue;
-            }
-
-            if (!Character.isDigit(firstCharOfSecondRowNumber)) {
-                System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
-                continue;
-            }
-
-            if ((secondInput.length() == 3) && !(secondRowNumber.equals("10"))) {
-                System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
-                continue;
-            }
-
-            int secondRow = Integer.parseInt(secondRowNumber) - 1;
             int secondCol = Character.toUpperCase(secondColChar) - 'A';
+            int secondRow = Integer.parseInt(secondRowNumber) - 1;
 
             // Sprawdzenie czy drugi maszt lezy lezy dokladnie obok pierwszego
-            boolean isAdjacent =
+            boolean isTheSecondAdjacent =
                     (secondRow == row && Math.abs(secondCol - col) == 1) ||
                             (secondCol == col && Math.abs(secondRow - row) == 1);
 
-            if (!isAdjacent) {
+            if (!isTheSecondAdjacent) {
                 System.out.println();
                 System.out.println("Second mast must be directly next to the first one (vertically or horizontally)!"
                         .toUpperCase());
@@ -1110,34 +1024,15 @@ public class ClientShipGameNetwork {
                     placedThreeMastedShips + 1);
             String thirdInput = scanner.nextLine();
 
-            // Walidacja wejścia
-            if (thirdInput.length() < 2 || thirdInput.length() > 3) {
-                System.out.println("Invalid format. Enter e.g. A5 or B10");
-                continue;
-            }
+            boolean isValidThirdInput = validateInputFields(thirdInput);
+            if (!isValidThirdInput) continue;
 
             char thirdColChar = thirdInput.charAt(0);
 
             String thirdRowNumber = thirdInput.substring(1);
-            char firstCharOfThirdRowNumber = thirdRowNumber.charAt(0);
 
-            if (!Character.isLetter(thirdColChar)) {
-                System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
-                continue;
-            }
-
-            if (!Character.isDigit(firstCharOfThirdRowNumber)) {
-                System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
-                continue;
-            }
-
-            if ((thirdInput.length() == 3) && !(thirdRowNumber.equals("10"))) {
-                System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
-                continue;
-            }
-
-            int thirdRow = Integer.parseInt(thirdRowNumber) - 1;
             int thirdCol = Character.toUpperCase(thirdColChar) - 'A';
+            int thirdRow = Integer.parseInt(thirdRowNumber) - 1;
 
             // Sprawdzenie czy trzeci maszt lezy lezy dokladnie obok drugiego
             boolean isThirdMastAdjacent =
@@ -1246,38 +1141,15 @@ public class ClientShipGameNetwork {
                     placedFourMastedShips + 1);
             String firstInput = scanner.nextLine();
 
-            if (firstInput.equals("show")) {
-                System.out.println(shipService.getShips());
-            }
-
-            // Walidacja wejścia
-            if (firstInput.length() < 2 || firstInput.length() > 3) {
-                System.out.println("Invalid format. Enter e.g. A5 or B10");
-                continue;
-            }
+            boolean isValidInput = validateInputFields(firstInput);
+            if (!isValidInput) continue;
 
             char colChar = firstInput.charAt(0);
 
             String rowNumber = firstInput.substring(1);
-            char firstCharOfRowNumber = rowNumber.charAt(0);
 
-            if (!Character.isLetter(colChar)) {
-                System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
-                continue;
-            }
-
-            if (!Character.isDigit(firstCharOfRowNumber)) {
-                System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
-                continue;
-            }
-
-            if ((firstInput.length() == 3) && !(rowNumber.equals("10"))) {
-                System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
-                continue;
-            }
-
-            int row = Integer.parseInt(rowNumber) - 1;
             int col = Character.toUpperCase(colChar) - 'A';
+            int row = Integer.parseInt(rowNumber) - 1;
 
             char possiblePlacement = gameBoard[row][col];
 
@@ -1336,41 +1208,22 @@ public class ClientShipGameNetwork {
                     placedFourMastedShips + 1);
             String secondInput = scanner.nextLine();
 
-            // Walidacja wejścia
-            if (secondInput.length() < 2 || secondInput.length() > 3) {
-                System.out.println("Invalid format. Enter e.g. A5 or B10");
-                continue;
-            }
+            boolean isValidSecondInput = validateInputFields(secondInput);
+            if (!isValidSecondInput) continue;
 
-            char secondColChar = secondInput.charAt(0);
+            char secondColChar = firstInput.charAt(0);
 
-            String secondRowNumber = secondInput.substring(1);
-            char firstCharOfSecondRowNumber = secondRowNumber.charAt(0);
+            String secondRowNumber = firstInput.substring(1);
 
-            if (!Character.isLetter(secondColChar)) {
-                System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
-                continue;
-            }
-
-            if (!Character.isDigit(firstCharOfSecondRowNumber)) {
-                System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
-                continue;
-            }
-
-            if ((secondInput.length() == 3) && !(secondRowNumber.equals("10"))) {
-                System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
-                continue;
-            }
-
-            int secondRow = Integer.parseInt(secondRowNumber) - 1;
             int secondCol = Character.toUpperCase(secondColChar) - 'A';
+            int secondRow = Integer.parseInt(secondRowNumber) - 1;
 
             // Sprawdzenie czy drugi maszt lezy lezy dokladnie obok pierwszego
-            boolean isAdjacent =
+            boolean isSecondMastAdjacent =
                     (secondRow == row && Math.abs(secondCol - col) == 1) ||
                             (secondCol == col && Math.abs(secondRow - row) == 1);
 
-            if (!isAdjacent) {
+            if (!isSecondMastAdjacent) {
                 System.out.println();
                 System.out.println("Second mast must be directly next to the first one (vertically or horizontally)!"
                         .toUpperCase());
@@ -1437,34 +1290,15 @@ public class ClientShipGameNetwork {
                     placedFourMastedShips + 1);
             String thirdInput = scanner.nextLine();
 
-            // Walidacja wejścia
-            if (thirdInput.length() < 2 || thirdInput.length() > 3) {
-                System.out.println("Invalid format. Enter e.g. A5 or B10");
-                continue;
-            }
+            boolean isValidThirdInput = validateInputFields(thirdInput);
+            if (!isValidThirdInput) continue;
 
             char thirdColChar = thirdInput.charAt(0);
 
             String thirdRowNumber = thirdInput.substring(1);
-            char firstCharOfThirdRowNumber = thirdRowNumber.charAt(0);
 
-            if (!Character.isLetter(thirdColChar)) {
-                System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
-                continue;
-            }
-
-            if (!Character.isDigit(firstCharOfThirdRowNumber)) {
-                System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
-                continue;
-            }
-
-            if ((thirdInput.length() == 3) && !(thirdRowNumber.equals("10"))) {
-                System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
-                continue;
-            }
-
-            int thirdRow = Integer.parseInt(thirdRowNumber) - 1;
             int thirdCol = Character.toUpperCase(thirdColChar) - 'A';
+            int thirdRow = Integer.parseInt(thirdRowNumber) - 1;
 
             // Sprawdzenie czy trzeci maszt lezy dokladnie obok pierwszego
             boolean isThirdMastAdjacent =
@@ -1538,34 +1372,15 @@ public class ClientShipGameNetwork {
                     placedFourMastedShips + 1);
             String fourthInput = scanner.nextLine();
 
-            // Walidacja wejścia
-            if (fourthInput.length() < 2 || fourthInput.length() > 3) {
-                System.out.println("Invalid format. Enter e.g. A5 or B10");
-                continue;
-            }
+            boolean isValidFourthInput = validateInputFields(fourthInput);
+            if (!isValidFourthInput) continue;
 
-            char fourthColLetter = fourthInput.charAt(0);
+            char fourthColChar = fourthInput.charAt(0);
 
             String fourthRowNumber = fourthInput.substring(1);
-            char firstCharOfFourthRowNumber = fourthRowNumber.charAt(0);
 
-            if (!Character.isLetter(fourthColLetter)) {
-                System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
-                continue;
-            }
-
-            if (!Character.isDigit(firstCharOfFourthRowNumber)) {
-                System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
-                continue;
-            }
-
-            if ((fourthInput.length() == 3) && !(fourthRowNumber.equals("10"))) {
-                System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
-                continue;
-            }
-
+            int fourthCol = Character.toUpperCase(fourthColChar) - 'A';
             int fourthRow = Integer.parseInt(fourthRowNumber) - 1;
-            int fourthCol = Character.toUpperCase(fourthColLetter) - 'A';
 
             // Sprawdzenie czy trzeci maszt lezy dokladnie obok czwartego
             boolean isFourthMastAdjacent =
@@ -1674,7 +1489,6 @@ public class ClientShipGameNetwork {
 
     }
 
-
     private static char[][] createBoard() {
         char[][] gameBoard = new char[gameBoardLength][gameBoardLength];
         for (char[] row : gameBoard) {
@@ -1683,6 +1497,7 @@ public class ClientShipGameNetwork {
         return gameBoard;
     }
 
+    /*
 
     private static void displayOpponentBoard(char[][] opponentBoard) {
         System.out.println();
@@ -1730,6 +1545,8 @@ public class ClientShipGameNetwork {
     }
 
 
+     */
+
     private static void displayMyBoard(char[][] myBoard, char ship) {
         for (int i = 0; i < 2; i++) {
             System.out.println();
@@ -1776,8 +1593,8 @@ public class ClientShipGameNetwork {
         System.out.println();
     }
 
-    private static void showEntireGameBoard(char[][] myBoard, char[][] opponentBoard, char ship, char hit,
-                                            char miss) {
+    private static void displayEntireGameBoard(char[][] myBoard, char[][] opponentBoard, char ship, char hit,
+                                               char miss) {
         // displayMyBoard(myBoard, ship);
         // displayOpponentBoard(opponentBoard);
 
@@ -1791,7 +1608,7 @@ public class ClientShipGameNetwork {
         int myBoardLength = myBoard.length;
         int opponentBoardLength = opponentBoard.length;
         char[] rowName = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', ' ', ' ', ' ', ' ', ' ',
-                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J' };
+                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
         System.out.print("   ");
         for (int i = 0; i < myBoardLength + 5 + opponentBoardLength; i++) {
             System.out.print(rowName[i] + "  ");
@@ -1824,11 +1641,36 @@ public class ClientShipGameNetwork {
 
             System.out.println();
         }
-        System.out.println();
 
+        // This code displays the tenth row of the Opponent Board.
+        System.out.print(10 + " ");
+        for (int col = 0; col < gameBoardLength; col++) {
+            char position2 = opponentBoard[9][col];
+            if (position2 == ship) {
+                System.out.print(ship + "  ");
+            } else {
+                System.out.print(position2 + "  ");
+            }
+        }
+
+        System.out.print("               ");
+
+        // This code displays the tenth row of the My Board.
+        for (int col = 0; col < gameBoardLength; col++) {
+            char position = myBoard[9][col];
+            if (position == ship) {
+                System.out.print(ship + "  ");
+            } else {
+                System.out.print(position + "  ");
+            }
+        }
+
+        System.out.println();
+        System.out.println();
     }
 
     /*
+
     private static char[][] updateThisClientGameBoard(char[][] gameBoard, int col, int row) {
         gameBoard[row][col];
         return gameBoard;
