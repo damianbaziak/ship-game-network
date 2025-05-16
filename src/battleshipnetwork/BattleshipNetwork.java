@@ -87,14 +87,16 @@ public class BattleshipNetwork {
                     playerTwosTurn = playerTwoShooting(input2, input1, output2, output1);
                 }
 
-                if (playerTwosReport.equals(YOU_WIN) || (playerTwosTurn != null &&
+                if (playerTwosFourthReport.equals(YOU_WIN) || (playerTwosTurn != null &&
                         playerTwosTurn.equals(PLAYER_TWO_WIN))) {
                     gameRunning = false;
                 }
             }
-            Thread.sleep(2000);
+
             output2.println(GAME_OVER);
             output1.println(GAME_OVER);
+
+            Thread.sleep(2000);
 
 
         } catch (IOException | InterruptedException e) {
@@ -125,7 +127,7 @@ public class BattleshipNetwork {
                 playerTwoIsShooting = false;
             }
 
-            if (playerOnesReport.contains(YOU_WIN)) {
+            if (playerOnesFourthReport.contains(YOU_WIN)) {
                 return PLAYER_TWO_WIN;
             }
         }
