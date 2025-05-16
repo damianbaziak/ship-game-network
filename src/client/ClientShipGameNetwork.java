@@ -48,6 +48,8 @@ public class ClientShipGameNetwork {
             char[][] myBoard = createBoard();
             char[][] opponentBoard = createBoard();
 
+            showEntireGameBoard(myBoard, opponentBoard, ship, hit, miss);
+
             placeShips(myBoard, water, ship, scanner, output);
 
             String serverMessageToWarBeginning = input.readLine();
@@ -73,8 +75,6 @@ public class ClientShipGameNetwork {
         boolean gameRunning = true;
 
         while (gameRunning) {
-
-            //showEntireGameBoard(myBoard, opponentBoard, ship, hit, miss);
 
             String whoseTurnIsIt = input.readLine();
 
@@ -466,6 +466,7 @@ public class ClientShipGameNetwork {
     private static boolean validateInputFields(String input) {
 
         if (input.length() < 2 || input.length() > 3) {
+            System.out.println();
             System.out.println("Invalid format. Enter e.g. A5 or B10");
             return false;
         }
@@ -476,25 +477,37 @@ public class ClientShipGameNetwork {
         char firstCharOfRowNumber = rowNumber.charAt(0);
 
         int col = Character.toUpperCase(colChar) - 'A';
+        int row = Integer.parseInt(rowNumber) - 1;
 
         if (!Character.isLetter(colChar)) {
+            System.out.println();
             System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
             return false;
         }
 
         if ((input.length() == 3) && !(rowNumber.equals("10"))) {
+            System.out.println();
             System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
             return false;
         }
 
         if (!Character.isDigit(firstCharOfRowNumber)) {
+            System.out.println();
             System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
             return false;
         }
 
-        // Checking if the the column letter is within A-J range
-        if (col < 0 || col > 9) {
+        // Checking if the column letter is within A-J range
+        if ((col < 0) || (col > 9)) {
+            System.out.println();
             System.out.println("Column must be between A and J!".toUpperCase());
+            return false;
+        }
+
+        // Checking if the row number is within 1-10 range
+        if ((row < 0) || (row > 9)) {
+            System.out.println();
+            System.out.println("Row must be between 1 and 10!".toUpperCase());
             return false;
         }
         return true;
@@ -561,6 +574,7 @@ public class ClientShipGameNetwork {
             char possiblePlacement = gameBoard[row][col];
 
             if (possiblePlacement != water) {
+                System.out.println();
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
                 continue;
             }
@@ -602,6 +616,7 @@ public class ClientShipGameNetwork {
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
             if (!canPlaceShip) {
+                System.out.println();
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
                 continue;
             }
@@ -621,8 +636,7 @@ public class ClientShipGameNetwork {
         }
         System.out.println();
         System.out.println("All Single-Masted ships have been placed!".toUpperCase());
-        System.out.println();
-        System.out.println("Waiting for the opponent...");
+
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -645,6 +659,20 @@ public class ClientShipGameNetwork {
                     placedTwoMastedShips + 1);
             String firstInput = scanner.nextLine();
 
+            boolean isValidInput = validateInputFields(firstInput);
+            if (!isValidInput) continue;
+
+            char colChar = firstInput.charAt(0);
+
+            String rowNumber = firstInput.substring(1);
+            // char firstCharOfRowNumber = rowNumber.charAt(0);
+
+
+            int col = Character.toUpperCase(colChar) - 'A';
+            int row = Integer.parseInt(rowNumber) - 1;
+
+            /*
+
             if (firstInput.equals("show")) {
                 System.out.println(shipService.getShips());
             }
@@ -652,6 +680,7 @@ public class ClientShipGameNetwork {
 
             // Walidacja wejścia
             if (firstInput.length() < 2 || firstInput.length() > 3) {
+                System.out.println();
                 System.out.println("Invalid format. Enter e.g. A5 or B10");
                 continue;
             }
@@ -662,16 +691,19 @@ public class ClientShipGameNetwork {
             char firstCharOfRowNumber = rowNumber.charAt(0);
 
             if (!Character.isLetter(colChar)) {
+                System.out.println();
                 System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
                 continue;
             }
 
             if (!Character.isDigit(firstCharOfRowNumber)) {
+                System.out.println();
                 System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
                 continue;
             }
 
             if ((firstInput.length() == 3) && !(rowNumber.equals("10"))) {
+                System.out.println();
                 System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
                 continue;
             }
@@ -679,9 +711,12 @@ public class ClientShipGameNetwork {
             int row = Integer.parseInt(rowNumber) - 1;
             int col = Character.toUpperCase(colChar) - 'A';
 
+             */
+
             char possiblePlacement = gameBoard[row][col];
 
             if (possiblePlacement != water) {
+                System.out.println();
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
                 continue;
             }
@@ -723,6 +758,7 @@ public class ClientShipGameNetwork {
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
             if (!canPlaceFirstMast) {
+                System.out.println();
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
                 continue;
             }
@@ -733,6 +769,20 @@ public class ClientShipGameNetwork {
             System.out.printf("Enter second coordinate for the %d of 3 Two-Masted Ship (e.g. A5):%n",
                     placedTwoMastedShips + 1);
             String secondInput = scanner.nextLine();
+
+            boolean isValidSecondInput = validateInputFields(secondInput);
+            if (!isValidSecondInput) continue;
+
+            char secondColChar = secondInput.charAt(0);
+
+            String secondRowNumber = secondInput.substring(1);
+            // char firstCharOfRowNumber = rowNumber.charAt(0);
+
+
+            int secondCol = Character.toUpperCase(secondColChar) - 'A';
+            int secondRow = Integer.parseInt(secondRowNumber) - 1;
+
+            /*
 
             // Walidacja wejścia
             if (secondInput.length() < 2 || secondInput.length() > 3) {
@@ -774,10 +824,13 @@ public class ClientShipGameNetwork {
                 continue;
             }
 
+             */
+
             // Pozostala czesc walidacji
             char possiblePlacementForSecondMast = gameBoard[secondRow][secondCol];
 
             if (possiblePlacementForSecondMast != water) {
+                System.out.println();
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
                 continue;
             }
@@ -821,6 +874,7 @@ public class ClientShipGameNetwork {
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
             if (!canPlaceSecondMast) {
+                System.out.println();
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
                 continue;
             }
@@ -901,6 +955,7 @@ public class ClientShipGameNetwork {
             char possiblePlacement = gameBoard[row][col];
 
             if (possiblePlacement != water) {
+                System.out.println();
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
                 continue;
             }
@@ -942,6 +997,7 @@ public class ClientShipGameNetwork {
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
             if (!canPlaceFirstMast) {
+                System.out.println();
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
                 continue;
             }
@@ -988,6 +1044,7 @@ public class ClientShipGameNetwork {
                             (secondCol == col && Math.abs(secondRow - row) == 1);
 
             if (!isAdjacent) {
+                System.out.println();
                 System.out.println("Second mast must be directly next to the first one (vertically or horizontally)!"
                         .toUpperCase());
                 continue;
@@ -997,6 +1054,7 @@ public class ClientShipGameNetwork {
             char possiblePlacementForSecondMast = gameBoard[secondRow][secondCol];
 
             if (possiblePlacementForSecondMast != water) {
+                System.out.println();
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
                 continue;
             }
@@ -1040,6 +1098,7 @@ public class ClientShipGameNetwork {
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
             if (!canPlaceSecondMast) {
+                System.out.println();
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
                 continue;
             }
@@ -1086,6 +1145,7 @@ public class ClientShipGameNetwork {
                             (thirdCol == col && Math.abs(thirdRow - row) == 2 && Math.abs(thirdRow - secondRow) == 1);
 
             if (!isThirdMastAdjacent) {
+                System.out.println();
                 System.out.println(("Third mast must be directly next to the second one " +
                         "(vertically or horizontally)!").toUpperCase());
                 continue;
@@ -1095,6 +1155,7 @@ public class ClientShipGameNetwork {
             char possiblePlacementForThirdMast = gameBoard[thirdRow][thirdCol];
 
             if (possiblePlacementForThirdMast != water) {
+                System.out.println();
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
                 continue;
             }
@@ -1138,6 +1199,7 @@ public class ClientShipGameNetwork {
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
             if (!canPlaceThirdMast) {
+                System.out.println();
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
                 continue;
             }
@@ -1220,6 +1282,7 @@ public class ClientShipGameNetwork {
             char possiblePlacement = gameBoard[row][col];
 
             if (possiblePlacement != water) {
+                System.out.println();
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
                 continue;
             }
@@ -1261,6 +1324,7 @@ public class ClientShipGameNetwork {
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
             if (!canPlaceFirstMast) {
+                System.out.println();
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
                 continue;
             }
@@ -1307,6 +1371,7 @@ public class ClientShipGameNetwork {
                             (secondCol == col && Math.abs(secondRow - row) == 1);
 
             if (!isAdjacent) {
+                System.out.println();
                 System.out.println("Second mast must be directly next to the first one (vertically or horizontally)!"
                         .toUpperCase());
                 continue;
@@ -1316,6 +1381,7 @@ public class ClientShipGameNetwork {
             char possiblePlacementForSecondMast = gameBoard[secondRow][secondCol];
 
             if (possiblePlacementForSecondMast != water) {
+                System.out.println();
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
                 continue;
             }
@@ -1359,6 +1425,7 @@ public class ClientShipGameNetwork {
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
             if (!canPlaceSecondMast) {
+                System.out.println();
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
                 continue;
             }
@@ -1405,6 +1472,7 @@ public class ClientShipGameNetwork {
                             (thirdCol == col && Math.abs(thirdRow - row) == 2 && Math.abs(thirdRow - secondRow) == 1);
 
             if (!isThirdMastAdjacent) {
+                System.out.println();
                 System.out.println(("Third mast must be directly next to the second one " +
                         "(vertically or horizontally)!").toUpperCase());
                 continue;
@@ -1414,6 +1482,7 @@ public class ClientShipGameNetwork {
             char possiblePlacementForThirdMast = gameBoard[thirdRow][thirdCol];
 
             if (possiblePlacementForThirdMast != water) {
+                System.out.println();
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
                 continue;
             }
@@ -1457,6 +1526,7 @@ public class ClientShipGameNetwork {
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
             if (!canPlaceThirdMast) {
+                System.out.println();
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
                 continue;
             }
@@ -1503,6 +1573,7 @@ public class ClientShipGameNetwork {
                             (fourthCol == col && Math.abs(fourthRow - row) == 3 && Math.abs(fourthRow - thirdRow) == 1);
 
             if (!isFourthMastAdjacent) {
+                System.out.println();
                 System.out.println(("Fourth mast must be directly next to the third one " +
                         "(vertically or horizontally)!").toUpperCase());
                 continue;
@@ -1512,6 +1583,7 @@ public class ClientShipGameNetwork {
             char possiblePlacementForFourthMast = gameBoard[fourthRow][fourthCol];
 
             if (possiblePlacementForFourthMast != water) {
+                System.out.println();
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
                 continue;
             }
@@ -1555,6 +1627,7 @@ public class ClientShipGameNetwork {
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
             if (!canPlaceFourthMast) {
+                System.out.println();
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
                 continue;
             }
@@ -1585,6 +1658,8 @@ public class ClientShipGameNetwork {
         }
         System.out.println();
         System.out.println("ALL SHIPS HAVE BEEN PLACED!".toUpperCase());
+        System.out.println();
+        System.out.println("Waiting for the opponent...");
         displayMyBoard(gameBoard, ship);
 
         try {
@@ -1709,16 +1784,16 @@ public class ClientShipGameNetwork {
         for (int i = 0; i < 2; i++) {
             System.out.println();
         }
-        System.out.println("            MY BOARD                            OPPONENT BOARD          ");
+        System.out.println("          OPPONENT BOARD                                  MY BOARD            ");
         System.out.println();
 
         // Ten kod wyswietla nazwy kolumn
         int myBoardLength = myBoard.length;
         int opponentBoardLength = opponentBoard.length;
-        char[] rowName = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', ' ', ' ', ' ', ' ', ' ', ' ',
+        char[] rowName = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', ' ', ' ', ' ', ' ', ' ',
                 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J' };
         System.out.print("   ");
-        for (int i = 0; i < myBoardLength + 6 + opponentBoardLength; i++) {
+        for (int i = 0; i < myBoardLength + 5 + opponentBoardLength; i++) {
             System.out.print(rowName[i] + "  ");
         }
         System.out.println();
@@ -1728,25 +1803,28 @@ public class ClientShipGameNetwork {
             System.out.print(" ");
             System.out.print(row + 1 + " ");
             for (int col = 0; col < gameBoardLength; col++) {
-                char position = myBoard[row][col];
                 char position2 = opponentBoard[row][col];
+                if (position2 == ship) {
+                    System.out.print(ship + "  ");
+                } else {
+                    System.out.print(position2 + "  ");
+                }
+            }
+
+            System.out.print("               ");
+
+            for (int col = 0; col < gameBoardLength; col++) {
+                char position = myBoard[row][col];
                 if (position == ship) {
                     System.out.print(ship + "  ");
                 } else {
                     System.out.print(position + "  ");
                 }
             }
+
             System.out.println();
         }
-
-
-
-
-
-
-
-
-
+        System.out.println();
 
     }
 
