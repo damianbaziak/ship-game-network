@@ -54,6 +54,7 @@ public class ClientShipGameNetwork {
             // System.out.println("Message from the server: " + serverMessageToWarBeginning);
 
             if ("The war has begun.".equalsIgnoreCase(serverMessageToWarBeginning)) {
+                MessagePrinter.displayLetsStart();
                 runningGame(myBoard, opponentBoard, water, ship, hit, miss, scanner, input, output);
             }
 
@@ -1449,9 +1450,8 @@ public class ClientShipGameNetwork {
         }
         System.out.println();
         System.out.println("ALL SHIPS HAVE BEEN PLACED!".toUpperCase());
-        System.out.println();
-        System.out.println("Waiting for the opponent...");
         displayMyBoard(gameBoard, ship);
+        System.out.println("Waiting for the opponent...");
 
         try {
             Thread.sleep(1000);

@@ -71,12 +71,12 @@ public class BattleshipNetwork {
                 output2.println(playerOnesShot);
 
                 String playerTwosReport = input2.readLine();
-                String playerTwosSecondReport = input2.readLine();
-                String playerTwosThirdReport = input2.readLine();
-                String playerTwosFourthReport = input2.readLine();
                 output1.println(playerTwosReport);
+                String playerTwosSecondReport = input2.readLine();
                 output1.println(playerTwosSecondReport);
+                String playerTwosThirdReport = input2.readLine();
                 output1.println(playerTwosThirdReport);
+                String playerTwosFourthReport = input2.readLine();
                 output1.println(playerTwosFourthReport);
 
                 String playerTwosTurn = "";
