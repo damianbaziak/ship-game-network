@@ -17,7 +17,7 @@ public class ClientShipGameNetwork {
     private static final int SERVER_PORT = 5050;              // Server port
     private static final int gameBoardLength = 10;
     private static final char water = '-';
-    private static final char ship = 'S';
+    private static final char ship = '#';
     private static final char hit = 'X';
     private static final char miss = '0';
     private static final int singleMastedShipNumber = 4;
@@ -475,17 +475,18 @@ public class ClientShipGameNetwork {
 
         char colChar = input.charAt(0);
 
+        if (!Character.isLetter(colChar)) {
+            System.out.println();
+            System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
+            return false;
+        }
+
         String rowNumber = input.substring(1);
         char firstCharOfRowNumber = rowNumber.charAt(0);
 
         int col = Character.toUpperCase(colChar) - 'A';
         int row = Integer.parseInt(rowNumber) - 1;
 
-        if (!Character.isLetter(colChar)) {
-            System.out.println();
-            System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
-            return false;
-        }
 
         if ((input.length() == 3) && !(rowNumber.equals("10"))) {
             System.out.println();
