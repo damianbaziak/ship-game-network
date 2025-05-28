@@ -71,6 +71,8 @@ public class ClientShipGameNetwork {
 
         List<Ship> myShips = shipService.getShips();
         List<Coordinate> hitCoordinates = new ArrayList<>();
+        Map<Integer, Map<String, List<Coordinate>>> hitShipsBySize = new HashMap<>();
+
 
         boolean gameRunning = true;
 
@@ -79,7 +81,7 @@ public class ClientShipGameNetwork {
             String whoseTurnIsIt = input.readLine();
 
             if ("Your turn.".equalsIgnoreCase(whoseTurnIsIt)) {
-                makeShot(myBoard, opponentBoard, scanner, input, output, ship, hitAndSunk, miss);
+                makeShot(myBoard, opponentBoard, scanner, input, output, ship, hitAndSunk, miss, hitShipsBySize);
             } else if ("Game over.".equalsIgnoreCase(whoseTurnIsIt)) {
                 gameRunning = false;
             } else {
@@ -299,10 +301,10 @@ public class ClientShipGameNetwork {
 
     private static void makeShot(
             char[][] myBoard, char[][] opponentBoard, Scanner scanner, BufferedReader input, PrintWriter output,
-            char ship, char hitAndSunk, char miss)
+            char ship, char hitAndSunk, char miss,
+            Map<Integer, Map<String, List<Coordinate>>> hitShipsBySize)
             throws IOException, InterruptedException {
 
-        List<Coordinate> hitOpponentCoordinate = new ArrayList<>();
 
         boolean youHitYouTurn = true;
 
@@ -310,7 +312,7 @@ public class ClientShipGameNetwork {
             displayEntireGameBoard(myBoard, opponentBoard, ship);
 
             System.out.println("Your turn! Enter the target coordinates: ");
-            // System.out.println(shipService.getShips());
+
             String myShot = scanner.nextLine();
 
             boolean isValidInput = validateInputFields(myShot);
@@ -329,30 +331,44 @@ public class ClientShipGameNetwork {
 
 
             if ("This shot has been already fired.".equalsIgnoreCase(opponentReport)) {
-                System.out.println();
+
                 MessagePrinter.displayAlreadyHit();
                 Thread.sleep(1000);
+
                 youHitYouTurn = false;
 
             } else if (opponentReport.startsWith("You hit")) {
 
-                hitOpponentCoordinate.add(
-                        new Coordinate(row, col));
+                Coordinate hitCoordinate = new Coordinate(row, col);
 
-                System.out.println();
                 MessagePrinter.displayHit();
                 Thread.sleep(1000);
 
                 if ("You hit a single-masted ship.".equalsIgnoreCase(opponentReport)) {
-                    System.out.println();
-                    System.out.println("You hit a single-masted ship!".toUpperCase());
 
+                    Map<String, List<Coordinate>> hitOneMastedShipsMap =
+                            hitShipsBySize.computeIfAbsent(1, k -> new HashMap<>());
+
+                    int shipCounter = 1;
+                    String shipKey;
+
+                    do {
+                        shipKey = "ship" + shipCounter;
+                        shipCounter++;
+                    } while (hitOneMastedShipsMap.containsKey(shipKey));
+
+                    hitOneMastedShipsMap.computeIfAbsent(shipKey, k -> new ArrayList<>()).add(hitCoordinate);
+
+                    // Mark the ship as sunk immediately because one-masted ships are destroyed with a single hit.
                     opponentBoard[row][col] = hitAndSunk;
 
+                    System.out.println();
+                    System.out.println("You hit a single-masted ship!".toUpperCase());
                     Thread.sleep(1000);
 
                     if (!secondOpponentReport.isBlank()
                             && "You've sunk a Single-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
+
                         System.out.println();
                         System.out.println("You've sunk a Single-Masted Ship!".toUpperCase());
                         Thread.sleep(1000);
@@ -360,6 +376,7 @@ public class ClientShipGameNetwork {
 
                     if (!thirdOpponentReport.isBlank()
                             && "All Single-Masted Ships have been sunk.".equalsIgnoreCase(thirdOpponentReport)) {
+
                         System.out.println();
                         System.out.println("All Single-Masted Ships have been sunk!".toUpperCase());
                         Thread.sleep(1000);
@@ -370,27 +387,45 @@ public class ClientShipGameNetwork {
                     }
 
                 } else if ("You hit a two-masted ship.".equalsIgnoreCase(opponentReport)) {
-                    System.out.println();
-                    System.out.println("You hit a two-masted ship!".toUpperCase());
+
+                    Map<String, List<Coordinate>> hitTwoMastedShipsMap = hitShipsBySize.computeIfAbsent(
+                            2, k -> new HashMap<>());
+
+                    int shipCounter = 1;
+                    String shipKey;
+
+                    do {
+                        shipKey = "twoMastedShip" + shipCounter;
+                        shipCounter++;
+                    } while (hitTwoMastedShipsMap.containsKey(shipKey));
+
+                    hitTwoMastedShipsMap.computeIfAbsent(shipKey, k -> new ArrayList<>()).add(hitCoordinate);
 
                     opponentBoard[row][col] = HIT_MAST_CHAR;
 
+                    System.out.println();
+                    System.out.println("You hit a two-masted ship!".toUpperCase());
                     Thread.sleep(1000);
 
                     if (!secondOpponentReport.isBlank()
                             && "You've sunk a Two-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
+
+                        List<Coordinate> hitTwoMastedShip = hitTwoMastedShipsMap.get(shipKey);
+                        if (hitTwoMastedShip != null && hitTwoMastedShip.size() == 2) {
+                            hitTwoMastedShip.forEach(coordinate -> {
+                                opponentBoard[coordinate.getRow()][coordinate.getCol()] = hitAndSunk;
+                            });
+                        } else System.out.println("Error: Ship not found or coordinate list is incomplete.");
+
+
                         System.out.println();
                         System.out.println("You've sunk a Two-Masted Ship!".toUpperCase());
-
-                        hitOpponentCoordinate.forEach(coordinate -> {
-                            opponentBoard[coordinate.getRow()][coordinate.getCol()] = hitAndSunk;
-                        });
-
                         Thread.sleep(1000);
                     }
 
                     if (!thirdOpponentReport.isBlank()
                             && "All Two-Masted Ships have been sunk.".equalsIgnoreCase(thirdOpponentReport)) {
+
                         System.out.println();
                         System.out.println("All Two-Masted Ships have been sunk!".toUpperCase());
                         Thread.sleep(1000);
@@ -402,27 +437,45 @@ public class ClientShipGameNetwork {
 
 
                 } else if ("You hit a three-masted ship.".equalsIgnoreCase(opponentReport)) {
-                    System.out.println();
-                    System.out.println("You hit a three-masted ship!".toUpperCase());
+
+                    Map<String, List<Coordinate>> hitThreeMastedShipsMap = hitShipsBySize.computeIfAbsent(
+                            3, k -> new HashMap<>());
+
+                    int shipCounter = 1;
+                    String shipKey;
+
+                    do {
+                        shipKey = "threeMastedShips" + shipCounter;
+                        shipCounter++;
+                    } while (hitThreeMastedShipsMap.containsKey(shipKey));
+
+                    hitThreeMastedShipsMap.computeIfAbsent(shipKey, k -> new ArrayList<>()).add(hitCoordinate);
 
                     opponentBoard[row][col] = HIT_MAST_CHAR;
 
+                    System.out.println();
+                    System.out.println("You hit a three-masted ship!".toUpperCase());
                     Thread.sleep(1000);
 
                     if (!secondOpponentReport.isBlank()
                             && "You've sunk a Three-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
+
+                        List<Coordinate> hitThreeMastedShip = hitThreeMastedShipsMap.get(shipKey);
+                        if (hitThreeMastedShip != null && hitThreeMastedShip.size() == 3) {
+                            hitThreeMastedShip.forEach(coordinate -> {
+                                opponentBoard[coordinate.getRow()][coordinate.getCol()] = hitAndSunk;
+                            });
+                        } else System.out.println("Error: Ship not found or coordinate list is incomplete.");
+
+
                         System.out.println();
                         System.out.println("You've sunk a Three-Masted Ship!".toUpperCase());
-
-                        hitOpponentCoordinate.forEach(coordinate -> {
-                            opponentBoard[coordinate.getRow()][coordinate.getCol()] = hitAndSunk;
-                        });
-
                         Thread.sleep(1000);
                     }
 
                     if (!thirdOpponentReport.isBlank()
                             && "All Three-Masted Ships have been sunk.".equalsIgnoreCase(thirdOpponentReport)) {
+
                         System.out.println();
                         System.out.println("All Three-Masted Ships have been sunk!".toUpperCase());
                         Thread.sleep(1000);
@@ -434,27 +487,44 @@ public class ClientShipGameNetwork {
 
 
                 } else if ("You hit a four-masted ship.".equalsIgnoreCase(opponentReport)) {
-                    System.out.println();
-                    System.out.println("You hit a four-masted ship!".toUpperCase());
+
+                    Map<String, List<Coordinate>> hitFourMastedShipsMap = hitShipsBySize
+                            .computeIfAbsent(4, k -> new HashMap<>());
+
+                    int shipCounter = 1;
+                    String shipKey;
+
+                    do {
+                        shipKey = "fourMastedShips" + shipCounter;
+                        shipCounter++;
+                    } while (hitFourMastedShipsMap.containsKey(shipKey));
+
+                    hitFourMastedShipsMap.computeIfAbsent(shipKey, k -> new ArrayList<>()).add(hitCoordinate);
 
                     opponentBoard[row][col] = HIT_MAST_CHAR;
 
                     Thread.sleep(1000);
+                    System.out.println();
+                    System.out.println("You hit a four-masted ship!".toUpperCase());
 
                     if (!secondOpponentReport.isBlank()
                             && "You've sunk a Four-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
+
+                        List<Coordinate> hitFourMastedShip = hitFourMastedShipsMap.get(shipKey);
+                        if (hitFourMastedShip != null && hitFourMastedShip.size() == 4) {
+                            hitFourMastedShip.forEach(coordinate -> {
+                                opponentBoard[coordinate.getRow()][coordinate.getCol()] = hitAndSunk;
+                            });
+                        } else System.out.println("Error: Ship not found or coordinate list is incomplete.");
+
                         System.out.println();
                         System.out.println("You've sunk a Four-Masted Ship!".toUpperCase());
-
-                        hitOpponentCoordinate.forEach(coordinate -> {
-                            opponentBoard[coordinate.getRow()][coordinate.getCol()] = hitAndSunk;
-                        });
-
                         Thread.sleep(1000);
                     }
 
                     if (!thirdOpponentReport.isBlank()
                             && "All Four-Masted Ships have been sunk.".equalsIgnoreCase(thirdOpponentReport)) {
+
                         System.out.println();
                         System.out.println("All Four-Masted Ships have been sunk!".toUpperCase());
                         Thread.sleep(1000);

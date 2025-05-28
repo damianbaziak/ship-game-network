@@ -148,6 +148,7 @@ public class MessagePrinter {
     }
 
     private static void printMessage(String[] strings) {
+        System.out.println();
         for (String s : strings) {
             for (char c : s.toCharArray()) {
                 System.out.print(c);
@@ -160,8 +161,6 @@ public class MessagePrinter {
             }
             System.out.println();
         }
-        //makeSpace();
-
     }
 
     private static void clearScreen() {
