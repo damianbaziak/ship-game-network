@@ -309,6 +309,9 @@ public class ClientShipGameNetwork {
         boolean youHitYouTurn = true;
 
         while (youHitYouTurn) {
+            Map<String, List<Coordinate>> aktualieZapisane = hitShipsBySize.get(2);
+            System.out.println(aktualieZapisane);
+
             displayEntireGameBoard(myBoard, opponentBoard, ship);
 
             System.out.println("Your turn! Enter the target coordinates: ");
@@ -355,7 +358,8 @@ public class ClientShipGameNetwork {
                     do {
                         shipKey = "ship" + shipCounter;
                         shipCounter++;
-                    } while (hitOneMastedShipsMap.containsKey(shipKey));
+                    } while (
+                            hitOneMastedShipsMap.containsKey(shipKey) && hitOneMastedShipsMap.get(shipKey).size() == 1);
 
                     hitOneMastedShipsMap.computeIfAbsent(shipKey, k -> new ArrayList<>()).add(hitCoordinate);
 
@@ -397,9 +401,14 @@ public class ClientShipGameNetwork {
                     do {
                         shipKey = "twoMastedShip" + shipCounter;
                         shipCounter++;
-                    } while (hitTwoMastedShipsMap.containsKey(shipKey));
+                    } while (
+                            hitTwoMastedShipsMap.containsKey(shipKey) && hitTwoMastedShipsMap.get(shipKey).size() == 2);
 
                     hitTwoMastedShipsMap.computeIfAbsent(shipKey, k -> new ArrayList<>()).add(hitCoordinate);
+
+                    List<Coordinate> wspolrzedneNaProbe = hitTwoMastedShipsMap.get(shipKey);
+
+                    System.out.println("Dodalo wspolrzedne: " + wspolrzedneNaProbe);
 
                     opponentBoard[row][col] = HIT_MAST_CHAR;
 
@@ -447,7 +456,8 @@ public class ClientShipGameNetwork {
                     do {
                         shipKey = "threeMastedShips" + shipCounter;
                         shipCounter++;
-                    } while (hitThreeMastedShipsMap.containsKey(shipKey));
+                    } while (hitThreeMastedShipsMap.containsKey(shipKey)
+                            && hitThreeMastedShipsMap.get(shipKey).size() == 3);
 
                     hitThreeMastedShipsMap.computeIfAbsent(shipKey, k -> new ArrayList<>()).add(hitCoordinate);
 
@@ -497,7 +507,8 @@ public class ClientShipGameNetwork {
                     do {
                         shipKey = "fourMastedShips" + shipCounter;
                         shipCounter++;
-                    } while (hitFourMastedShipsMap.containsKey(shipKey));
+                    } while (hitFourMastedShipsMap.containsKey(shipKey)
+                            && hitFourMastedShipsMap.get(shipKey).size() == 4);
 
                     hitFourMastedShipsMap.computeIfAbsent(shipKey, k -> new ArrayList<>()).add(hitCoordinate);
 
