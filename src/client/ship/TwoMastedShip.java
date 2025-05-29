@@ -6,10 +6,18 @@ import java.util.ArrayList;
 
 public class TwoMastedShip extends Ship {
 
+    public TwoMastedShip() {
+    }
+
     public TwoMastedShip(Coordinate firstCoordinate, Coordinate secondCoordinate) {
         this.coordinates = new ArrayList<>();
         coordinates.add(firstCoordinate);
         coordinates.add(secondCoordinate);
+    }
+
+    @Override
+    public boolean isSunk() {
+        return hitCoordinates.size() == 2;
     }
 
     @Override
@@ -20,7 +28,8 @@ public class TwoMastedShip extends Ship {
     @Override
     public String toString() {
         return "TwoMastedShip{" +
-                "coordinates=" + coordinates +
+                "hitCoordinate=" + hitCoordinates +
+                ", coordinates=" + coordinates +
                 '}';
     }
 }

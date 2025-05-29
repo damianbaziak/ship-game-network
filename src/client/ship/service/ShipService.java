@@ -7,17 +7,17 @@ import java.util.Collections;
 import java.util.List;
 
 public class ShipService {
-    private final List<Ship> ships = new ArrayList<>();
+    private final List<Ship> listOfMyCreatedShips = new ArrayList<>();
 
     public void addShip(Ship ship) {
-        ships.add(ship);
+        listOfMyCreatedShips.add(ship);
     }
 
     public void removeShip(Ship ship) {
-        ships.remove(ship);
+        listOfMyCreatedShips.remove(ship);
     }
 
-    public List<Ship> getShips() {
-        return Collections.unmodifiableList(ships);
+    public List<Ship> getListOfMyCreatedShips() {
+        return Collections.unmodifiableList(listOfMyCreatedShips);
     }
 }

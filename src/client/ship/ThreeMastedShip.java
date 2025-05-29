@@ -6,12 +6,20 @@ import java.util.ArrayList;
 
 public class ThreeMastedShip extends Ship {
 
+    public ThreeMastedShip() {
+    }
+
     public ThreeMastedShip(Coordinate firstCoordinate, Coordinate secondCoordinate, Coordinate thirdCoordinate) {
         this.coordinates =  new ArrayList<>();
         coordinates.add(firstCoordinate);
         coordinates.add(secondCoordinate);
         coordinates.add(thirdCoordinate);
 
+    }
+
+    @Override
+    public boolean isSunk() {
+        return coordinates.size() == 3;
     }
 
     @Override
@@ -22,7 +30,8 @@ public class ThreeMastedShip extends Ship {
     @Override
     public String toString() {
         return "ThreeMastedShip{" +
-                "coordinates=" + coordinates +
+                "hitCoordinate=" + hitCoordinates +
+                ", coordinates=" + coordinates +
                 '}';
     }
 }

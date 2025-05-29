@@ -16,6 +16,11 @@ public class FourMastedShip extends Ship {
     }
 
     @Override
+    public boolean isSunk() {
+        return coordinates.size() == 4;
+    }
+
+    @Override
     public int getSize() {
         return 4;
     }
@@ -23,7 +28,8 @@ public class FourMastedShip extends Ship {
     @Override
     public String toString() {
         return "FourMastedShip{" +
-                "coordinates=" + coordinates +
+                "hitCoordinate=" + hitCoordinates +
+                ", coordinates=" + coordinates +
                 '}';
     }
 }
