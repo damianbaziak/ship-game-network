@@ -14,10 +14,6 @@ public abstract class Ship {
         hitCoordinates.add(c);
     }
 
-    public boolean contains(Coordinate c) {
-        return hitCoordinates.contains(c);
-    }
-
     public abstract boolean isSunk();
 
     public Set<Coordinate> getHitCoordinates() {

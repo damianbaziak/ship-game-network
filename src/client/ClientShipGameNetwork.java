@@ -354,7 +354,7 @@ public class ClientShipGameNetwork {
                     hitOpponentSingleMastedShips.add(newShip);
 
                     // Mark the ship as sunk immediately because one-masted ships are destroyed with a single hit.
-                    opponentBoard[row][col] = hitAndSunk;
+                    opponentBoard[hitCoordinate.getRow()][hitCoordinate.getCol()] = hitAndSunk;
 
                     System.out.println();
                     System.out.println("You hit a single-masted ship!".toUpperCase());
@@ -385,34 +385,24 @@ public class ClientShipGameNetwork {
                     List<Ship> hitOpponentTwoMastedShips =
                             hitOpponentShipsBySize.computeIfAbsent(2, k -> new ArrayList<>());
 
-                    TwoMastedShip newShip = new TwoMastedShip();
-                    newShip.addHit(hitCoordinate);
-                    hitOpponentTwoMastedShips.add(newShip);
-
-
-                /*
-
-                    boolean added = false;
-
-                    hitOpponentTwoMastedShips.stream()
+                    Optional<Ship> optionalShip = hitOpponentTwoMastedShips
+                            .stream()
                             .filter(s -> !s.getHitCoordinates().contains(hitCoordinate))
                             .filter(s -> s.getHitCoordinates().size() == 1)
-                            .findFirst()
-                            .ifPresentOrElse(
-                                    s -> {
-                                        areHitCoordinatesAdjecent(s.getHitCoordinates(), hitCoordinate);
-                                        s.addHit(hitCoordinate);
-                                    }, () -> {
-                                        TwoMastedShip newShip = new TwoMastedShip();
-                                        newShip.addHit(hitCoordinate);
-                                        hitOpponentTwoMastedShips.add(newShip)
-                                    }
+                            .filter(s -> s.getHitCoordinates().stream().anyMatch(
+                                    coordinate -> areHitCoordinatesAdjacent(coordinate, hitCoordinate)))
+                            .findFirst();
 
-                            );
+                    optionalShip.ifPresentOrElse(
+                            s -> s.addHit(hitCoordinate),
+                            () -> {
+                                TwoMastedShip newShip = new TwoMastedShip();
+                                newShip.addHit(hitCoordinate);
+                                hitOpponentTwoMastedShips.add(newShip);
+                            }
+                    );
 
-                     */
-
-                    opponentBoard[row][col] = HIT_MAST_CHAR;
+                    opponentBoard[hitCoordinate.getRow()][hitCoordinate.getCol()] = HIT_MAST_CHAR;
 
                     System.out.println();
                     System.out.println("You hit a two-masted ship!".toUpperCase());
@@ -421,12 +411,11 @@ public class ClientShipGameNetwork {
                     if (!secondOpponentReport.isBlank()
                             && "You've sunk a Two-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
 
-                        List<Coordinate> hitTwoMastedShip = hitOpponentTwoMastedShips.get(shipKey);
-                        if (hitTwoMastedShip != null && hitTwoMastedShip.size() == 2) {
-                            hitTwoMastedShip.forEach(coordinate -> {
+                        optionalShip.ifPresent(s -> {
+                            s.getHitCoordinates().forEach(coordinate -> {
                                 opponentBoard[coordinate.getRow()][coordinate.getCol()] = hitAndSunk;
                             });
-                        } else System.out.println("Error: Ship not found or coordinate list is incomplete.");
+                        });
 
 
                         System.out.println();
@@ -449,21 +438,26 @@ public class ClientShipGameNetwork {
 
                 } else if ("You hit a three-masted ship.".equalsIgnoreCase(opponentReport)) {
 
-                    Map<String, List<Coordinate>> hitThreeMastedShipsMap = hitOpponentShipsBySize.computeIfAbsent(
-                            3, k -> new HashMap<>());
+                    List<Ship> hitThreeMastedShips = hitOpponentShipsBySize.computeIfAbsent(
+                            3, k -> new ArrayList<>());
 
-                    int shipCounter = 1;
-                    String shipKey;
+                    Optional<Ship> optionalShip = hitThreeMastedShips
+                            .stream()
+                            .filter(s -> s.getHitCoordinates().contains(hitCoordinate))
+                            .filter(s -> s.getHitCoordinates().size() < 3)
+                            .filter(s -> s.getCoordinates().stream().anyMatch(
+                                    coordinate -> areHitCoordinatesAdjacent(coordinate, hitCoordinate)))
+                            .findFirst();
 
-                    do {
-                        shipKey = "threeMastedShips" + shipCounter;
-                        shipCounter++;
-                    } while (hitThreeMastedShipsMap.containsKey(shipKey)
-                            && hitThreeMastedShipsMap.get(shipKey).size() == 3);
+                    optionalShip.ifPresentOrElse(s -> s.addHit(hitCoordinate),
+                            () -> {
+                                Ship newShip = new ThreeMastedShip();
+                                newShip.addHit(hitCoordinate);
+                                hitThreeMastedShips.add(newShip);
+                            }
+                    );
 
-                    hitThreeMastedShipsMap.computeIfAbsent(shipKey, k -> new ArrayList<>()).add(hitCoordinate);
-
-                    opponentBoard[row][col] = HIT_MAST_CHAR;
+                    opponentBoard[hitCoordinate.getRow()][hitCoordinate.getCol()] = HIT_MAST_CHAR;
 
                     System.out.println();
                     System.out.println("You hit a three-masted ship!".toUpperCase());
@@ -472,12 +466,12 @@ public class ClientShipGameNetwork {
                     if (!secondOpponentReport.isBlank()
                             && "You've sunk a Three-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
 
-                        List<Coordinate> hitThreeMastedShip = hitThreeMastedShipsMap.get(shipKey);
-                        if (hitThreeMastedShip != null && hitThreeMastedShip.size() == 3) {
-                            hitThreeMastedShip.forEach(coordinate -> {
-                                opponentBoard[coordinate.getRow()][coordinate.getCol()] = hitAndSunk;
-                            });
-                        } else System.out.println("Error: Ship not found or coordinate list is incomplete.");
+                        optionalShip.ifPresent(s -> s.getCoordinates().forEach(
+                                        coordinate -> {
+                                            opponentBoard[coordinate.getRow()][coordinate.getCol()] = hitAndSunk;
+                                        }
+                                )
+                        );
 
 
                         System.out.println();
@@ -500,21 +494,26 @@ public class ClientShipGameNetwork {
 
                 } else if ("You hit a four-masted ship.".equalsIgnoreCase(opponentReport)) {
 
-                    Map<String, List<Coordinate>> hitFourMastedShipsMap = hitOpponentShipsBySize
-                            .computeIfAbsent(4, k -> new HashMap<>());
+                    List<Ship> hitFourMastedShipsMap = hitOpponentShipsBySize
+                            .computeIfAbsent(4, k -> new ArrayList<>());
 
-                    int shipCounter = 1;
-                    String shipKey;
+                    Optional<Ship> optionalShip = hitFourMastedShipsMap
+                            .stream()
+                            .filter(s -> !s.getCoordinates().contains(hitCoordinate))
+                            .filter(s -> s.getCoordinates().size() < 4)
+                            .filter(s -> s.getCoordinates().stream().anyMatch(
+                                    coordinate -> areHitCoordinatesAdjacent(coordinate, hitCoordinate)))
+                            .findFirst();
 
-                    do {
-                        shipKey = "fourMastedShips" + shipCounter;
-                        shipCounter++;
-                    } while (hitFourMastedShipsMap.containsKey(shipKey)
-                            && hitFourMastedShipsMap.get(shipKey).size() == 4);
+                    optionalShip.ifPresentOrElse(s -> s.addHit(hitCoordinate),
+                            () -> {
+                                Ship newShip = new FourMastedShip();
+                                newShip.addHit(hitCoordinate);
+                                hitFourMastedShipsMap.add(newShip);
+                            }
+                    );
 
-                    hitFourMastedShipsMap.computeIfAbsent(shipKey, k -> new ArrayList<>()).add(hitCoordinate);
-
-                    opponentBoard[row][col] = HIT_MAST_CHAR;
+                    opponentBoard[hitCoordinate.getRow()][hitCoordinate.getCol()] = HIT_MAST_CHAR;
 
                     Thread.sleep(1000);
                     System.out.println();
@@ -523,12 +522,12 @@ public class ClientShipGameNetwork {
                     if (!secondOpponentReport.isBlank()
                             && "You've sunk a Four-Masted Ship.".equalsIgnoreCase(secondOpponentReport)) {
 
-                        List<Coordinate> hitFourMastedShip = hitFourMastedShipsMap.get(shipKey);
-                        if (hitFourMastedShip != null && hitFourMastedShip.size() == 4) {
-                            hitFourMastedShip.forEach(coordinate -> {
-                                opponentBoard[coordinate.getRow()][coordinate.getCol()] = hitAndSunk;
-                            });
-                        } else System.out.println("Error: Ship not found or coordinate list is incomplete.");
+                        optionalShip.ifPresent(s -> s.getCoordinates().forEach(
+                                        coordinate -> {
+                                            opponentBoard[coordinate.getRow()][coordinate.getCol()] = hitAndSunk;
+                                        }
+                                )
+                        );
 
                         System.out.println();
                         System.out.println("You've sunk a Four-Masted Ship!".toUpperCase());
@@ -563,6 +562,12 @@ public class ClientShipGameNetwork {
         }
 
 
+    }
+
+    private static boolean areHitCoordinatesAdjacent(Coordinate coordinate, Coordinate hitCoordinate) {
+        int differenceCol = hitCoordinate.getCol() - coordinate.getCol();
+        int differenceRow = hitCoordinate.getRow() - coordinate.getRow();
+        return differenceRow + differenceCol == 1;
     }
 
     private static boolean didPLayerWin(String fourthOpponentReport) throws InterruptedException {

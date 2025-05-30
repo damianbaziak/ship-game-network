@@ -6,6 +6,9 @@ import java.util.ArrayList;
 
 public class FourMastedShip extends Ship {
 
+    public FourMastedShip() {
+    }
+
     public FourMastedShip(Coordinate firstCoordinate, Coordinate secondCoordinate, Coordinate thirdCoordinate,
                           Coordinate fourthCoordinate) {
         this.coordinates = new ArrayList<>();
