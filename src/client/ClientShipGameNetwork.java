@@ -329,6 +329,7 @@ public class ClientShipGameNetwork {
             Map<Integer, List<Ship>> hitOpponentShipsBySize)
             throws IOException, InterruptedException {
 
+        displayEntireGameBoard(myBoard, opponentBoard, ship);
 
         boolean youHitYouTurn = true;
 
@@ -357,8 +358,6 @@ public class ClientShipGameNetwork {
 
             if ("This shot has been already fired!".equalsIgnoreCase(opponentReport)) {
 
-                displayEntireGameBoard(myBoard, opponentBoard, ship);
-
                 MessagePrinter.printAlreadyHit();
                 Thread.sleep(1000);
 
@@ -367,10 +366,6 @@ public class ClientShipGameNetwork {
             } else if (opponentReport.startsWith("You hit")) {
 
                 Coordinate hitCoordinate = new Coordinate(row, col);
-
-                displayEntireGameBoard(myBoard, opponentBoard, ship);
-                MessagePrinter.printHit();
-                Thread.sleep(1000);
 
                 if ("You hit a single-masted ship!".equalsIgnoreCase(opponentReport)) {
 
@@ -383,6 +378,11 @@ public class ClientShipGameNetwork {
 
                     // Mark the ship as sunk immediately because one-masted ships are destroyed with a single hit.
                     opponentBoard[hitCoordinate.getRow()][hitCoordinate.getCol()] = hitAndSunk;
+
+                    displayEntireGameBoard(myBoard, opponentBoard, ship);
+                    Thread.sleep(500);
+                    MessagePrinter.printHit();
+                    Thread.sleep(1000);
 
                     System.out.println();
                     System.out.println("You hit a single-masted ship!".toUpperCase());
@@ -430,11 +430,6 @@ public class ClientShipGameNetwork {
                             }
                     );
 
-                    opponentBoard[hitCoordinate.getRow()][hitCoordinate.getCol()] = HIT_MAST_CHAR;
-
-                    System.out.println();
-                    System.out.println("You hit a two-masted ship!".toUpperCase());
-                    Thread.sleep(1000);
 
                     if (!secondOpponentReport.isBlank()
                             && "You've sunk a Two-Masted Ship!".equalsIgnoreCase(secondOpponentReport)) {
@@ -446,8 +441,25 @@ public class ClientShipGameNetwork {
                         });
 
 
+                        displayEntireGameBoard(myBoard, opponentBoard, ship);
+                        Thread.sleep(500);
+                        MessagePrinter.printHit();
+                        Thread.sleep(1000);
+                        System.out.println("You hit a two-masted ship!".toUpperCase());
+                        Thread.sleep(1000);
                         System.out.println();
                         System.out.println("You've sunk a Two-Masted Ship!".toUpperCase());
+                        Thread.sleep(1000);
+
+                    } else {
+
+                        opponentBoard[hitCoordinate.getRow()][hitCoordinate.getCol()] = HIT_MAST_CHAR;
+
+                        displayEntireGameBoard(myBoard, opponentBoard, ship);
+                        Thread.sleep(500);
+                        MessagePrinter.printHit();
+                        Thread.sleep(1000);
+                        System.out.println("You hit a two-masted ship!".toUpperCase());
                         Thread.sleep(1000);
                     }
 
@@ -485,12 +497,6 @@ public class ClientShipGameNetwork {
                             }
                     );
 
-                    opponentBoard[hitCoordinate.getRow()][hitCoordinate.getCol()] = HIT_MAST_CHAR;
-
-                    System.out.println();
-                    System.out.println("You hit a three-masted ship!".toUpperCase());
-                    Thread.sleep(1000);
-
                     if (!secondOpponentReport.isBlank()
                             && "You've sunk a Three-Masted Ship!".equalsIgnoreCase(secondOpponentReport)) {
 
@@ -501,10 +507,27 @@ public class ClientShipGameNetwork {
                                 )
                         );
 
-
+                        displayEntireGameBoard(myBoard, opponentBoard, ship);
+                        Thread.sleep(500);
+                        MessagePrinter.printHit();
+                        Thread.sleep(1000);
+                        System.out.println("You hit a three-masted ship!".toUpperCase());
+                        Thread.sleep(1000);
                         System.out.println();
                         System.out.println("You've sunk a Three-Masted Ship!".toUpperCase());
                         Thread.sleep(1000);
+
+                    } else {
+
+                        opponentBoard[hitCoordinate.getRow()][hitCoordinate.getCol()] = HIT_MAST_CHAR;
+
+                        displayEntireGameBoard(myBoard, opponentBoard, ship);
+                        Thread.sleep(500);
+                        MessagePrinter.printHit();
+                        Thread.sleep(1000);
+                        System.out.println("You hit a three-masted ship!".toUpperCase());
+                        Thread.sleep(1000);
+
                     }
 
                     if (!thirdOpponentReport.isBlank()
@@ -542,12 +565,6 @@ public class ClientShipGameNetwork {
                             }
                     );
 
-                    opponentBoard[hitCoordinate.getRow()][hitCoordinate.getCol()] = HIT_MAST_CHAR;
-
-                    Thread.sleep(1000);
-                    System.out.println();
-                    System.out.println("You hit a four-masted ship!".toUpperCase());
-
                     if (!secondOpponentReport.isBlank()
                             && "You've sunk a Four-Masted Ship!".equalsIgnoreCase(secondOpponentReport)) {
 
@@ -558,8 +575,25 @@ public class ClientShipGameNetwork {
                                 )
                         );
 
+                        displayEntireGameBoard(myBoard, opponentBoard, ship);
+                        Thread.sleep(500);
+                        MessagePrinter.printHit();
+                        Thread.sleep(1000);
+                        System.out.println("You hit a four-masted ship!".toUpperCase());
+                        Thread.sleep(1000);
                         System.out.println();
                         System.out.println("You've sunk a Four-Masted Ship!".toUpperCase());
+                        Thread.sleep(1000);
+
+                    } else {
+                        opponentBoard[hitCoordinate.getRow()][hitCoordinate.getCol()] = HIT_MAST_CHAR;
+
+
+                        displayEntireGameBoard(myBoard, opponentBoard, ship);
+                        Thread.sleep(500);
+                        MessagePrinter.printHit();
+                        Thread.sleep(1000);
+                        System.out.println("You hit a four-masted ship!".toUpperCase());
                         Thread.sleep(1000);
                     }
 
@@ -580,10 +614,10 @@ public class ClientShipGameNetwork {
 
 
             } else {
+                opponentBoard[row][col] = miss;
                 displayEntireGameBoard(myBoard, opponentBoard, ship);
                 MessagePrinter.displayMiss();
                 Thread.sleep(1000);
-                opponentBoard[row][col] = miss;
                 youHitYouTurn = false;
 
 
