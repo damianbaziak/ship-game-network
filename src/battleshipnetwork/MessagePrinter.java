@@ -75,7 +75,7 @@ public class MessagePrinter {
     // =========================
 
 
-    public static void displayGreeting() throws InterruptedException {
+    public static void printGreeting() throws InterruptedException {
         clearScreen();
         for (String s : GREETING_STRING) {
             for (char c : s.toCharArray()) {
@@ -107,7 +107,7 @@ public class MessagePrinter {
         printMessage(miss);
     }
 
-    public static void displayHit() {
+    public static void printHit() {
         String[] hit = {
                 "╦ ╦ ╦ ╔╦╗  ┬",
                 "╠═╣ ║  ║   │",
@@ -116,7 +116,7 @@ public class MessagePrinter {
         printMessage(hit);
     }
 
-    public static void displayAlreadyHit() {
+    public static void printAlreadyHit() {
         String[] alreadyHit = {
                 "╔═╗ ╦   ╦═╗ ╔═╗ ╔═╗╔╦╗ ╦ ╦   ╦ ╦ ╦ ╔╦╗ ┬",
                 "╠═╣ ║   ╠╦╝ ║╣  ╠═╣ ║║ ╚╦╝   ╠═╣ ║  ║  │",
@@ -125,12 +125,12 @@ public class MessagePrinter {
         printMessage(alreadyHit);
     }
 
-    public static void displayYouWin() {
+    public static void printYouWin() {
         makeSpace();
         printMessage(YOU_WIN_STRING);
     }
 
-    public static void displayYouLose() {
+    public static void printYouLose() {
         makeSpace();
         printMessage(YOU_LOSE_STRING);
     }
