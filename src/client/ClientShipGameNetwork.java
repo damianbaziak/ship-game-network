@@ -305,7 +305,7 @@ public class ClientShipGameNetwork {
             System.out.println(thirdHitMessageToDisplay);
             Thread.sleep(1000);
         }
-        if (!fourthHitMessageToDisplay.isEmpty()) {
+        if (fourthHitMessageToDisplay != null && !fourthHitMessageToDisplay.isEmpty()) {
             System.out.println();
             System.out.println(fourthHitMessageToDisplay);
             Thread.sleep(1000);
@@ -336,7 +336,7 @@ public class ClientShipGameNetwork {
         while (youHitYouTurn) {
 
             // displayEntireGameBoard(myBoard, opponentBoard, ship);
-
+            System.out.println();
             System.out.println("Your turn! Enter the target coordinates: ");
 
             String myShot = scanner.nextLine();
