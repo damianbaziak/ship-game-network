@@ -161,6 +161,7 @@ public class MessagePrinter {
             }
             System.out.println();
         }
+        System.out.println();
     }
 
     private static void clearScreen() {

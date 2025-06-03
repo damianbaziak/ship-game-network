@@ -358,6 +358,7 @@ public class ClientShipGameNetwork {
 
             if ("This shot has been already fired!".equalsIgnoreCase(opponentReport)) {
 
+                displayEntireGameBoard(myBoard, opponentBoard, ship);
                 MessagePrinter.printAlreadyHit();
                 Thread.sleep(1000);
 
@@ -384,7 +385,6 @@ public class ClientShipGameNetwork {
                     MessagePrinter.printHit();
                     Thread.sleep(1000);
 
-                    System.out.println();
                     System.out.println("You hit a single-masted ship!".toUpperCase());
                     Thread.sleep(1000);
 
@@ -615,9 +615,12 @@ public class ClientShipGameNetwork {
 
             } else {
                 opponentBoard[row][col] = miss;
+
                 displayEntireGameBoard(myBoard, opponentBoard, ship);
+                Thread.sleep(500);
                 MessagePrinter.displayMiss();
                 Thread.sleep(1000);
+
                 youHitYouTurn = false;
 
 
