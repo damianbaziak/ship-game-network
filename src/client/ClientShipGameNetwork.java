@@ -913,6 +913,8 @@ public class ClientShipGameNetwork {
                 continue;
             }
 
+            myBoard[row][col] = '1';
+
 
             // ******************* INPUT AND VALIDATION FOR THE SECOND MAST **********************
 
@@ -1100,7 +1102,7 @@ public class ClientShipGameNetwork {
                 continue;
             }
 
-            myBoard[row][col] = 1;
+            myBoard[row][col] = '1';
 
 
             // ******************* INPUT AND VALIDATION FOR THE SECOND MAST **********************
@@ -1185,7 +1187,7 @@ public class ClientShipGameNetwork {
                 continue;
             }
 
-            myBoard[secondRow][secondCol] = 2;
+            myBoard[secondRow][secondCol] = '2';
 
 
             // ******************* INPUT AND VALIDATION FOR THE THIRD MAST **********************
@@ -1372,7 +1374,7 @@ public class ClientShipGameNetwork {
                 continue;
             }
 
-            myBoard[row][col] = 1;
+            myBoard[row][col] = '1';
 
 
             // ******************* INPUT AND VALIDATION FOR THE SECOND MAST **********************
@@ -1457,7 +1459,7 @@ public class ClientShipGameNetwork {
                 continue;
             }
 
-            myBoard[secondRow][secondCol] = 2;
+            myBoard[secondRow][secondCol] = '2';
 
 
             // ******************* INPUT AND VALIDATION FOR THE THIRD MAST **********************
@@ -1542,7 +1544,7 @@ public class ClientShipGameNetwork {
                 continue;
             }
 
-            myBoard[thirdRow][thirdCol] = 3;
+            myBoard[thirdRow][thirdCol] = '3';
 
 
             // ******************* INPUT AND VALIDATION FOR THE FOURTH MAST **********************
