@@ -656,6 +656,7 @@ public class ClientShipGameNetwork {
         if (input.length() < 2 || input.length() > 3) {
             printMyBoard(myBoard, ship);
             System.out.println("Invalid format. Enter e.g. A5 or B10");
+            System.out.println();
             return false;
         }
 
@@ -664,6 +665,7 @@ public class ClientShipGameNetwork {
         if (!Character.isLetter(colChar)) {
             printMyBoard(myBoard, ship);
             System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
+            System.out.println();
             return false;
         }
 
@@ -677,12 +679,14 @@ public class ClientShipGameNetwork {
         if ((input.length() == 3) && !(rowNumber.equals("10"))) {
             printMyBoard(myBoard, ship);
             System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
+            System.out.println();
             return false;
         }
 
         if (!Character.isDigit(firstCharOfRowNumber)) {
             printMyBoard(myBoard, ship);
             System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
+            System.out.println();
             return false;
         }
 
@@ -690,6 +694,7 @@ public class ClientShipGameNetwork {
         if ((col < 0) || (col > 9)) {
             printMyBoard(myBoard, ship);
             System.out.println("Column must be between A and J!".toUpperCase());
+            System.out.println();
             return false;
         }
 
@@ -697,13 +702,14 @@ public class ClientShipGameNetwork {
         if ((row < 0) || (row > 9)) {
             printMyBoard(myBoard, ship);
             System.out.println("Row must be between 1 and 10!".toUpperCase());
+            System.out.println();
             return false;
         }
         return true;
     }
 
     private static char[][] placeShips(
-            char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) {
+            char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) throws InterruptedException {
 
         int placedShips = 0;
 
@@ -712,7 +718,9 @@ public class ClientShipGameNetwork {
         System.out.println();
 
         while (placedShips < singleMastedShipNumber) {
+
             // printMyBoard(myBoard, ship);
+
             System.out.printf("Enter coordinates for the %d of 4 Single-Masted Ship (e.g., A5):%n", placedShips + 1);
             String input = scanner.nextLine();
 
@@ -817,45 +825,40 @@ public class ClientShipGameNetwork {
             myBoard[row][col] = ship;
             placedShips++;
 
+            printMyBoard(myBoard, ship);
+
             Coordinate coordinate = new Coordinate(row, col);
             SingleMastedShip singleMastedShip = new SingleMastedShip(coordinate);
             shipService.addShip(singleMastedShip);
+
         }
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         return placeTwoMastedShips(myBoard, water, ship, scanner, output);
 
     }
 
     private static char[][] placeTwoMastedShips(
-            char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) {
+            char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) throws InterruptedException {
 
-        printMyBoard(myBoard, ship);
+        Thread.sleep(1000);
         System.out.println("All Single-Masted ships have been placed!".toUpperCase());
+        Thread.sleep(1000);
+        System.out.println();
         System.out.println();
         System.out.println("Place your three Two-Masted Ships");
+        Thread.sleep(1000);
         System.out.println();
 
         int placedTwoMastedShips = 0;
 
 
         while (placedTwoMastedShips < twoMastedShipNumber) {
+
             // printMyBoard(myBoard, ship);
 
             // ******************* INPUT AND VALIDATION FOR THE FIRST MAST **********************
 
-            System.out.println();
-            System.out.printf("Enter first coordinate for the %d of 3 Two-Masted Ship (e.g., A5):%n",
+            System.out.printf("Enter FIRST COORDINATE for the %d of 3 Two-Masted Ship (e.g., A5):%n",
                     placedTwoMastedShips + 1);
             String firstInput = scanner.nextLine();
 
@@ -876,6 +879,7 @@ public class ClientShipGameNetwork {
             if (possiblePlacement != water) {
                 printMyBoard(myBoard, ship);
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
+                System.out.println();
                 continue;
             }
 
@@ -914,10 +918,12 @@ public class ClientShipGameNetwork {
             if (row < myBoard.length - 1 && col < myBoard[0].length - 1 && myBoard[row + 1][col + 1] != water) {
                 canPlaceFirstMast = false;
             }
+
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
             if (!canPlaceFirstMast) {
                 printMyBoard(myBoard, ship);
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                System.out.println();
                 continue;
             }
 
@@ -931,8 +937,7 @@ public class ClientShipGameNetwork {
 
             while (secondMastIsNotPlced) {
 
-                System.out.println();
-                System.out.printf("Enter second coordinate for the %d of 3 Two-Masted Ship:%n",
+                System.out.printf("Enter SECOND COORDINATE for the %d of 3 Two-Masted Ship:%n",
                         placedTwoMastedShips + 1);
                 String secondInput = scanner.nextLine();
 
@@ -957,6 +962,7 @@ public class ClientShipGameNetwork {
                     printMyBoard(myBoard, ship);
                     System.out.println(("Second mast must be placed directly next to the first one " +
                             "(vertically or horizontally)!").toUpperCase());
+                    System.out.println();
                     continue;
                 }
 
@@ -967,6 +973,7 @@ public class ClientShipGameNetwork {
                 if (possiblePlacementForSecondMast != water) {
                     printMyBoard(myBoard, ship);
                     System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
+                    System.out.println();
                     continue;
                 }
 
@@ -1011,6 +1018,7 @@ public class ClientShipGameNetwork {
                 if (!canPlaceSecondMast) {
                     printMyBoard(myBoard, ship);
                     System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                    System.out.println();
                     continue;
                 }
 
@@ -1028,18 +1036,6 @@ public class ClientShipGameNetwork {
             placedTwoMastedShips++;
 
         }
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println();
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
 
         printMyBoard(myBoard, ship);
 
@@ -1047,19 +1043,22 @@ public class ClientShipGameNetwork {
     }
 
     private static char[][] placeThreeMastedShips(
-            char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) {
+            char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) throws InterruptedException {
 
-        printMyBoard(myBoard, ship);
+        Thread.sleep(1000);
         System.out.println("All Two-Masted ships have been placed!".toUpperCase());
+        Thread.sleep(1000);
+        System.out.println();
         System.out.println();
         System.out.println("Place your three Three-Masted Ships");
+        Thread.sleep(1000);
+        System.out.println();
 
 
         int placedThreeMastedShips = 0;
 
         while (placedThreeMastedShips < threeMastedShipNumber) {
 
-            System.out.println();
             System.out.printf("Enter FIRST COORDINATE for the %d of 2 Three-Masted Ship (e.g., A5):%n",
                     placedThreeMastedShips + 1);
 
@@ -1081,6 +1080,7 @@ public class ClientShipGameNetwork {
             if (possiblePlacement != water) {
                 printMyBoard(myBoard, ship);
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
+                System.out.println();
                 continue;
             }
 
@@ -1121,8 +1121,9 @@ public class ClientShipGameNetwork {
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
             if (!canPlaceFirstMast) {
-                System.out.println();
+                printMyBoard(myBoard, ship);
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                System.out.println();
                 continue;
             }
 
@@ -1139,7 +1140,6 @@ public class ClientShipGameNetwork {
 
             while (secondMastNotIsPlaced) {
 
-                System.out.println();
                 System.out.printf("Enter SECOND COORDINATE for the %d of 2 Three-Masted Ship:%n",
                         placedThreeMastedShips + 1);
                 String secondInput = scanner.nextLine();
@@ -1163,6 +1163,7 @@ public class ClientShipGameNetwork {
                     printMyBoard(myBoard, ship);
                     System.out.println(("Second mast must be placed directly next to the first one " +
                             "(vertically or horizontally)!").toUpperCase());
+                    System.out.println();
                     continue;
                 }
 
@@ -1172,6 +1173,7 @@ public class ClientShipGameNetwork {
                 if (possiblePlacementForSecondMast != water) {
                     printMyBoard(myBoard, ship);
                     System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
+                    System.out.println();
                     continue;
                 }
 
@@ -1216,6 +1218,7 @@ public class ClientShipGameNetwork {
                 if (!canPlaceSecondMast) {
                     printMyBoard(myBoard, ship);
                     System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                    System.out.println();
                     continue;
                 }
 
@@ -1231,6 +1234,7 @@ public class ClientShipGameNetwork {
             boolean thirdMastIsNotPlaced = true;
 
             while (thirdMastIsNotPlaced) {
+
                 System.out.printf("Enter THIRD COORDINATE for the %d of 2 Three-Masted Ship:%n",
                         placedThreeMastedShips + 1);
                 String thirdInput = scanner.nextLine();
@@ -1262,6 +1266,7 @@ public class ClientShipGameNetwork {
                     printMyBoard(myBoard, ship);
                     System.out.println(
                             "Third mast must placed be directly next to the second or first one!".toUpperCase());
+                    System.out.println();
                     continue;
                 }
 
@@ -1271,6 +1276,7 @@ public class ClientShipGameNetwork {
                 if (possiblePlacementForThirdMast != water) {
                     printMyBoard(myBoard, ship);
                     System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
+                    System.out.println();
                     continue;
                 }
 
@@ -1320,6 +1326,7 @@ public class ClientShipGameNetwork {
                 if (!canPlaceThirdMast) {
                     printMyBoard(myBoard, ship);
                     System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                    System.out.println();
                     continue;
                 }
 
@@ -1341,34 +1348,24 @@ public class ClientShipGameNetwork {
             placedThreeMastedShips++;
         }
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
         return placeFourMastedShips(myBoard, water, ship, scanner, output);
     }
 
     private static char[][] placeFourMastedShips(
-            char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) {
+            char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) throws InterruptedException {
 
         printMyBoard(myBoard, ship);
+        Thread.sleep(1000);
         System.out.println("All Three-Masted ships have been placed!".toUpperCase());
         System.out.println();
+        System.out.println();
         System.out.println("Place your one Four-Masted Ship");
+        System.out.println();
 
         int placedFourMastedShips = 0;
 
         while (placedFourMastedShips < fourMastedShipNumber) {
 
-            System.out.println();
             System.out.printf("Enter FIRST COORDINATE for the %d of 1 Four-Masted Ship (e.g., A5):%n",
                     placedFourMastedShips + 1);
             String firstInput = scanner.nextLine();
@@ -1388,6 +1385,7 @@ public class ClientShipGameNetwork {
             if (possiblePlacement != water) {
                 printMyBoard(myBoard, ship);
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
+                System.out.println();
                 continue;
             }
 
@@ -1430,6 +1428,7 @@ public class ClientShipGameNetwork {
             if (!canPlaceFirstMast) {
                 printMyBoard(myBoard, ship);
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                System.out.println();
                 continue;
             }
 
@@ -1469,6 +1468,7 @@ public class ClientShipGameNetwork {
                     printMyBoard(myBoard, ship);
                     System.out.println("Second mast must be placed directly next to the first one (vertically or horizontally)!"
                             .toUpperCase());
+                    System.out.println();
                     continue;
                 }
 
@@ -1522,6 +1522,7 @@ public class ClientShipGameNetwork {
                 if (!canPlaceSecondMast) {
                     printMyBoard(myBoard, ship);
                     System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                    System.out.println();
                     continue;
                 }
 
@@ -1570,6 +1571,7 @@ public class ClientShipGameNetwork {
                     printMyBoard(myBoard, ship);
                     System.out.println(
                             "Third mast must be placed directly next to the second or first one!".toUpperCase());
+                    System.out.println();
                     continue;
                 }
 
@@ -1579,6 +1581,7 @@ public class ClientShipGameNetwork {
                 if (possiblePlacementForThirdMast != water) {
                     printMyBoard(myBoard, ship);
                     System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
+                    System.out.println();
                     continue;
                 }
 
@@ -1623,10 +1626,12 @@ public class ClientShipGameNetwork {
                         && myBoard[thirdRow + 1][thirdCol + 1] != water) {
                     canPlaceThirdMast = false;
                 }
+
                 // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
                 if (!canPlaceThirdMast) {
                     printMyBoard(myBoard, ship);
                     System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                    System.out.println();
                     continue;
                 }
 
@@ -1643,7 +1648,6 @@ public class ClientShipGameNetwork {
 
             while (fourthMastIsNotPlaced) {
 
-                System.out.println();
                 System.out.printf("Enter fourth coordinate for the %d of 1 Four-Masted Ship:%n",
                         placedFourMastedShips + 1);
                 String fourthInput = scanner.nextLine();
@@ -1670,6 +1674,7 @@ public class ClientShipGameNetwork {
                 if (!isFourthMastAdjacent) {
                     printMyBoard(myBoard, ship);
                     System.out.println("The fourth mast must be placed next to the other masts".toUpperCase());
+                    System.out.println();
                     continue;
                 }
 
@@ -1679,6 +1684,7 @@ public class ClientShipGameNetwork {
                 if (possiblePlacementForFourthMast != water) {
                     printMyBoard(myBoard, ship);
                     System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
+                    System.out.println();
                     continue;
                 }
 
@@ -1727,6 +1733,7 @@ public class ClientShipGameNetwork {
                 if (!canPlaceFourthMast) {
                     printMyBoard(myBoard, ship);
                     System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                    System.out.println();
                     continue;
                 }
 
@@ -1751,27 +1758,12 @@ public class ClientShipGameNetwork {
             placedFourMastedShips++;
         }
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         printMyBoard(myBoard, ship);
+
+        Thread.sleep(1000);
         System.out.println("ALL SHIPS HAVE BEEN PLACED!".toUpperCase());
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
+        Thread.sleep(1000);
         System.out.println("Waiting for the opponent...");
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
 
         output.println("Ships placed.");
 
