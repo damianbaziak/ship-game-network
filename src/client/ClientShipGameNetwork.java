@@ -95,13 +95,15 @@ public class ClientShipGameNetwork {
             Scanner scanner, BufferedReader input, PrintWriter output, char ship, char hit)
             throws IOException, InterruptedException {
 
+        displayEntireGameBoard(myBoard, opponentBoard, ship);
+
         boolean opponentHitYouWait = true;
 
         while (opponentHitYouWait) {
-            displayEntireGameBoard(myBoard, opponentBoard, ship);
 
             System.out.println("Opponent is firing. Waiting for their shot...");
             String opponentShot = input.readLine();
+            displayEntireGameBoard(myBoard, opponentBoard, ship);
             System.out.println();
             System.out.println("Opponent has fired at " + opponentShot.toUpperCase());
             Thread.sleep(1000);
@@ -359,6 +361,7 @@ public class ClientShipGameNetwork {
             if ("This shot has been already fired!".equalsIgnoreCase(opponentReport)) {
 
                 displayEntireGameBoard(myBoard, opponentBoard, ship);
+                Thread.sleep(500);
                 MessagePrinter.printAlreadyHit();
                 Thread.sleep(1000);
 
@@ -700,14 +703,14 @@ public class ClientShipGameNetwork {
     }
 
     private static char[][] placeShips(
-            char[][] gameBoard, char water, char ship, Scanner scanner, PrintWriter output) {
+            char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) {
 
         int placedShips = 0;
         System.out.println("Place your four Single-Masted Ships");
 
         while (placedShips < singleMastedShipNumber) {
-            displayMyBoard(gameBoard, ship);
-            System.out.printf("Enter coordinates for the %d of 4 Single-Masted Ship (e.g. A5):%n", placedShips + 1);
+            printMyBoard(myBoard, ship);
+            System.out.printf("Enter coordinates for the %d of 4 Single-Masted Ship (e.g., A5):%n", placedShips + 1);
             String input = scanner.nextLine();
 
             boolean isValidInput = validateInputFields(input);
@@ -757,7 +760,7 @@ public class ClientShipGameNetwork {
              */
 
 
-            char possiblePlacement = gameBoard[row][col];
+            char possiblePlacement = myBoard[row][col];
 
             if (possiblePlacement != water) {
                 System.out.println();
@@ -769,35 +772,35 @@ public class ClientShipGameNetwork {
             boolean canPlaceShip = true;
 
             // Sprawdzanie dolnego pola
-            if (row < gameBoard.length - 1 && gameBoard[row + 1][col] != water) {
+            if (row < myBoard.length - 1 && myBoard[row + 1][col] != water) {
                 canPlaceShip = false;
             }
             // Sprawdzanie górnego pola
-            if (row > 0 && gameBoard[row - 1][col] != water) {
+            if (row > 0 && myBoard[row - 1][col] != water) {
                 canPlaceShip = false;
             }
             // Sprawdzanie lewego pola
-            if (col > 0 && gameBoard[row][col - 1] != water) {
+            if (col > 0 && myBoard[row][col - 1] != water) {
                 canPlaceShip = false;
             }
             // Sprawdzanie prawego pola
-            if (col < gameBoard[0].length - 1 && gameBoard[row][col + 1] != water) {
+            if (col < myBoard[0].length - 1 && myBoard[row][col + 1] != water) {
                 canPlaceShip = false;
             }
             // Lewo-góra
-            if (row > 0 && col > 0 && gameBoard[row - 1][col - 1] != water) {
+            if (row > 0 && col > 0 && myBoard[row - 1][col - 1] != water) {
                 canPlaceShip = false;
             }
             // Lewo-dół
-            if (row < gameBoard.length - 1 && col > 0 && gameBoard[row + 1][col - 1] != water) {
+            if (row < myBoard.length - 1 && col > 0 && myBoard[row + 1][col - 1] != water) {
                 canPlaceShip = false;
             }
             // Prawo-góra
-            if (row > 0 && col < gameBoard[0].length - 1 && gameBoard[row - 1][col + 1] != water) {
+            if (row > 0 && col < myBoard[0].length - 1 && myBoard[row - 1][col + 1] != water) {
                 canPlaceShip = false;
             }
             // Prawo-dół
-            if (row < gameBoard.length - 1 && col < gameBoard[0].length - 1 && gameBoard[row + 1][col + 1] != water) {
+            if (row < myBoard.length - 1 && col < myBoard[0].length - 1 && myBoard[row + 1][col + 1] != water) {
                 canPlaceShip = false;
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
@@ -806,7 +809,7 @@ public class ClientShipGameNetwork {
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
                 continue;
             }
-            gameBoard[row][col] = ship;
+            myBoard[row][col] = ship;
             placedShips++;
 
 
@@ -828,19 +831,19 @@ public class ClientShipGameNetwork {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return placeTwoMastedShips(gameBoard, water, ship, scanner, output);
+        return placeTwoMastedShips(myBoard, water, ship, scanner, output);
 
     }
 
     private static char[][] placeTwoMastedShips(
-            char[][] gameBoard, char water, char ship, Scanner scanner, PrintWriter output) {
+            char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) {
 
         int placedTwoMastedShips = 0;
         System.out.println();
         System.out.println("Place your three Two-Masted Ships");
 
         while (placedTwoMastedShips < twoMastedShipNumber) {
-            displayMyBoard(gameBoard, ship);
+            printMyBoard(myBoard, ship);
 
             // ******************* INPUT AND VALIDATION FOR THE FIRST MAST **********************
 
@@ -860,7 +863,7 @@ public class ClientShipGameNetwork {
             int row = Integer.parseInt(rowNumber) - 1;
 
 
-            char possiblePlacement = gameBoard[row][col];
+            char possiblePlacement = myBoard[row][col];
 
             if (possiblePlacement != water) {
                 System.out.println();
@@ -868,39 +871,39 @@ public class ClientShipGameNetwork {
                 continue;
             }
 
-            // Sprawdzamy sąsiednie pola, czy są wolne
+            // SPRAWDZAMY CZY SASIEDNIE POLA SA WOLNE
             boolean canPlaceFirstMast = true;
 
             // Sprawdzanie dolnego pola
-            if (row < gameBoard.length - 1 && gameBoard[row + 1][col] != water) {
+            if (row < myBoard.length - 1 && myBoard[row + 1][col] != water) {
                 canPlaceFirstMast = false;
             }
             // Sprawdzanie górnego pola
-            if (row > 0 && gameBoard[row - 1][col] != water) {
+            if (row > 0 && myBoard[row - 1][col] != water) {
                 canPlaceFirstMast = false;
             }
             // Sprawdzanie lewego pola
-            if (col > 0 && gameBoard[row][col - 1] != water) {
+            if (col > 0 && myBoard[row][col - 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Sprawdzanie prawego pola
-            if (col < gameBoard[0].length - 1 && gameBoard[row][col + 1] != water) {
+            if (col < myBoard[0].length - 1 && myBoard[row][col + 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Lewo-góra
-            if (row > 0 && col > 0 && gameBoard[row - 1][col - 1] != water) {
+            if (row > 0 && col > 0 && myBoard[row - 1][col - 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Lewo-dół
-            if (row < gameBoard.length - 1 && col > 0 && gameBoard[row + 1][col - 1] != water) {
+            if (row < myBoard.length - 1 && col > 0 && myBoard[row + 1][col - 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Prawo-góra
-            if (row > 0 && col < gameBoard[0].length - 1 && gameBoard[row - 1][col + 1] != water) {
+            if (row > 0 && col < myBoard[0].length - 1 && myBoard[row - 1][col + 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Prawo-dół
-            if (row < gameBoard.length - 1 && col < gameBoard[0].length - 1 && gameBoard[row + 1][col + 1] != water) {
+            if (row < myBoard.length - 1 && col < myBoard[0].length - 1 && myBoard[row + 1][col + 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
@@ -913,6 +916,7 @@ public class ClientShipGameNetwork {
 
             // ******************* INPUT AND VALIDATION FOR THE SECOND MAST **********************
 
+            printMyBoard(myBoard, ship);
             System.out.printf("Enter second coordinate for the %d of 3 Two-Masted Ship:%n",
                     placedTwoMastedShips + 1);
             String secondInput = scanner.nextLine();
@@ -943,7 +947,7 @@ public class ClientShipGameNetwork {
 
 
             // Pozostala czesc walidacji
-            char possiblePlacementForSecondMast = gameBoard[secondRow][secondCol];
+            char possiblePlacementForSecondMast = myBoard[secondRow][secondCol];
 
             if (possiblePlacementForSecondMast != water) {
                 System.out.println();
@@ -955,37 +959,37 @@ public class ClientShipGameNetwork {
             boolean canPlaceSecondMast = true;
 
             // Sprawdzanie dolnego pola
-            if (secondRow < gameBoard.length - 1 && gameBoard[secondRow + 1][secondCol] != water) {
+            if (secondRow < myBoard.length - 1 && myBoard[secondRow + 1][secondCol] != water) {
                 canPlaceSecondMast = false;
             }
             // Sprawdzanie górnego pola
-            if (secondRow > 0 && gameBoard[secondRow - 1][secondCol] != water) {
+            if (secondRow > 0 && myBoard[secondRow - 1][secondCol] != water) {
                 canPlaceSecondMast = false;
             }
             // Sprawdzanie lewego pola
-            if (secondCol > 0 && gameBoard[secondRow][secondCol - 1] != water) {
+            if (secondCol > 0 && myBoard[secondRow][secondCol - 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Sprawdzanie prawego pola
-            if (secondCol < gameBoard[0].length - 1 && gameBoard[secondRow][secondCol + 1] != water) {
+            if (secondCol < myBoard[0].length - 1 && myBoard[secondRow][secondCol + 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Lewo-góra
-            if (secondRow > 0 && secondCol > 0 && gameBoard[secondRow - 1][secondCol - 1] != water) {
+            if (secondRow > 0 && secondCol > 0 && myBoard[secondRow - 1][secondCol - 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Lewo-dół
-            if (secondRow < gameBoard.length - 1 && secondCol > 0 && gameBoard[secondRow + 1][secondCol - 1] != water) {
+            if (secondRow < myBoard.length - 1 && secondCol > 0 && myBoard[secondRow + 1][secondCol - 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Prawo-góra
-            if (secondRow > 0 && secondCol < gameBoard[0].length - 1
-                    && gameBoard[secondRow - 1][secondCol + 1] != water) {
+            if (secondRow > 0 && secondCol < myBoard[0].length - 1
+                    && myBoard[secondRow - 1][secondCol + 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Prawo-dół
-            if (secondRow < gameBoard.length - 1 && secondCol < gameBoard[0].length - 1
-                    && gameBoard[secondRow + 1][secondCol + 1] != water) {
+            if (secondRow < myBoard.length - 1 && secondCol < myBoard[0].length - 1
+                    && myBoard[secondRow + 1][secondCol + 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
@@ -996,8 +1000,8 @@ public class ClientShipGameNetwork {
             }
 
 
-            gameBoard[row][col] = ship;
-            gameBoard[secondRow][secondCol] = ship;
+            myBoard[row][col] = ship;
+            myBoard[secondRow][secondCol] = ship;
             placedTwoMastedShips++;
 
             Coordinate firstCoordinate = new Coordinate(row, col);
@@ -1018,11 +1022,11 @@ public class ClientShipGameNetwork {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return placeThreeMastedShips(gameBoard, water, ship, scanner, output);
+        return placeThreeMastedShips(myBoard, water, ship, scanner, output);
     }
 
     private static char[][] placeThreeMastedShips(
-            char[][] gameBoard, char water, char ship, Scanner scanner, PrintWriter output) {
+            char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) {
 
 
         int placedThreeMastedShips = 0;
@@ -1030,7 +1034,7 @@ public class ClientShipGameNetwork {
         System.out.println("Place your three Three-Masted Ships");
 
         while (placedThreeMastedShips < threeMastedShipNumber) {
-            displayMyBoard(gameBoard, ship);
+            printMyBoard(myBoard, ship);
             System.out.printf("Enter first coordinate for the %d of 2 Three-Masted Ship (e.g. A5):%n",
                     placedThreeMastedShips + 1);
             String firstInput = scanner.nextLine();
@@ -1046,7 +1050,7 @@ public class ClientShipGameNetwork {
             int col = Character.toUpperCase(colChar) - 'A';
             int row = Integer.parseInt(rowNumber) - 1;
 
-            char possiblePlacement = gameBoard[row][col];
+            char possiblePlacement = myBoard[row][col];
 
             if (possiblePlacement != water) {
                 System.out.println();
@@ -1058,35 +1062,35 @@ public class ClientShipGameNetwork {
             boolean canPlaceFirstMast = true;
 
             // Sprawdzanie dolnego pola
-            if (row < gameBoard.length - 1 && gameBoard[row + 1][col] != water) {
+            if (row < myBoard.length - 1 && myBoard[row + 1][col] != water) {
                 canPlaceFirstMast = false;
             }
             // Sprawdzanie górnego pola
-            if (row > 0 && gameBoard[row - 1][col] != water) {
+            if (row > 0 && myBoard[row - 1][col] != water) {
                 canPlaceFirstMast = false;
             }
             // Sprawdzanie lewego pola
-            if (col > 0 && gameBoard[row][col - 1] != water) {
+            if (col > 0 && myBoard[row][col - 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Sprawdzanie prawego pola
-            if (col < gameBoard[0].length - 1 && gameBoard[row][col + 1] != water) {
+            if (col < myBoard[0].length - 1 && myBoard[row][col + 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Lewo-góra
-            if (row > 0 && col > 0 && gameBoard[row - 1][col - 1] != water) {
+            if (row > 0 && col > 0 && myBoard[row - 1][col - 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Lewo-dół
-            if (row < gameBoard.length - 1 && col > 0 && gameBoard[row + 1][col - 1] != water) {
+            if (row < myBoard.length - 1 && col > 0 && myBoard[row + 1][col - 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Prawo-góra
-            if (row > 0 && col < gameBoard[0].length - 1 && gameBoard[row - 1][col + 1] != water) {
+            if (row > 0 && col < myBoard[0].length - 1 && myBoard[row - 1][col + 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Prawo-dół
-            if (row < gameBoard.length - 1 && col < gameBoard[0].length - 1 && gameBoard[row + 1][col + 1] != water) {
+            if (row < myBoard.length - 1 && col < myBoard[0].length - 1 && myBoard[row + 1][col + 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
@@ -1096,9 +1100,12 @@ public class ClientShipGameNetwork {
                 continue;
             }
 
+            myBoard[row][col] = 1;
+
 
             // ******************* INPUT AND VALIDATION FOR THE SECOND MAST **********************
 
+            printMyBoard(myBoard, ship);
             System.out.printf("Enter second coordinate for the %d of 2 Three-Masted Ship:%n",
                     placedThreeMastedShips + 1);
             String secondInput = scanner.nextLine();
@@ -1126,7 +1133,7 @@ public class ClientShipGameNetwork {
             }
 
             // Pozostala czesc walidacji
-            char possiblePlacementForSecondMast = gameBoard[secondRow][secondCol];
+            char possiblePlacementForSecondMast = myBoard[secondRow][secondCol];
 
             if (possiblePlacementForSecondMast != water) {
                 System.out.println();
@@ -1138,37 +1145,37 @@ public class ClientShipGameNetwork {
             boolean canPlaceSecondMast = true;
 
             // Sprawdzanie dolnego pola
-            if (secondRow < gameBoard.length - 1 && gameBoard[secondRow + 1][secondCol] != water) {
+            if (secondRow < myBoard.length - 1 && myBoard[secondRow + 1][secondCol] != water) {
                 canPlaceSecondMast = false;
             }
             // Sprawdzanie górnego pola
-            if (secondRow > 0 && gameBoard[secondRow - 1][secondCol] != water) {
+            if (secondRow > 0 && myBoard[secondRow - 1][secondCol] != water) {
                 canPlaceSecondMast = false;
             }
             // Sprawdzanie lewego pola
-            if (secondCol > 0 && gameBoard[secondRow][secondCol - 1] != water) {
+            if (secondCol > 0 && myBoard[secondRow][secondCol - 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Sprawdzanie prawego pola
-            if (secondCol < gameBoard[0].length - 1 && gameBoard[secondRow][secondCol + 1] != water) {
+            if (secondCol < myBoard[0].length - 1 && myBoard[secondRow][secondCol + 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Lewo-góra
-            if (secondRow > 0 && secondCol > 0 && gameBoard[secondRow - 1][secondCol - 1] != water) {
+            if (secondRow > 0 && secondCol > 0 && myBoard[secondRow - 1][secondCol - 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Lewo-dół
-            if (secondRow < gameBoard.length - 1 && secondCol > 0 && gameBoard[secondRow + 1][secondCol - 1] != water) {
+            if (secondRow < myBoard.length - 1 && secondCol > 0 && myBoard[secondRow + 1][secondCol - 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Prawo-góra
-            if (secondRow > 0 && secondCol < gameBoard[0].length - 1
-                    && gameBoard[secondRow - 1][secondCol + 1] != water) {
+            if (secondRow > 0 && secondCol < myBoard[0].length - 1
+                    && myBoard[secondRow - 1][secondCol + 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Prawo-dół
-            if (secondRow < gameBoard.length - 1 && secondCol < gameBoard[0].length - 1
-                    && gameBoard[secondRow + 1][secondCol + 1] != water) {
+            if (secondRow < myBoard.length - 1 && secondCol < myBoard[0].length - 1
+                    && myBoard[secondRow + 1][secondCol + 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
@@ -1178,9 +1185,12 @@ public class ClientShipGameNetwork {
                 continue;
             }
 
+            myBoard[secondRow][secondCol] = 2;
+
 
             // ******************* INPUT AND VALIDATION FOR THE THIRD MAST **********************
 
+            printMyBoard(myBoard, ship);
             System.out.printf("Enter third coordinate for the %d of 2 Three-Masted Ship:%n",
                     placedThreeMastedShips + 1);
             String thirdInput = scanner.nextLine();
@@ -1208,7 +1218,7 @@ public class ClientShipGameNetwork {
             }
 
             // Pozostala czesc walidacji
-            char possiblePlacementForThirdMast = gameBoard[thirdRow][thirdCol];
+            char possiblePlacementForThirdMast = myBoard[thirdRow][thirdCol];
 
             if (possiblePlacementForThirdMast != water) {
                 System.out.println();
@@ -1220,37 +1230,37 @@ public class ClientShipGameNetwork {
             boolean canPlaceThirdMast = true;
 
             // Sprawdzanie dolnego pola
-            if (thirdRow < gameBoard.length - 1 && gameBoard[thirdRow + 1][thirdCol] != water) {
+            if (thirdRow < myBoard.length - 1 && myBoard[thirdRow + 1][thirdCol] != water) {
                 canPlaceThirdMast = false;
             }
             // Sprawdzanie górnego pola
-            if (thirdRow > 0 && gameBoard[thirdRow - 1][thirdCol] != water) {
+            if (thirdRow > 0 && myBoard[thirdRow - 1][thirdCol] != water) {
                 canPlaceThirdMast = false;
             }
             // Sprawdzanie lewego pola
-            if (thirdCol > 0 && gameBoard[thirdRow][thirdCol - 1] != water) {
+            if (thirdCol > 0 && myBoard[thirdRow][thirdCol - 1] != water) {
                 canPlaceThirdMast = false;
             }
             // Sprawdzanie prawego pola
-            if (thirdCol < gameBoard[0].length - 1 && gameBoard[thirdRow][thirdCol + 1] != water) {
+            if (thirdCol < myBoard[0].length - 1 && myBoard[thirdRow][thirdCol + 1] != water) {
                 canPlaceThirdMast = false;
             }
             // Lewo-góra
-            if (thirdRow > 0 && thirdCol > 0 && gameBoard[thirdRow - 1][thirdCol - 1] != water) {
+            if (thirdRow > 0 && thirdCol > 0 && myBoard[thirdRow - 1][thirdCol - 1] != water) {
                 canPlaceThirdMast = false;
             }
             // Lewo-dół
-            if (thirdRow < gameBoard.length - 1 && thirdCol > 0 && gameBoard[thirdRow + 1][thirdCol - 1] != water) {
+            if (thirdRow < myBoard.length - 1 && thirdCol > 0 && myBoard[thirdRow + 1][thirdCol - 1] != water) {
                 canPlaceThirdMast = false;
             }
             // Prawo-góra
-            if (thirdRow > 0 && thirdCol < gameBoard[0].length - 1
-                    && gameBoard[thirdRow - 1][thirdCol + 1] != water) {
+            if (thirdRow > 0 && thirdCol < myBoard[0].length - 1
+                    && myBoard[thirdRow - 1][thirdCol + 1] != water) {
                 canPlaceThirdMast = false;
             }
             // Prawo-dół
-            if (thirdRow < gameBoard.length - 1 && thirdCol < gameBoard[0].length - 1
-                    && gameBoard[thirdRow + 1][thirdCol + 1] != water) {
+            if (thirdRow < myBoard.length - 1 && thirdCol < myBoard[0].length - 1
+                    && myBoard[thirdRow + 1][thirdCol + 1] != water) {
                 canPlaceThirdMast = false;
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
@@ -1261,9 +1271,9 @@ public class ClientShipGameNetwork {
             }
 
 
-            gameBoard[row][col] = ship;
-            gameBoard[secondRow][secondCol] = ship;
-            gameBoard[thirdRow][thirdCol] = ship;
+            myBoard[row][col] = ship;
+            myBoard[secondRow][secondCol] = ship;
+            myBoard[thirdRow][thirdCol] = ship;
             placedThreeMastedShips++;
 
             Coordinate firstCoordinate = new Coordinate(row, col);
@@ -1286,18 +1296,18 @@ public class ClientShipGameNetwork {
             throw new RuntimeException(e);
         }
 
-        return placeFourMastedShips(gameBoard, water, ship, scanner, output);
+        return placeFourMastedShips(myBoard, water, ship, scanner, output);
     }
 
     private static char[][] placeFourMastedShips(
-            char[][] gameBoard, char water, char ship, Scanner scanner, PrintWriter output) {
+            char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) {
 
         int placedFourMastedShips = 0;
         System.out.println();
         System.out.println("Place your one Four-Masted Ship");
 
         while (placedFourMastedShips < fourMastedShipNumber) {
-            displayMyBoard(gameBoard, ship);
+            printMyBoard(myBoard, ship);
             System.out.printf("Enter first coordinate for the %d of 1 Four-Masted Ship (e.g. A5):%n",
                     placedFourMastedShips + 1);
             String firstInput = scanner.nextLine();
@@ -1312,7 +1322,7 @@ public class ClientShipGameNetwork {
             int col = Character.toUpperCase(colChar) - 'A';
             int row = Integer.parseInt(rowNumber) - 1;
 
-            char possiblePlacement = gameBoard[row][col];
+            char possiblePlacement = myBoard[row][col];
 
             if (possiblePlacement != water) {
                 System.out.println();
@@ -1324,35 +1334,35 @@ public class ClientShipGameNetwork {
             boolean canPlaceFirstMast = true;
 
             // Sprawdzanie dolnego pola
-            if (row < gameBoard.length - 1 && gameBoard[row + 1][col] != water) {
+            if (row < myBoard.length - 1 && myBoard[row + 1][col] != water) {
                 canPlaceFirstMast = false;
             }
             // Sprawdzanie górnego pola
-            if (row > 0 && gameBoard[row - 1][col] != water) {
+            if (row > 0 && myBoard[row - 1][col] != water) {
                 canPlaceFirstMast = false;
             }
             // Sprawdzanie lewego pola
-            if (col > 0 && gameBoard[row][col - 1] != water) {
+            if (col > 0 && myBoard[row][col - 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Sprawdzanie prawego pola
-            if (col < gameBoard[0].length - 1 && gameBoard[row][col + 1] != water) {
+            if (col < myBoard[0].length - 1 && myBoard[row][col + 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Lewo-góra
-            if (row > 0 && col > 0 && gameBoard[row - 1][col - 1] != water) {
+            if (row > 0 && col > 0 && myBoard[row - 1][col - 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Lewo-dół
-            if (row < gameBoard.length - 1 && col > 0 && gameBoard[row + 1][col - 1] != water) {
+            if (row < myBoard.length - 1 && col > 0 && myBoard[row + 1][col - 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Prawo-góra
-            if (row > 0 && col < gameBoard[0].length - 1 && gameBoard[row - 1][col + 1] != water) {
+            if (row > 0 && col < myBoard[0].length - 1 && myBoard[row - 1][col + 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Prawo-dół
-            if (row < gameBoard.length - 1 && col < gameBoard[0].length - 1 && gameBoard[row + 1][col + 1] != water) {
+            if (row < myBoard.length - 1 && col < myBoard[0].length - 1 && myBoard[row + 1][col + 1] != water) {
                 canPlaceFirstMast = false;
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
@@ -1362,9 +1372,12 @@ public class ClientShipGameNetwork {
                 continue;
             }
 
+            myBoard[row][col] = 1;
+
 
             // ******************* INPUT AND VALIDATION FOR THE SECOND MAST **********************
 
+            printMyBoard(myBoard, ship);
             System.out.printf("Enter second coordinate for the %d of 1 Four-Masted Ship:%n",
                     placedFourMastedShips + 1);
             String secondInput = scanner.nextLine();
@@ -1392,7 +1405,7 @@ public class ClientShipGameNetwork {
             }
 
             // Pozostala czesc walidacji
-            char possiblePlacementForSecondMast = gameBoard[secondRow][secondCol];
+            char possiblePlacementForSecondMast = myBoard[secondRow][secondCol];
 
             if (possiblePlacementForSecondMast != water) {
                 System.out.println();
@@ -1404,37 +1417,37 @@ public class ClientShipGameNetwork {
             boolean canPlaceSecondMast = true;
 
             // Sprawdzanie dolnego pola
-            if (secondRow < gameBoard.length - 1 && gameBoard[secondRow + 1][secondCol] != water) {
+            if (secondRow < myBoard.length - 1 && myBoard[secondRow + 1][secondCol] != water) {
                 canPlaceSecondMast = false;
             }
             // Sprawdzanie górnego pola
-            if (secondRow > 0 && gameBoard[secondRow - 1][secondCol] != water) {
+            if (secondRow > 0 && myBoard[secondRow - 1][secondCol] != water) {
                 canPlaceSecondMast = false;
             }
             // Sprawdzanie lewego pola
-            if (secondCol > 0 && gameBoard[secondRow][secondCol - 1] != water) {
+            if (secondCol > 0 && myBoard[secondRow][secondCol - 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Sprawdzanie prawego pola
-            if (secondCol < gameBoard[0].length - 1 && gameBoard[secondRow][secondCol + 1] != water) {
+            if (secondCol < myBoard[0].length - 1 && myBoard[secondRow][secondCol + 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Lewo-góra
-            if (secondRow > 0 && secondCol > 0 && gameBoard[secondRow - 1][secondCol - 1] != water) {
+            if (secondRow > 0 && secondCol > 0 && myBoard[secondRow - 1][secondCol - 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Lewo-dół
-            if (secondRow < gameBoard.length - 1 && secondCol > 0 && gameBoard[secondRow + 1][secondCol - 1] != water) {
+            if (secondRow < myBoard.length - 1 && secondCol > 0 && myBoard[secondRow + 1][secondCol - 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Prawo-góra
-            if (secondRow > 0 && secondCol < gameBoard[0].length - 1
-                    && gameBoard[secondRow - 1][secondCol + 1] != water) {
+            if (secondRow > 0 && secondCol < myBoard[0].length - 1
+                    && myBoard[secondRow - 1][secondCol + 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Prawo-dół
-            if (secondRow < gameBoard.length - 1 && secondCol < gameBoard[0].length - 1
-                    && gameBoard[secondRow + 1][secondCol + 1] != water) {
+            if (secondRow < myBoard.length - 1 && secondCol < myBoard[0].length - 1
+                    && myBoard[secondRow + 1][secondCol + 1] != water) {
                 canPlaceSecondMast = false;
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
@@ -1444,9 +1457,12 @@ public class ClientShipGameNetwork {
                 continue;
             }
 
+            myBoard[secondRow][secondCol] = 2;
+
 
             // ******************* INPUT AND VALIDATION FOR THE THIRD MAST **********************
 
+            printMyBoard(myBoard, ship);
             System.out.printf("Enter third coordinate for the %d of 1 Four-Masted Ship:%n",
                     placedFourMastedShips + 1);
             String thirdInput = scanner.nextLine();
@@ -1474,7 +1490,7 @@ public class ClientShipGameNetwork {
             }
 
             // Pozostala czesc walidacji
-            char possiblePlacementForThirdMast = gameBoard[thirdRow][thirdCol];
+            char possiblePlacementForThirdMast = myBoard[thirdRow][thirdCol];
 
             if (possiblePlacementForThirdMast != water) {
                 System.out.println();
@@ -1486,37 +1502,37 @@ public class ClientShipGameNetwork {
             boolean canPlaceThirdMast = true;
 
             // Sprawdzanie dolnego pola
-            if (thirdRow < gameBoard.length - 1 && gameBoard[thirdRow + 1][thirdCol] != water) {
+            if (thirdRow < myBoard.length - 1 && myBoard[thirdRow + 1][thirdCol] != water) {
                 canPlaceThirdMast = false;
             }
             // Sprawdzanie górnego pola
-            if (thirdRow > 0 && gameBoard[thirdRow - 1][thirdCol] != water) {
+            if (thirdRow > 0 && myBoard[thirdRow - 1][thirdCol] != water) {
                 canPlaceThirdMast = false;
             }
             // Sprawdzanie lewego pola
-            if (thirdCol > 0 && gameBoard[thirdRow][thirdCol - 1] != water) {
+            if (thirdCol > 0 && myBoard[thirdRow][thirdCol - 1] != water) {
                 canPlaceThirdMast = false;
             }
             // Sprawdzanie prawego pola
-            if (thirdCol < gameBoard[0].length - 1 && gameBoard[thirdRow][thirdCol + 1] != water) {
+            if (thirdCol < myBoard[0].length - 1 && myBoard[thirdRow][thirdCol + 1] != water) {
                 canPlaceThirdMast = false;
             }
             // Lewo-góra
-            if (thirdRow > 0 && thirdCol > 0 && gameBoard[thirdRow - 1][thirdCol - 1] != water) {
+            if (thirdRow > 0 && thirdCol > 0 && myBoard[thirdRow - 1][thirdCol - 1] != water) {
                 canPlaceThirdMast = false;
             }
             // Lewo-dół
-            if (thirdRow < gameBoard.length - 1 && thirdCol > 0 && gameBoard[thirdRow + 1][thirdCol - 1] != water) {
+            if (thirdRow < myBoard.length - 1 && thirdCol > 0 && myBoard[thirdRow + 1][thirdCol - 1] != water) {
                 canPlaceThirdMast = false;
             }
             // Prawo-góra
-            if (thirdRow > 0 && thirdCol < gameBoard[0].length - 1
-                    && gameBoard[thirdRow - 1][thirdCol + 1] != water) {
+            if (thirdRow > 0 && thirdCol < myBoard[0].length - 1
+                    && myBoard[thirdRow - 1][thirdCol + 1] != water) {
                 canPlaceThirdMast = false;
             }
             // Prawo-dół
-            if (thirdRow < gameBoard.length - 1 && thirdCol < gameBoard[0].length - 1
-                    && gameBoard[thirdRow + 1][thirdCol + 1] != water) {
+            if (thirdRow < myBoard.length - 1 && thirdCol < myBoard[0].length - 1
+                    && myBoard[thirdRow + 1][thirdCol + 1] != water) {
                 canPlaceThirdMast = false;
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
@@ -1526,9 +1542,12 @@ public class ClientShipGameNetwork {
                 continue;
             }
 
+            myBoard[thirdRow][thirdCol] = 3;
+
 
             // ******************* INPUT AND VALIDATION FOR THE FOURTH MAST **********************
 
+            printMyBoard(myBoard, ship);
             System.out.printf("Enter fourth coordinate for the %d of 1 Four-Masted Ship:%n",
                     placedFourMastedShips + 1);
             String fourthInput = scanner.nextLine();
@@ -1556,7 +1575,7 @@ public class ClientShipGameNetwork {
             }
 
             // Pozostala czesc walidacji
-            char possiblePlacementForFourthMast = gameBoard[fourthRow][fourthCol];
+            char possiblePlacementForFourthMast = myBoard[fourthRow][fourthCol];
 
             if (possiblePlacementForFourthMast != water) {
                 System.out.println();
@@ -1568,37 +1587,37 @@ public class ClientShipGameNetwork {
             boolean canPlaceFourthMast = true;
 
             // Sprawdzanie dolnego pola
-            if (fourthRow < gameBoard.length - 1 && gameBoard[fourthRow + 1][fourthCol] != water) {
+            if (fourthRow < myBoard.length - 1 && myBoard[fourthRow + 1][fourthCol] != water) {
                 canPlaceFourthMast = false;
             }
             // Sprawdzanie górnego pola
-            if (fourthRow > 0 && gameBoard[fourthRow - 1][fourthCol] != water) {
+            if (fourthRow > 0 && myBoard[fourthRow - 1][fourthCol] != water) {
                 canPlaceFourthMast = false;
             }
             // Sprawdzanie lewego pola
-            if (fourthCol > 0 && gameBoard[fourthRow][fourthCol - 1] != water) {
+            if (fourthCol > 0 && myBoard[fourthRow][fourthCol - 1] != water) {
                 canPlaceFourthMast = false;
             }
             // Sprawdzanie prawego pola
-            if (fourthCol < gameBoard[0].length - 1 && gameBoard[fourthRow][fourthCol + 1] != water) {
+            if (fourthCol < myBoard[0].length - 1 && myBoard[fourthRow][fourthCol + 1] != water) {
                 canPlaceFourthMast = false;
             }
             // Lewo-góra
-            if (fourthRow > 0 && fourthCol > 0 && gameBoard[fourthRow - 1][fourthCol - 1] != water) {
+            if (fourthRow > 0 && fourthCol > 0 && myBoard[fourthRow - 1][fourthCol - 1] != water) {
                 canPlaceFourthMast = false;
             }
             // Lewo-dół
-            if (fourthRow < gameBoard.length - 1 && fourthCol > 0 && gameBoard[fourthRow + 1][fourthCol - 1] != water) {
+            if (fourthRow < myBoard.length - 1 && fourthCol > 0 && myBoard[fourthRow + 1][fourthCol - 1] != water) {
                 canPlaceFourthMast = false;
             }
             // Prawo-góra
-            if (fourthRow > 0 && fourthCol < gameBoard[0].length - 1
-                    && gameBoard[fourthRow - 1][fourthCol + 1] != water) {
+            if (fourthRow > 0 && fourthCol < myBoard[0].length - 1
+                    && myBoard[fourthRow - 1][fourthCol + 1] != water) {
                 canPlaceFourthMast = false;
             }
             // Prawo-dół
-            if (fourthRow < gameBoard.length - 1 && fourthCol < gameBoard[0].length - 1
-                    && gameBoard[fourthRow + 1][fourthCol + 1] != water) {
+            if (fourthRow < myBoard.length - 1 && fourthCol < myBoard[0].length - 1
+                    && myBoard[fourthRow + 1][fourthCol + 1] != water) {
                 canPlaceFourthMast = false;
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
@@ -1609,10 +1628,10 @@ public class ClientShipGameNetwork {
             }
 
 
-            gameBoard[row][col] = ship;
-            gameBoard[secondRow][secondCol] = ship;
-            gameBoard[thirdRow][thirdCol] = ship;
-            gameBoard[fourthRow][fourthCol] = ship;
+            myBoard[row][col] = ship;
+            myBoard[secondRow][secondCol] = ship;
+            myBoard[thirdRow][thirdCol] = ship;
+            myBoard[fourthRow][fourthCol] = ship;
             placedFourMastedShips++;
 
             Coordinate firstCoordinate = new Coordinate(row, col);
@@ -1624,7 +1643,7 @@ public class ClientShipGameNetwork {
             shipService.addShip(fourMastedShip);
 
         }
-        //displayMyBoard(gameBoard, ship);
+        //displayMyBoard(myBoard, ship);
 
 
         try {
@@ -1641,7 +1660,7 @@ public class ClientShipGameNetwork {
             throw new RuntimeException(e);
         }
 
-        displayMyBoard(gameBoard, ship);
+        // printMyBoard(myBoard, ship);
         System.out.println("Waiting for the opponent...");
 
         try {
@@ -1652,7 +1671,7 @@ public class ClientShipGameNetwork {
 
         output.println("Ships placed.");
 
-        return gameBoard;
+        return myBoard;
 
     }
 
@@ -1714,7 +1733,7 @@ public class ClientShipGameNetwork {
 
      */
 
-    private static void displayMyBoard(char[][] myBoard, char ship) {
+    private static void printMyBoard(char[][] myBoard, char ship) {
         for (int i = 0; i < 2; i++) {
             System.out.println();
         }
