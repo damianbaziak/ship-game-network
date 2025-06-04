@@ -343,7 +343,7 @@ public class ClientShipGameNetwork {
 
             String myShot = scanner.nextLine();
 
-            boolean isValidInput = validateInputFields(myShot);
+            boolean isValidInput = validateInputFields(myShot, myBoard, ship);
             if (!isValidInput) continue;
 
             String rowNumber = myShot.substring(1);
@@ -651,10 +651,10 @@ public class ClientShipGameNetwork {
         return false;
     }
 
-    private static boolean validateInputFields(String input) {
+    private static boolean validateInputFields(String input, char[][] myBoard, char ship) {
 
         if (input.length() < 2 || input.length() > 3) {
-            System.out.println();
+            printMyBoard(myBoard, ship);
             System.out.println("Invalid format. Enter e.g. A5 or B10");
             return false;
         }
@@ -662,7 +662,7 @@ public class ClientShipGameNetwork {
         char colChar = input.charAt(0);
 
         if (!Character.isLetter(colChar)) {
-            System.out.println();
+            printMyBoard(myBoard, ship);
             System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
             return false;
         }
@@ -675,27 +675,27 @@ public class ClientShipGameNetwork {
 
 
         if ((input.length() == 3) && !(rowNumber.equals("10"))) {
-            System.out.println();
+            printMyBoard(myBoard, ship);
             System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
             return false;
         }
 
         if (!Character.isDigit(firstCharOfRowNumber)) {
-            System.out.println();
+            printMyBoard(myBoard, ship);
             System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
             return false;
         }
 
         // Checking if the column letter is within A-J range
         if ((col < 0) || (col > 9)) {
-            System.out.println();
+            printMyBoard(myBoard, ship);
             System.out.println("Column must be between A and J!".toUpperCase());
             return false;
         }
 
         // Checking if the row number is within 1-10 range
         if ((row < 0) || (row > 9)) {
-            System.out.println();
+            printMyBoard(myBoard, ship);
             System.out.println("Row must be between 1 and 10!".toUpperCase());
             return false;
         }
@@ -706,14 +706,17 @@ public class ClientShipGameNetwork {
             char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) {
 
         int placedShips = 0;
+
+        printMyBoard(myBoard, ship);
         System.out.println("Place your four Single-Masted Ships");
+        System.out.println();
 
         while (placedShips < singleMastedShipNumber) {
-            printMyBoard(myBoard, ship);
+            // printMyBoard(myBoard, ship);
             System.out.printf("Enter coordinates for the %d of 4 Single-Masted Ship (e.g., A5):%n", placedShips + 1);
             String input = scanner.nextLine();
 
-            boolean isValidInput = validateInputFields(input);
+            boolean isValidInput = validateInputFields(input, myBoard, ship);
             if (!isValidInput) continue;
 
             char colChar = input.charAt(0);
@@ -763,7 +766,7 @@ public class ClientShipGameNetwork {
             char possiblePlacement = myBoard[row][col];
 
             if (possiblePlacement != water) {
-                System.out.println();
+                printMyBoard(myBoard, ship);
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
                 continue;
             }
@@ -806,12 +809,13 @@ public class ClientShipGameNetwork {
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
             if (!canPlaceShip) {
                 System.out.println();
+                printMyBoard(myBoard, ship);
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
                 continue;
             }
+
             myBoard[row][col] = ship;
             placedShips++;
-
 
             Coordinate coordinate = new Coordinate(row, col);
             SingleMastedShip singleMastedShip = new SingleMastedShip(coordinate);
@@ -823,8 +827,6 @@ public class ClientShipGameNetwork {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        System.out.println();
-        System.out.println("All Single-Masted ships have been placed!".toUpperCase());
 
         try {
             Thread.sleep(1000);
@@ -838,20 +840,26 @@ public class ClientShipGameNetwork {
     private static char[][] placeTwoMastedShips(
             char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) {
 
-        int placedTwoMastedShips = 0;
+        printMyBoard(myBoard, ship);
+        System.out.println("All Single-Masted ships have been placed!".toUpperCase());
         System.out.println();
         System.out.println("Place your three Two-Masted Ships");
+        System.out.println();
+
+        int placedTwoMastedShips = 0;
+
 
         while (placedTwoMastedShips < twoMastedShipNumber) {
-            printMyBoard(myBoard, ship);
+            // printMyBoard(myBoard, ship);
 
             // ******************* INPUT AND VALIDATION FOR THE FIRST MAST **********************
 
-            System.out.printf("Enter first coordinate for the %d of 3 Two-Masted Ship (e.g. A5):%n",
+            System.out.println();
+            System.out.printf("Enter first coordinate for the %d of 3 Two-Masted Ship (e.g., A5):%n",
                     placedTwoMastedShips + 1);
             String firstInput = scanner.nextLine();
 
-            boolean isValidInput = validateInputFields(firstInput);
+            boolean isValidInput = validateInputFields(firstInput, myBoard, ship);
             if (!isValidInput) continue;
 
             char colChar = firstInput.charAt(0);
@@ -866,7 +874,7 @@ public class ClientShipGameNetwork {
             char possiblePlacement = myBoard[row][col];
 
             if (possiblePlacement != water) {
-                System.out.println();
+                printMyBoard(myBoard, ship);
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
                 continue;
             }
@@ -908,108 +916,116 @@ public class ClientShipGameNetwork {
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
             if (!canPlaceFirstMast) {
-                System.out.println();
+                printMyBoard(myBoard, ship);
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
                 continue;
             }
 
             myBoard[row][col] = '1';
+            printMyBoard(myBoard, ship);
 
 
             // ******************* INPUT AND VALIDATION FOR THE SECOND MAST **********************
 
-            printMyBoard(myBoard, ship);
-            System.out.printf("Enter second coordinate for the %d of 3 Two-Masted Ship:%n",
-                    placedTwoMastedShips + 1);
-            String secondInput = scanner.nextLine();
+            boolean secondMastIsNotPlced = true;
 
-            boolean isValidSecondInput = validateInputFields(secondInput);
-            if (!isValidSecondInput) continue;
+            while (secondMastIsNotPlced) {
 
-            char secondColChar = secondInput.charAt(0);
-
-            String secondRowNumber = secondInput.substring(1);
-            // char firstCharOfRowNumber = rowNumber.charAt(0);
-
-
-            int secondCol = Character.toUpperCase(secondColChar) - 'A';
-            int secondRow = Integer.parseInt(secondRowNumber) - 1;
-
-            // Sprawdzenie czy drugi maszt lezy lezy dokladnie obok pierwszego
-            boolean isTheSecondAdjacent =
-                    (secondRow == row && Math.abs(secondCol - col) == 1) ||
-                            (secondCol == col && Math.abs(secondRow - row) == 1);
-
-            if (!isTheSecondAdjacent) {
                 System.out.println();
-                System.out.println("Second mast must be directly next to the first one (vertically or horizontally)!"
-                        .toUpperCase());
-                continue;
-            }
+                System.out.printf("Enter second coordinate for the %d of 3 Two-Masted Ship:%n",
+                        placedTwoMastedShips + 1);
+                String secondInput = scanner.nextLine();
+
+                boolean isValidSecondInput = validateInputFields(secondInput, myBoard, ship);
+                if (!isValidSecondInput) continue;
+
+                char secondColChar = secondInput.charAt(0);
+
+                String secondRowNumber = secondInput.substring(1);
+                // char firstCharOfRowNumber = rowNumber.charAt(0);
 
 
-            // Pozostala czesc walidacji
-            char possiblePlacementForSecondMast = myBoard[secondRow][secondCol];
+                int secondCol = Character.toUpperCase(secondColChar) - 'A';
+                int secondRow = Integer.parseInt(secondRowNumber) - 1;
 
-            if (possiblePlacementForSecondMast != water) {
-                System.out.println();
-                System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
-                continue;
-            }
+                // Sprawdzenie czy drugi maszt lezy lezy dokladnie obok pierwszego
+                boolean isTheSecondAdjacent =
+                        (secondRow == row && Math.abs(secondCol - col) == 1) ||
+                                (secondCol == col && Math.abs(secondRow - row) == 1);
 
-            // Sprawdzamy sąsiednie pola, czy są wolne
-            boolean canPlaceSecondMast = true;
-
-            // Sprawdzanie dolnego pola
-            if (secondRow < myBoard.length - 1 && myBoard[secondRow + 1][secondCol] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Sprawdzanie górnego pola
-            if (secondRow > 0 && myBoard[secondRow - 1][secondCol] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Sprawdzanie lewego pola
-            if (secondCol > 0 && myBoard[secondRow][secondCol - 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Sprawdzanie prawego pola
-            if (secondCol < myBoard[0].length - 1 && myBoard[secondRow][secondCol + 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Lewo-góra
-            if (secondRow > 0 && secondCol > 0 && myBoard[secondRow - 1][secondCol - 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Lewo-dół
-            if (secondRow < myBoard.length - 1 && secondCol > 0 && myBoard[secondRow + 1][secondCol - 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Prawo-góra
-            if (secondRow > 0 && secondCol < myBoard[0].length - 1
-                    && myBoard[secondRow - 1][secondCol + 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Prawo-dół
-            if (secondRow < myBoard.length - 1 && secondCol < myBoard[0].length - 1
-                    && myBoard[secondRow + 1][secondCol + 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
-            if (!canPlaceSecondMast) {
-                System.out.println();
-                System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
-                continue;
-            }
+                if (!isTheSecondAdjacent) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println(("Second mast must be placed directly next to the first one " +
+                            "(vertically or horizontally)!").toUpperCase());
+                    continue;
+                }
 
 
-            myBoard[row][col] = ship;
-            myBoard[secondRow][secondCol] = ship;
+                // Pozostala czesc walidacji
+                char possiblePlacementForSecondMast = myBoard[secondRow][secondCol];
+
+                if (possiblePlacementForSecondMast != water) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
+                    continue;
+                }
+
+                // Sprawdzamy sąsiednie pola, czy są wolne
+                boolean canPlaceSecondMast = true;
+
+                // Sprawdzanie dolnego pola
+                if (secondRow < myBoard.length - 1 && myBoard[secondRow + 1][secondCol] != water) {
+                    canPlaceSecondMast = myBoard[secondRow + 1][secondCol] == '1';
+                }
+                // Sprawdzanie górnego pola
+                if (secondRow > 0 && myBoard[secondRow - 1][secondCol] != water) {
+                    canPlaceSecondMast = myBoard[secondRow - 1][secondCol] == '1';
+                }
+                // Sprawdzanie lewego pola
+                if (secondCol > 0 && myBoard[secondRow][secondCol - 1] != water) {
+                    canPlaceSecondMast = myBoard[secondRow][secondCol - 1] == '1';
+                }
+                // Sprawdzanie prawego pola
+                if (secondCol < myBoard[0].length - 1 && myBoard[secondRow][secondCol + 1] != water) {
+                    canPlaceSecondMast = myBoard[secondRow][secondCol + 1] == '1';
+                }
+                // Lewo-góra
+                if (secondRow > 0 && secondCol > 0 && myBoard[secondRow - 1][secondCol - 1] != water) {
+                    canPlaceSecondMast = false;
+                }
+                // Lewo-dół
+                if (secondRow < myBoard.length - 1 && secondCol > 0 && myBoard[secondRow + 1][secondCol - 1] != water) {
+                    canPlaceSecondMast = false;
+                }
+                // Prawo-góra
+                if (secondRow > 0 && secondCol < myBoard[0].length - 1
+                        && myBoard[secondRow - 1][secondCol + 1] != water) {
+                    canPlaceSecondMast = false;
+                }
+                // Prawo-dół
+                if (secondRow < myBoard.length - 1 && secondCol < myBoard[0].length - 1
+                        && myBoard[secondRow + 1][secondCol + 1] != water) {
+                    canPlaceSecondMast = false;
+                }
+                // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
+                if (!canPlaceSecondMast) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                    continue;
+                }
+
+
+                myBoard[row][col] = ship;
+                myBoard[secondRow][secondCol] = ship;
+                secondMastIsNotPlced = false;
+
+                Coordinate firstCoordinate = new Coordinate(row, col);
+                Coordinate secondCoordinate = new Coordinate(secondRow, secondCol);
+                TwoMastedShip twoMastedShip = new TwoMastedShip(firstCoordinate, secondCoordinate);
+                shipService.addShip(twoMastedShip);
+            }
+
             placedTwoMastedShips++;
-
-            Coordinate firstCoordinate = new Coordinate(row, col);
-            Coordinate secondCoordinate = new Coordinate(secondRow, secondCol);
-            TwoMastedShip twoMastedShip = new TwoMastedShip(firstCoordinate, secondCoordinate);
-            shipService.addShip(twoMastedShip);
 
         }
         try {
@@ -1018,31 +1034,39 @@ public class ClientShipGameNetwork {
             throw new RuntimeException(e);
         }
         System.out.println();
-        System.out.println("All Two-Masted ships have been placed!".toUpperCase());
+
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
+        printMyBoard(myBoard, ship);
+
         return placeThreeMastedShips(myBoard, water, ship, scanner, output);
     }
 
     private static char[][] placeThreeMastedShips(
             char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) {
 
-
-        int placedThreeMastedShips = 0;
+        printMyBoard(myBoard, ship);
+        System.out.println("All Two-Masted ships have been placed!".toUpperCase());
         System.out.println();
         System.out.println("Place your three Three-Masted Ships");
 
+
+        int placedThreeMastedShips = 0;
+
         while (placedThreeMastedShips < threeMastedShipNumber) {
-            printMyBoard(myBoard, ship);
-            System.out.printf("Enter first coordinate for the %d of 2 Three-Masted Ship (e.g. A5):%n",
+
+            System.out.println();
+            System.out.printf("Enter FIRST COORDINATE for the %d of 2 Three-Masted Ship (e.g., A5):%n",
                     placedThreeMastedShips + 1);
+
             String firstInput = scanner.nextLine();
 
 
-            boolean isValidInput = validateInputFields(firstInput);
+            boolean isValidInput = validateInputFields(firstInput, myBoard, ship);
             if (!isValidInput) continue;
 
             char colChar = firstInput.charAt(0);
@@ -1055,7 +1079,7 @@ public class ClientShipGameNetwork {
             char possiblePlacement = myBoard[row][col];
 
             if (possiblePlacement != water) {
-                System.out.println();
+                printMyBoard(myBoard, ship);
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
                 continue;
             }
@@ -1103,195 +1127,226 @@ public class ClientShipGameNetwork {
             }
 
             myBoard[row][col] = '1';
+            printMyBoard(myBoard, ship);
 
 
             // ******************* INPUT AND VALIDATION FOR THE SECOND MAST **********************
 
-            printMyBoard(myBoard, ship);
-            System.out.printf("Enter second coordinate for the %d of 2 Three-Masted Ship:%n",
-                    placedThreeMastedShips + 1);
-            String secondInput = scanner.nextLine();
+            int secondRow = 0;
+            int secondCol = 0;
 
-            boolean isValidSecondInput = validateInputFields(secondInput);
-            if (!isValidSecondInput) continue;
+            boolean secondMastNotIsPlaced = true;
 
-            char secondColChar = secondInput.charAt(0);
+            while (secondMastNotIsPlaced) {
 
-            String secondRowNumber = secondInput.substring(1);
-
-            int secondCol = Character.toUpperCase(secondColChar) - 'A';
-            int secondRow = Integer.parseInt(secondRowNumber) - 1;
-
-            // Sprawdzenie czy drugi maszt lezy dokladnie obok pierwszego
-            boolean isTheSecondAdjacent =
-                    (secondRow == row && Math.abs(secondCol - col) == 1) ||
-                            (secondCol == col && Math.abs(secondRow - row) == 1);
-
-            if (!isTheSecondAdjacent) {
                 System.out.println();
-                System.out.println("Second mast must be directly next to the first one (vertically or horizontally)!"
-                        .toUpperCase());
-                continue;
-            }
+                System.out.printf("Enter SECOND COORDINATE for the %d of 2 Three-Masted Ship:%n",
+                        placedThreeMastedShips + 1);
+                String secondInput = scanner.nextLine();
 
-            // Pozostala czesc walidacji
-            char possiblePlacementForSecondMast = myBoard[secondRow][secondCol];
+                boolean isValidSecondInput = validateInputFields(secondInput, myBoard, ship);
+                if (!isValidSecondInput) continue;
 
-            if (possiblePlacementForSecondMast != water) {
-                System.out.println();
-                System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
-                continue;
-            }
+                char secondColChar = secondInput.charAt(0);
 
-            // Sprawdzamy sąsiednie pola, czy są wolne
-            boolean canPlaceSecondMast = true;
+                String secondRowNumber = secondInput.substring(1);
 
-            // Sprawdzanie dolnego pola
-            if (secondRow < myBoard.length - 1 && myBoard[secondRow + 1][secondCol] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Sprawdzanie górnego pola
-            if (secondRow > 0 && myBoard[secondRow - 1][secondCol] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Sprawdzanie lewego pola
-            if (secondCol > 0 && myBoard[secondRow][secondCol - 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Sprawdzanie prawego pola
-            if (secondCol < myBoard[0].length - 1 && myBoard[secondRow][secondCol + 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Lewo-góra
-            if (secondRow > 0 && secondCol > 0 && myBoard[secondRow - 1][secondCol - 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Lewo-dół
-            if (secondRow < myBoard.length - 1 && secondCol > 0 && myBoard[secondRow + 1][secondCol - 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Prawo-góra
-            if (secondRow > 0 && secondCol < myBoard[0].length - 1
-                    && myBoard[secondRow - 1][secondCol + 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Prawo-dół
-            if (secondRow < myBoard.length - 1 && secondCol < myBoard[0].length - 1
-                    && myBoard[secondRow + 1][secondCol + 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
-            if (!canPlaceSecondMast) {
-                System.out.println();
-                System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
-                continue;
-            }
+                secondCol = Character.toUpperCase(secondColChar) - 'A';
+                secondRow = Integer.parseInt(secondRowNumber) - 1;
 
-            myBoard[secondRow][secondCol] = '2';
+                // Sprawdzenie czy drugi maszt lezy dokladnie obok pierwszego
+                boolean isTheSecondAdjacent =
+                        (secondRow == row && Math.abs(secondCol - col) == 1) ||
+                                (secondCol == col && Math.abs(secondRow - row) == 1);
+
+                if (!isTheSecondAdjacent) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println(("Second mast must be placed directly next to the first one " +
+                            "(vertically or horizontally)!").toUpperCase());
+                    continue;
+                }
+
+                // Pozostala czesc walidacji
+                char possiblePlacementForSecondMast = myBoard[secondRow][secondCol];
+
+                if (possiblePlacementForSecondMast != water) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
+                    continue;
+                }
+
+                // Sprawdzamy sąsiednie pola, czy są wolne
+                boolean canPlaceSecondMast = true;
+
+                // Sprawdzanie dolnego pola
+                if (secondRow < myBoard.length - 1 && myBoard[secondRow + 1][secondCol] != water) {
+                    canPlaceSecondMast = myBoard[secondRow + 1][secondCol] == '1';
+                }
+                // Sprawdzanie górnego pola
+                if (secondRow > 0 && myBoard[secondRow - 1][secondCol] != water) {
+                    canPlaceSecondMast = myBoard[secondRow - 1][secondCol] == '1';
+                }
+                // Sprawdzanie lewego pola
+                if (secondCol > 0 && myBoard[secondRow][secondCol - 1] != water) {
+                    canPlaceSecondMast = myBoard[secondRow][secondCol - 1] == '1';
+                }
+                // Sprawdzanie prawego pola
+                if (secondCol < myBoard[0].length - 1 && myBoard[secondRow][secondCol + 1] != water) {
+                    canPlaceSecondMast = myBoard[secondRow][secondCol + 1] == '1';
+                }
+                // Lewo-góra
+                if (secondRow > 0 && secondCol > 0 && myBoard[secondRow - 1][secondCol - 1] != water) {
+                    canPlaceSecondMast = false;
+                }
+                // Lewo-dół
+                if (secondRow < myBoard.length - 1 && secondCol > 0 && myBoard[secondRow + 1][secondCol - 1] != water) {
+                    canPlaceSecondMast = false;
+                }
+                // Prawo-góra
+                if (secondRow > 0 && secondCol < myBoard[0].length - 1
+                        && myBoard[secondRow - 1][secondCol + 1] != water) {
+                    canPlaceSecondMast = false;
+                }
+                // Prawo-dół
+                if (secondRow < myBoard.length - 1 && secondCol < myBoard[0].length - 1
+                        && myBoard[secondRow + 1][secondCol + 1] != water) {
+                    canPlaceSecondMast = false;
+                }
+                // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
+                if (!canPlaceSecondMast) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                    continue;
+                }
+
+                myBoard[secondRow][secondCol] = '2';
+                secondMastNotIsPlaced = false;
+
+                printMyBoard(myBoard, ship);
+            }
 
 
             // ******************* INPUT AND VALIDATION FOR THE THIRD MAST **********************
 
-            printMyBoard(myBoard, ship);
-            System.out.printf("Enter third coordinate for the %d of 2 Three-Masted Ship:%n",
-                    placedThreeMastedShips + 1);
-            String thirdInput = scanner.nextLine();
+            boolean thirdMastIsNotPlaced = true;
 
-            boolean isValidThirdInput = validateInputFields(thirdInput);
-            if (!isValidThirdInput) continue;
+            while (thirdMastIsNotPlaced) {
+                System.out.printf("Enter THIRD COORDINATE for the %d of 2 Three-Masted Ship:%n",
+                        placedThreeMastedShips + 1);
+                String thirdInput = scanner.nextLine();
 
-            char thirdColChar = thirdInput.charAt(0);
+                boolean isValidThirdInput = validateInputFields(thirdInput, myBoard, ship);
+                if (!isValidThirdInput) continue;
 
-            String thirdRowNumber = thirdInput.substring(1);
+                char thirdColChar = thirdInput.charAt(0);
 
-            int thirdCol = Character.toUpperCase(thirdColChar) - 'A';
-            int thirdRow = Integer.parseInt(thirdRowNumber) - 1;
+                String thirdRowNumber = thirdInput.substring(1);
 
-            // Sprawdzenie czy trzeci maszt lezy lezy dokladnie obok drugiego
-            boolean isThirdMastAdjacent =
-                    (thirdRow == row && Math.abs(thirdCol - col) == 2 && Math.abs(thirdCol - secondCol) == 1) ||
-                            (thirdCol == col && Math.abs(thirdRow - row) == 2 && Math.abs(thirdRow - secondRow) == 1);
+                int thirdCol = Character.toUpperCase(thirdColChar) - 'A';
+                int thirdRow = Integer.parseInt(thirdRowNumber) - 1;
 
-            if (!isThirdMastAdjacent) {
-                System.out.println();
-                System.out.println(("Third mast must be directly next to the second one " +
-                        "(vertically or horizontally)!").toUpperCase());
-                continue;
+                // Sprawdzenie czy trzeci maszt jest w lini z pierwszym i drugim masztem i czy lezy dokladnie obok
+                // drugiego lub obok pierwszego. Jezeli lezy kolo pierwszego to jest sprawdzana odpowiednia odleglosc
+                // od drugiego.
+                boolean isThirdMastAdjacent =
+                        (thirdRow == row && Math.abs(thirdCol - col) == 2
+                                && Math.abs(thirdCol - secondCol) == 1) ||
+                                (thirdCol == col && Math.abs(thirdRow - row) == 2
+                                        && Math.abs(thirdRow - secondRow) == 1) ||
+                                (thirdRow == row && Math.abs(thirdCol - col) == 1
+                                        && Math.abs(thirdCol - secondCol) == 2) ||
+                                (thirdCol == col && Math.abs(thirdRow - row) == 1
+                                        && Math.abs(thirdRow - secondRow) == 2);
+
+                if (!isThirdMastAdjacent) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println(
+                            "Third mast must placed be directly next to the second or first one!".toUpperCase());
+                    continue;
+                }
+
+                // Pozostala czesc walidacji
+                char possiblePlacementForThirdMast = myBoard[thirdRow][thirdCol];
+
+                if (possiblePlacementForThirdMast != water) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
+                    continue;
+                }
+
+                // Sprawdzamy sąsiednie pola, czy są wolne
+                boolean canPlaceThirdMast = true;
+
+                // Sprawdzanie dolnego pola
+                if (thirdRow < myBoard.length - 1 && myBoard[thirdRow + 1][thirdCol] != water) {
+                    canPlaceThirdMast = myBoard[thirdRow + 1][thirdCol] == '2' ||
+                            myBoard[thirdRow + 1][thirdCol] == '1';
+                }
+                // Sprawdzanie górnego pola
+                if (thirdRow > 0 && myBoard[thirdRow - 1][thirdCol] != water) {
+                    canPlaceThirdMast = myBoard[thirdRow - 1][thirdCol] == '2' ||
+                            myBoard[thirdRow - 1][thirdCol] == '1';
+                }
+                // Sprawdzanie lewego pola
+                if (thirdCol > 0 && myBoard[thirdRow][thirdCol - 1] != water) {
+                    canPlaceThirdMast = myBoard[thirdRow][thirdCol - 1] == '2' ||
+                            myBoard[thirdRow][thirdCol - 1] == '1';
+                }
+                // Sprawdzanie prawego pola
+                if (thirdCol < myBoard[0].length - 1 && myBoard[thirdRow][thirdCol + 1] != water) {
+                    canPlaceThirdMast = myBoard[thirdRow][thirdCol + 1] == '2' ||
+                            myBoard[thirdRow][thirdCol + 1] == '1';
+                }
+                // Lewo-góra
+                if (thirdRow > 0 && thirdCol > 0 && myBoard[thirdRow - 1][thirdCol - 1] != water) {
+                    canPlaceThirdMast = false;
+                }
+                // Lewo-dół
+                if (thirdRow < myBoard.length - 1 && thirdCol > 0 && myBoard[thirdRow + 1][thirdCol - 1] != water) {
+                    canPlaceThirdMast = false;
+                }
+                // Prawo-góra
+                if (thirdRow > 0 && thirdCol < myBoard[0].length - 1
+                        && myBoard[thirdRow - 1][thirdCol + 1] != water) {
+                    canPlaceThirdMast = false;
+                }
+                // Prawo-dół
+                if (thirdRow < myBoard.length - 1 && thirdCol < myBoard[0].length - 1
+                        && myBoard[thirdRow + 1][thirdCol + 1] != water) {
+                    canPlaceThirdMast = false;
+                }
+
+                // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
+                if (!canPlaceThirdMast) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                    continue;
+                }
+
+
+                myBoard[row][col] = ship;
+                myBoard[secondRow][secondCol] = ship;
+                myBoard[thirdRow][thirdCol] = ship;
+
+                thirdMastIsNotPlaced = false;
+
+                Coordinate firstCoordinate = new Coordinate(row, col);
+                Coordinate secondCoordinate = new Coordinate(secondRow, secondCol);
+                Coordinate thirdCoordinate = new Coordinate(thirdRow, thirdCol);
+                ThreeMastedShip threeMastedShip = new ThreeMastedShip(firstCoordinate, secondCoordinate, thirdCoordinate);
+                shipService.addShip(threeMastedShip);
+
             }
 
-            // Pozostala czesc walidacji
-            char possiblePlacementForThirdMast = myBoard[thirdRow][thirdCol];
-
-            if (possiblePlacementForThirdMast != water) {
-                System.out.println();
-                System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
-                continue;
-            }
-
-            // Sprawdzamy sąsiednie pola, czy są wolne
-            boolean canPlaceThirdMast = true;
-
-            // Sprawdzanie dolnego pola
-            if (thirdRow < myBoard.length - 1 && myBoard[thirdRow + 1][thirdCol] != water) {
-                canPlaceThirdMast = false;
-            }
-            // Sprawdzanie górnego pola
-            if (thirdRow > 0 && myBoard[thirdRow - 1][thirdCol] != water) {
-                canPlaceThirdMast = false;
-            }
-            // Sprawdzanie lewego pola
-            if (thirdCol > 0 && myBoard[thirdRow][thirdCol - 1] != water) {
-                canPlaceThirdMast = false;
-            }
-            // Sprawdzanie prawego pola
-            if (thirdCol < myBoard[0].length - 1 && myBoard[thirdRow][thirdCol + 1] != water) {
-                canPlaceThirdMast = false;
-            }
-            // Lewo-góra
-            if (thirdRow > 0 && thirdCol > 0 && myBoard[thirdRow - 1][thirdCol - 1] != water) {
-                canPlaceThirdMast = false;
-            }
-            // Lewo-dół
-            if (thirdRow < myBoard.length - 1 && thirdCol > 0 && myBoard[thirdRow + 1][thirdCol - 1] != water) {
-                canPlaceThirdMast = false;
-            }
-            // Prawo-góra
-            if (thirdRow > 0 && thirdCol < myBoard[0].length - 1
-                    && myBoard[thirdRow - 1][thirdCol + 1] != water) {
-                canPlaceThirdMast = false;
-            }
-            // Prawo-dół
-            if (thirdRow < myBoard.length - 1 && thirdCol < myBoard[0].length - 1
-                    && myBoard[thirdRow + 1][thirdCol + 1] != water) {
-                canPlaceThirdMast = false;
-            }
-            // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
-            if (!canPlaceThirdMast) {
-                System.out.println();
-                System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
-                continue;
-            }
-
-
-            myBoard[row][col] = ship;
-            myBoard[secondRow][secondCol] = ship;
-            myBoard[thirdRow][thirdCol] = ship;
             placedThreeMastedShips++;
-
-            Coordinate firstCoordinate = new Coordinate(row, col);
-            Coordinate secondCoordinate = new Coordinate(secondRow, secondCol);
-            Coordinate thirdCoordinate = new Coordinate(thirdRow, thirdCol);
-            ThreeMastedShip threeMastedShip = new ThreeMastedShip(firstCoordinate, secondCoordinate, thirdCoordinate);
-            shipService.addShip(threeMastedShip);
-
         }
+
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        System.out.println();
-        System.out.println("All Three-Masted ships have been placed!".toUpperCase());
+
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -1304,17 +1359,21 @@ public class ClientShipGameNetwork {
     private static char[][] placeFourMastedShips(
             char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) {
 
-        int placedFourMastedShips = 0;
+        printMyBoard(myBoard, ship);
+        System.out.println("All Three-Masted ships have been placed!".toUpperCase());
         System.out.println();
         System.out.println("Place your one Four-Masted Ship");
 
+        int placedFourMastedShips = 0;
+
         while (placedFourMastedShips < fourMastedShipNumber) {
-            printMyBoard(myBoard, ship);
-            System.out.printf("Enter first coordinate for the %d of 1 Four-Masted Ship (e.g. A5):%n",
+
+            System.out.println();
+            System.out.printf("Enter FIRST COORDINATE for the %d of 1 Four-Masted Ship (e.g., A5):%n",
                     placedFourMastedShips + 1);
             String firstInput = scanner.nextLine();
 
-            boolean isValidInput = validateInputFields(firstInput);
+            boolean isValidInput = validateInputFields(firstInput, myBoard, ship);
             if (!isValidInput) continue;
 
             char colChar = firstInput.charAt(0);
@@ -1327,7 +1386,7 @@ public class ClientShipGameNetwork {
             char possiblePlacement = myBoard[row][col];
 
             if (possiblePlacement != water) {
-                System.out.println();
+                printMyBoard(myBoard, ship);
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
                 continue;
             }
@@ -1369,291 +1428,335 @@ public class ClientShipGameNetwork {
             }
             // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
             if (!canPlaceFirstMast) {
-                System.out.println();
+                printMyBoard(myBoard, ship);
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
                 continue;
             }
 
             myBoard[row][col] = '1';
+            printMyBoard(myBoard, ship);
 
 
             // ******************* INPUT AND VALIDATION FOR THE SECOND MAST **********************
 
-            printMyBoard(myBoard, ship);
-            System.out.printf("Enter second coordinate for the %d of 1 Four-Masted Ship:%n",
-                    placedFourMastedShips + 1);
-            String secondInput = scanner.nextLine();
+            int secondCol = 0;
+            int secondRow = 0;
 
-            boolean isValidSecondInput = validateInputFields(secondInput);
-            if (!isValidSecondInput) continue;
+            boolean secondMastIsNotPlaced = true;
 
-            char secondColChar = secondInput.charAt(0);
+            while (secondMastIsNotPlaced) {
 
-            String secondRowNumber = secondInput.substring(1);
+                System.out.printf("Enter SECOND COORDINATE for the %d of 1 Four-Masted Ship:%n",
+                        placedFourMastedShips + 1);
+                String secondInput = scanner.nextLine();
 
-            int secondCol = Character.toUpperCase(secondColChar) - 'A';
-            int secondRow = Integer.parseInt(secondRowNumber) - 1;
+                boolean isValidSecondInput = validateInputFields(secondInput, myBoard, ship);
+                if (!isValidSecondInput) continue;
 
-            // Sprawdzenie czy drugi maszt lezy lezy dokladnie obok pierwszego
-            boolean isSecondMastAdjacent =
-                    (secondRow == row && Math.abs(secondCol - col) == 1) ||
-                            (secondCol == col && Math.abs(secondRow - row) == 1);
+                char secondColChar = secondInput.charAt(0);
 
-            if (!isSecondMastAdjacent) {
-                System.out.println();
-                System.out.println("Second mast must be directly next to the first one (vertically or horizontally)!"
-                        .toUpperCase());
-                continue;
-            }
+                String secondRowNumber = secondInput.substring(1);
 
-            // Pozostala czesc walidacji
-            char possiblePlacementForSecondMast = myBoard[secondRow][secondCol];
+                secondCol = Character.toUpperCase(secondColChar) - 'A';
+                secondRow = Integer.parseInt(secondRowNumber) - 1;
 
-            if (possiblePlacementForSecondMast != water) {
-                System.out.println();
-                System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
-                continue;
-            }
+                // Sprawdzenie czy drugi maszt lezy lezy dokladnie obok pierwszego
+                boolean isSecondMastAdjacent =
+                        (secondRow == row && Math.abs(secondCol - col) == 1) ||
+                                (secondCol == col && Math.abs(secondRow - row) == 1);
 
-            // Sprawdzamy sąsiednie pola, czy są wolne
-            boolean canPlaceSecondMast = true;
+                if (!isSecondMastAdjacent) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println("Second mast must be placed directly next to the first one (vertically or horizontally)!"
+                            .toUpperCase());
+                    continue;
+                }
 
-            // Sprawdzanie dolnego pola
-            if (secondRow < myBoard.length - 1 && myBoard[secondRow + 1][secondCol] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Sprawdzanie górnego pola
-            if (secondRow > 0 && myBoard[secondRow - 1][secondCol] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Sprawdzanie lewego pola
-            if (secondCol > 0 && myBoard[secondRow][secondCol - 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Sprawdzanie prawego pola
-            if (secondCol < myBoard[0].length - 1 && myBoard[secondRow][secondCol + 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Lewo-góra
-            if (secondRow > 0 && secondCol > 0 && myBoard[secondRow - 1][secondCol - 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Lewo-dół
-            if (secondRow < myBoard.length - 1 && secondCol > 0 && myBoard[secondRow + 1][secondCol - 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Prawo-góra
-            if (secondRow > 0 && secondCol < myBoard[0].length - 1
-                    && myBoard[secondRow - 1][secondCol + 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Prawo-dół
-            if (secondRow < myBoard.length - 1 && secondCol < myBoard[0].length - 1
-                    && myBoard[secondRow + 1][secondCol + 1] != water) {
-                canPlaceSecondMast = false;
-            }
-            // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
-            if (!canPlaceSecondMast) {
-                System.out.println();
-                System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
-                continue;
-            }
+                // Pozostala czesc walidacji
+                char possiblePlacementForSecondMast = myBoard[secondRow][secondCol];
 
-            myBoard[secondRow][secondCol] = '2';
+                if (possiblePlacementForSecondMast != water) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
+                    continue;
+                }
+
+                // Sprawdzamy sąsiednie pola, czy są wolne
+                boolean canPlaceSecondMast = true;
+
+                // Sprawdzanie dolnego pola
+                if (secondRow < myBoard.length - 1 && myBoard[secondRow + 1][secondCol] != water) {
+                    canPlaceSecondMast = myBoard[secondRow + 1][secondCol] == '1';
+                }
+                // Sprawdzanie górnego pola
+                if (secondRow > 0 && myBoard[secondRow - 1][secondCol] != water) {
+                    canPlaceSecondMast = myBoard[secondRow - 1][secondCol] == '1';
+                }
+                // Sprawdzanie lewego pola
+                if (secondCol > 0 && myBoard[secondRow][secondCol - 1] != water) {
+                    canPlaceSecondMast = myBoard[secondRow][secondCol - 1] == '1';
+                }
+                // Sprawdzanie prawego pola
+                if (secondCol < myBoard[0].length - 1 && myBoard[secondRow][secondCol + 1] != water) {
+                    canPlaceSecondMast = myBoard[secondRow][secondCol + 1] == '1';
+                }
+                // Lewo-góra
+                if (secondRow > 0 && secondCol > 0 && myBoard[secondRow - 1][secondCol - 1] != water) {
+                    canPlaceSecondMast = false;
+                }
+                // Lewo-dół
+                if (secondRow < myBoard.length - 1 && secondCol > 0 && myBoard[secondRow + 1][secondCol - 1] != water) {
+                    canPlaceSecondMast = false;
+                }
+                // Prawo-góra
+                if (secondRow > 0 && secondCol < myBoard[0].length - 1
+                        && myBoard[secondRow - 1][secondCol + 1] != water) {
+                    canPlaceSecondMast = false;
+                }
+                // Prawo-dół
+                if (secondRow < myBoard.length - 1 && secondCol < myBoard[0].length - 1
+                        && myBoard[secondRow + 1][secondCol + 1] != water) {
+                    canPlaceSecondMast = false;
+                }
+                // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
+                if (!canPlaceSecondMast) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                    continue;
+                }
+
+                myBoard[secondRow][secondCol] = '2';
+                secondMastIsNotPlaced = false;
+
+                printMyBoard(myBoard, ship);
+            }
 
 
             // ******************* INPUT AND VALIDATION FOR THE THIRD MAST **********************
 
-            printMyBoard(myBoard, ship);
-            System.out.printf("Enter third coordinate for the %d of 1 Four-Masted Ship:%n",
-                    placedFourMastedShips + 1);
-            String thirdInput = scanner.nextLine();
+            int thirdRow = 0;
+            int thirdCol = 0;
+            boolean thirdMastIsNotPlaced = true;
 
-            boolean isValidThirdInput = validateInputFields(thirdInput);
-            if (!isValidThirdInput) continue;
+            while (thirdMastIsNotPlaced) {
 
-            char thirdColChar = thirdInput.charAt(0);
+                System.out.printf("Enter third coordinate for the %d of 1 Four-Masted Ship:%n",
+                        placedFourMastedShips + 1);
+                String thirdInput = scanner.nextLine();
 
-            String thirdRowNumber = thirdInput.substring(1);
+                boolean isValidThirdInput = validateInputFields(thirdInput, myBoard, ship);
+                if (!isValidThirdInput) continue;
 
-            int thirdCol = Character.toUpperCase(thirdColChar) - 'A';
-            int thirdRow = Integer.parseInt(thirdRowNumber) - 1;
+                char thirdColChar = thirdInput.charAt(0);
 
-            // Sprawdzenie czy trzeci maszt lezy dokladnie obok pierwszego
-            boolean isThirdMastAdjacent =
-                    (thirdRow == row && Math.abs(thirdCol - col) == 2 && Math.abs(thirdCol - secondCol) == 1) ||
-                            (thirdCol == col && Math.abs(thirdRow - row) == 2 && Math.abs(thirdRow - secondRow) == 1);
+                String thirdRowNumber = thirdInput.substring(1);
 
-            if (!isThirdMastAdjacent) {
-                System.out.println();
-                System.out.println(("Third mast must be directly next to the second one " +
-                        "(vertically or horizontally)!").toUpperCase());
-                continue;
-            }
+                thirdCol = Character.toUpperCase(thirdColChar) - 'A';
+                thirdRow = Integer.parseInt(thirdRowNumber) - 1;
 
-            // Pozostala czesc walidacji
-            char possiblePlacementForThirdMast = myBoard[thirdRow][thirdCol];
+                // Ensure the third mast is in line with the first and second,
+                // and directly adjacent to either the second or first mast.
+                boolean isThirdMastAdjacent =
+                        (thirdRow == row && Math.abs(thirdCol - col) == 2
+                                && Math.abs(thirdCol - secondCol) == 1) ||
+                                (thirdCol == col && Math.abs(thirdRow - row) == 2
+                                        && Math.abs(thirdRow - secondRow) == 1) ||
+                                (thirdRow == row && Math.abs(thirdCol - col) == 1
+                                        && Math.abs(thirdCol - secondCol) == 2) ||
+                                (thirdCol == col && Math.abs(thirdRow - row) == 1
+                                        && Math.abs(thirdRow - secondRow) == 2);
 
-            if (possiblePlacementForThirdMast != water) {
-                System.out.println();
-                System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
-                continue;
-            }
+                if (!isThirdMastAdjacent) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println(
+                            "Third mast must be placed directly next to the second or first one!".toUpperCase());
+                    continue;
+                }
 
-            // Sprawdzamy sąsiednie pola, czy są wolne
-            boolean canPlaceThirdMast = true;
+                // Pozostala czesc walidacji
+                char possiblePlacementForThirdMast = myBoard[thirdRow][thirdCol];
 
-            // Sprawdzanie dolnego pola
-            if (thirdRow < myBoard.length - 1 && myBoard[thirdRow + 1][thirdCol] != water) {
-                canPlaceThirdMast = false;
-            }
-            // Sprawdzanie górnego pola
-            if (thirdRow > 0 && myBoard[thirdRow - 1][thirdCol] != water) {
-                canPlaceThirdMast = false;
-            }
-            // Sprawdzanie lewego pola
-            if (thirdCol > 0 && myBoard[thirdRow][thirdCol - 1] != water) {
-                canPlaceThirdMast = false;
-            }
-            // Sprawdzanie prawego pola
-            if (thirdCol < myBoard[0].length - 1 && myBoard[thirdRow][thirdCol + 1] != water) {
-                canPlaceThirdMast = false;
-            }
-            // Lewo-góra
-            if (thirdRow > 0 && thirdCol > 0 && myBoard[thirdRow - 1][thirdCol - 1] != water) {
-                canPlaceThirdMast = false;
-            }
-            // Lewo-dół
-            if (thirdRow < myBoard.length - 1 && thirdCol > 0 && myBoard[thirdRow + 1][thirdCol - 1] != water) {
-                canPlaceThirdMast = false;
-            }
-            // Prawo-góra
-            if (thirdRow > 0 && thirdCol < myBoard[0].length - 1
-                    && myBoard[thirdRow - 1][thirdCol + 1] != water) {
-                canPlaceThirdMast = false;
-            }
-            // Prawo-dół
-            if (thirdRow < myBoard.length - 1 && thirdCol < myBoard[0].length - 1
-                    && myBoard[thirdRow + 1][thirdCol + 1] != water) {
-                canPlaceThirdMast = false;
-            }
-            // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
-            if (!canPlaceThirdMast) {
-                System.out.println();
-                System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
-                continue;
-            }
+                if (possiblePlacementForThirdMast != water) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
+                    continue;
+                }
 
-            myBoard[thirdRow][thirdCol] = '3';
+                // Sprawdzamy sąsiednie pola, czy są wolne
+                boolean canPlaceThirdMast = true;
+
+                // Sprawdzanie dolnego pola
+                if (thirdRow < myBoard.length - 1 && myBoard[thirdRow + 1][thirdCol] != water) {
+                    canPlaceThirdMast = myBoard[thirdRow + 1][thirdCol] == '2' ||
+                            myBoard[thirdRow + 1][thirdCol] == '1';
+                }
+                // Sprawdzanie górnego pola
+                if (thirdRow > 0 && myBoard[thirdRow - 1][thirdCol] != water) {
+                    canPlaceThirdMast = myBoard[thirdRow - 1][thirdCol] == '2' ||
+                            myBoard[thirdRow - 1][thirdCol] == '1';
+                }
+                // Sprawdzanie lewego pola
+                if (thirdCol > 0 && myBoard[thirdRow][thirdCol - 1] != water) {
+                    canPlaceThirdMast = myBoard[thirdRow][thirdCol - 1] == '2' ||
+                            myBoard[thirdRow][thirdCol - 1] == '1';
+                }
+                // Sprawdzanie prawego pola
+                if (thirdCol < myBoard[0].length - 1 && myBoard[thirdRow][thirdCol + 1] != water) {
+                    canPlaceThirdMast = myBoard[thirdRow][thirdCol + 1] == '2' ||
+                            myBoard[thirdRow][thirdCol + 1] == '1';
+                }
+                // Lewo-góra
+                if (thirdRow > 0 && thirdCol > 0 && myBoard[thirdRow - 1][thirdCol - 1] != water) {
+                    canPlaceThirdMast = false;
+                }
+                // Lewo-dół
+                if (thirdRow < myBoard.length - 1 && thirdCol > 0 && myBoard[thirdRow + 1][thirdCol - 1] != water) {
+                    canPlaceThirdMast = false;
+                }
+                // Prawo-góra
+                if (thirdRow > 0 && thirdCol < myBoard[0].length - 1
+                        && myBoard[thirdRow - 1][thirdCol + 1] != water) {
+                    canPlaceThirdMast = false;
+                }
+                // Prawo-dół
+                if (thirdRow < myBoard.length - 1 && thirdCol < myBoard[0].length - 1
+                        && myBoard[thirdRow + 1][thirdCol + 1] != water) {
+                    canPlaceThirdMast = false;
+                }
+                // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
+                if (!canPlaceThirdMast) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                    continue;
+                }
+
+                myBoard[thirdRow][thirdCol] = '3';
+                thirdMastIsNotPlaced = false;
+
+                printMyBoard(myBoard, ship);
+            }
 
 
             // ******************* INPUT AND VALIDATION FOR THE FOURTH MAST **********************
 
-            printMyBoard(myBoard, ship);
-            System.out.printf("Enter fourth coordinate for the %d of 1 Four-Masted Ship:%n",
-                    placedFourMastedShips + 1);
-            String fourthInput = scanner.nextLine();
+            boolean fourthMastIsNotPlaced = true;
 
-            boolean isValidFourthInput = validateInputFields(fourthInput);
-            if (!isValidFourthInput) continue;
+            while (fourthMastIsNotPlaced) {
 
-            char fourthColChar = fourthInput.charAt(0);
-
-            String fourthRowNumber = fourthInput.substring(1);
-
-            int fourthCol = Character.toUpperCase(fourthColChar) - 'A';
-            int fourthRow = Integer.parseInt(fourthRowNumber) - 1;
-
-            // Sprawdzenie czy trzeci maszt lezy dokladnie obok czwartego
-            boolean isFourthMastAdjacent =
-                    (fourthRow == row && Math.abs(fourthCol - col) == 3 && Math.abs(fourthCol - thirdCol) == 1) ||
-                            (fourthCol == col && Math.abs(fourthRow - row) == 3 && Math.abs(fourthRow - thirdRow) == 1);
-
-            if (!isFourthMastAdjacent) {
                 System.out.println();
-                System.out.println(("Fourth mast must be directly next to the third one " +
-                        "(vertically or horizontally)!").toUpperCase());
-                continue;
+                System.out.printf("Enter fourth coordinate for the %d of 1 Four-Masted Ship:%n",
+                        placedFourMastedShips + 1);
+                String fourthInput = scanner.nextLine();
+
+                boolean isValidFourthInput = validateInputFields(fourthInput, myBoard, ship);
+                if (!isValidFourthInput) continue;
+
+                char fourthColChar = fourthInput.charAt(0);
+
+                String fourthRowNumber = fourthInput.substring(1);
+
+                int fourthCol = Character.toUpperCase(fourthColChar) - 'A';
+                int fourthRow = Integer.parseInt(fourthRowNumber) - 1;
+
+                // Sprawdzenie czy trzeci maszt lezy dokladnie obok czwartego
+                boolean isFourthMastAdjacent =
+                        fourthRow == row && Math.abs(fourthCol - col) == 3 && Math.abs(fourthCol - thirdCol) == 1 ||
+                                fourthCol == col && Math.abs(fourthRow - row) == 3 && Math.abs(fourthRow - thirdRow) == 1 ||
+                                fourthRow == row && Math.abs(fourthCol - col) == 2 && Math.abs(fourthCol - secondCol) == 1 ||
+                                fourthCol == col && Math.abs(fourthRow - row) == 2 && Math.abs(fourthRow - secondRow) == 1 ||
+                                fourthRow == row && Math.abs(fourthCol - col) == 2 && Math.abs(fourthCol - thirdCol) == 1 ||
+                                fourthCol == col && Math.abs(fourthRow - row) == 2 && Math.abs(fourthRow - thirdRow) == 1;
+
+                if (!isFourthMastAdjacent) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println("The fourth mast must be placed next to the other masts".toUpperCase());
+                    continue;
+                }
+
+                // Pozostala czesc walidacji
+                char possiblePlacementForFourthMast = myBoard[fourthRow][fourthCol];
+
+                if (possiblePlacementForFourthMast != water) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
+                    continue;
+                }
+
+                // Sprawdzamy sąsiednie pola, czy są wolne
+                boolean canPlaceFourthMast = true;
+
+                // Sprawdzanie dolnego pola
+                if (fourthRow < myBoard.length - 1 && myBoard[fourthRow + 1][fourthCol] != water) {
+                    canPlaceFourthMast = myBoard[fourthRow + 1][fourthCol] == '2' ||
+                            myBoard[fourthRow + 1][fourthCol] == '3';
+                }
+                // Sprawdzanie górnego pola
+                if (fourthRow > 0 && myBoard[fourthRow - 1][fourthCol] != water) {
+                    canPlaceFourthMast = myBoard[fourthRow - 1][fourthCol] == '2' ||
+                            myBoard[fourthRow - 1][fourthCol] == '3';
+                }
+                // Sprawdzanie lewego pola
+                if (fourthCol > 0 && myBoard[fourthRow][fourthCol - 1] != water) {
+                    canPlaceFourthMast = myBoard[fourthRow][fourthCol - 1] == '2' ||
+                            myBoard[fourthRow][fourthCol - 1] == '3';
+                }
+                // Sprawdzanie prawego pola
+                if (fourthCol < myBoard[0].length - 1 && myBoard[fourthRow][fourthCol + 1] != water) {
+                    canPlaceFourthMast = myBoard[fourthRow][fourthCol + 1] == '2' ||
+                            myBoard[fourthRow][fourthCol + 1] == '3';
+                }
+                // Lewo-góra
+                if (fourthRow > 0 && fourthCol > 0 && myBoard[fourthRow - 1][fourthCol - 1] != water) {
+                    canPlaceFourthMast = false;
+                }
+                // Lewo-dół
+                if (fourthRow < myBoard.length - 1 && fourthCol > 0 && myBoard[fourthRow + 1][fourthCol - 1] != water) {
+                    canPlaceFourthMast = false;
+                }
+                // Prawo-góra
+                if (fourthRow > 0 && fourthCol < myBoard[0].length - 1
+                        && myBoard[fourthRow - 1][fourthCol + 1] != water) {
+                    canPlaceFourthMast = false;
+                }
+                // Prawo-dół
+                if (fourthRow < myBoard.length - 1 && fourthCol < myBoard[0].length - 1
+                        && myBoard[fourthRow + 1][fourthCol + 1] != water) {
+                    canPlaceFourthMast = false;
+                }
+                // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
+                if (!canPlaceFourthMast) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                    continue;
+                }
+
+
+                myBoard[row][col] = ship;
+                myBoard[secondRow][secondCol] = ship;
+                myBoard[thirdRow][thirdCol] = ship;
+                myBoard[fourthRow][fourthCol] = ship;
+
+                fourthMastIsNotPlaced = false;
+
+                Coordinate firstCoordinate = new Coordinate(row, col);
+                Coordinate secondCoordinate = new Coordinate(secondRow, secondCol);
+                Coordinate thirdCoordinate = new Coordinate(thirdRow, thirdCol);
+                Coordinate fourthCoordinate = new Coordinate(fourthRow, fourthCol);
+                FourMastedShip fourMastedShip =
+                        new FourMastedShip(firstCoordinate, secondCoordinate, thirdCoordinate, fourthCoordinate);
+                shipService.addShip(fourMastedShip);
+
             }
 
-            // Pozostala czesc walidacji
-            char possiblePlacementForFourthMast = myBoard[fourthRow][fourthCol];
-
-            if (possiblePlacementForFourthMast != water) {
-                System.out.println();
-                System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
-                continue;
-            }
-
-            // Sprawdzamy sąsiednie pola, czy są wolne
-            boolean canPlaceFourthMast = true;
-
-            // Sprawdzanie dolnego pola
-            if (fourthRow < myBoard.length - 1 && myBoard[fourthRow + 1][fourthCol] != water) {
-                canPlaceFourthMast = false;
-            }
-            // Sprawdzanie górnego pola
-            if (fourthRow > 0 && myBoard[fourthRow - 1][fourthCol] != water) {
-                canPlaceFourthMast = false;
-            }
-            // Sprawdzanie lewego pola
-            if (fourthCol > 0 && myBoard[fourthRow][fourthCol - 1] != water) {
-                canPlaceFourthMast = false;
-            }
-            // Sprawdzanie prawego pola
-            if (fourthCol < myBoard[0].length - 1 && myBoard[fourthRow][fourthCol + 1] != water) {
-                canPlaceFourthMast = false;
-            }
-            // Lewo-góra
-            if (fourthRow > 0 && fourthCol > 0 && myBoard[fourthRow - 1][fourthCol - 1] != water) {
-                canPlaceFourthMast = false;
-            }
-            // Lewo-dół
-            if (fourthRow < myBoard.length - 1 && fourthCol > 0 && myBoard[fourthRow + 1][fourthCol - 1] != water) {
-                canPlaceFourthMast = false;
-            }
-            // Prawo-góra
-            if (fourthRow > 0 && fourthCol < myBoard[0].length - 1
-                    && myBoard[fourthRow - 1][fourthCol + 1] != water) {
-                canPlaceFourthMast = false;
-            }
-            // Prawo-dół
-            if (fourthRow < myBoard.length - 1 && fourthCol < myBoard[0].length - 1
-                    && myBoard[fourthRow + 1][fourthCol + 1] != water) {
-                canPlaceFourthMast = false;
-            }
-            // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
-            if (!canPlaceFourthMast) {
-                System.out.println();
-                System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
-                continue;
-            }
-
-
-            myBoard[row][col] = ship;
-            myBoard[secondRow][secondCol] = ship;
-            myBoard[thirdRow][thirdCol] = ship;
-            myBoard[fourthRow][fourthCol] = ship;
             placedFourMastedShips++;
-
-            Coordinate firstCoordinate = new Coordinate(row, col);
-            Coordinate secondCoordinate = new Coordinate(secondRow, secondCol);
-            Coordinate thirdCoordinate = new Coordinate(thirdRow, thirdCol);
-            Coordinate fourthCoordinate = new Coordinate(fourthRow, fourthCol);
-            FourMastedShip fourMastedShip =
-                    new FourMastedShip(firstCoordinate, secondCoordinate, thirdCoordinate, fourthCoordinate);
-            shipService.addShip(fourMastedShip);
-
         }
-        //displayMyBoard(myBoard, ship);
-
 
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        System.out.println();
+        printMyBoard(myBoard, ship);
         System.out.println("ALL SHIPS HAVE BEEN PLACED!".toUpperCase());
 
         try {
@@ -1662,7 +1765,6 @@ public class ClientShipGameNetwork {
             throw new RuntimeException(e);
         }
 
-        // printMyBoard(myBoard, ship);
         System.out.println("Waiting for the opponent...");
 
         try {
