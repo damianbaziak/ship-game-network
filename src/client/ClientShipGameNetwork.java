@@ -659,12 +659,11 @@ public class ClientShipGameNetwork {
 
     private static boolean areOpponentShotCoordinatesAdjacent(Coordinate coordinate, Coordinate opponentShotCoordinate) {
 
-        int differenceCol = opponentShotCoordinate.getCol() - coordinate.getCol();
-        int differenceRow = opponentShotCoordinate.getRow() - coordinate.getRow();
+        int differenceCol = Math.abs(opponentShotCoordinate.getCol() - coordinate.getCol());
+        int differenceRow = Math.abs(opponentShotCoordinate.getRow() - coordinate.getRow());
 
-        int sum = Math.abs(differenceRow + differenceCol);
-
-        return sum >= 1 && sum <= 3;
+        return (differenceRow == 0 && differenceCol >= 1 && differenceCol <=3) ||
+                (differenceCol == 0 && differenceRow >= 1 && differenceRow <=3);
     }
 
     private static boolean didPLayerWin(String fourthOpponentReport) throws InterruptedException {
