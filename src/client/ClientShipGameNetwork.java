@@ -55,16 +55,15 @@ public class ClientShipGameNetwork {
 
             if ("The war has begun.".equalsIgnoreCase(serverMessageToWarBeginning)) {
                 MessagePrinter.displayLetsStart();
-                runningGame(myBoard, opponentBoard, water, ship, HIT_AND_SUNK_CHAR, miss, scanner, input, output);
+                runningGame(myBoard, opponentBoard, ship, HIT_AND_SUNK_CHAR, miss, scanner, input, output);
             }
-
 
         } catch (IOException e) {
             System.out.println("Error connecting to server: " + e.getMessage());
         }
     }
 
-    private static void runningGame(char[][] myBoard, char[][] opponentBoard, char water, char ship, char hitAndSunk,
+    private static void runningGame(char[][] myBoard, char[][] opponentBoard, char ship, char hitAndSunk,
                                     char miss, Scanner scanner, BufferedReader input, PrintWriter output)
             throws IOException, InterruptedException {
 
@@ -72,6 +71,7 @@ public class ClientShipGameNetwork {
         List<Coordinate> myShipsHitCoordinates = new ArrayList<>();
         Map<Integer, List<Ship>> hitOpponentShipsBySize = new HashMap<>();
 
+        printEntireGameBoard(myBoard, opponentBoard, ship);
 
         boolean gameRunning = true;
 
@@ -80,12 +80,10 @@ public class ClientShipGameNetwork {
             String whoseTurnIsIt = input.readLine();
 
             if ("Your turn.".equalsIgnoreCase(whoseTurnIsIt)) {
-                printMyBoard(myBoard, ship);
                 makeShot(myBoard, opponentBoard, scanner, input, output, ship, hitAndSunk, miss, hitOpponentShipsBySize);
             } else if ("Game over.".equalsIgnoreCase(whoseTurnIsIt)) {
                 gameRunning = false;
             } else {
-                printMyBoard(myBoard, ship);
                 opponentShot(myBoard, opponentBoard, myShips, myShipsHitCoordinates, scanner, input, output, ship, hitAndSunk);
             }
 
@@ -97,16 +95,16 @@ public class ClientShipGameNetwork {
             Scanner scanner, BufferedReader input, PrintWriter output, char ship, char hit)
             throws IOException, InterruptedException {
 
-        // displayEntireGameBoard(myBoard, opponentBoard, ship);
-
         boolean opponentHitYouWait = true;
 
         while (opponentHitYouWait) {
 
+            System.out.println();
             System.out.println("Opponent is firing. Waiting for their shot...");
             String opponentShot = input.readLine();
-            displayEntireGameBoard(myBoard, opponentBoard, ship);
+            printEntireGameBoard(myBoard, opponentBoard, ship);
             System.out.println();
+            Thread.sleep(500);
             System.out.println("Opponent has fired at " + opponentShot.toUpperCase());
             Thread.sleep(1000);
 
@@ -279,6 +277,9 @@ public class ClientShipGameNetwork {
                 }
 
             } else {
+
+                myShipsHitCoordinates.add(opponentShotCoordinate);
+
                 output.println("Missed.");
                 output.println("");
                 output.println("");
@@ -286,6 +287,7 @@ public class ClientShipGameNetwork {
                 System.out.println();
                 System.out.println("Opponent missed!".toUpperCase());
                 Thread.sleep(1000);
+
                 opponentHitYouWait = false;
             }
         }
@@ -333,15 +335,12 @@ public class ClientShipGameNetwork {
             Map<Integer, List<Ship>> hitOpponentShipsBySize)
             throws IOException, InterruptedException {
 
-        // displayEntireGameBoard(myBoard, opponentBoard, ship);
-
         boolean youHitYouTurn = true;
 
         while (youHitYouTurn) {
 
-            // displayEntireGameBoard(myBoard, opponentBoard, ship);
             System.out.println();
-            System.out.println("Your turn! Enter the target coordinates: ");
+            System.out.println("Your turn! Enter the target coordinates (e.g., B7): ");
 
             String myShot = scanner.nextLine();
 
@@ -364,7 +363,7 @@ public class ClientShipGameNetwork {
 
             if ("This shot has been already fired!".equalsIgnoreCase(opponentReport)) {
 
-                displayEntireGameBoard(myBoard, opponentBoard, ship);
+                printEntireGameBoard(myBoard, opponentBoard, ship);
                 Thread.sleep(500);
                 MessagePrinter.printAlreadyHit();
                 Thread.sleep(1000);
@@ -373,7 +372,7 @@ public class ClientShipGameNetwork {
 
             } else if (opponentReport.startsWith("You hit")) {
 
-                Coordinate hitCoordinate = new Coordinate(row, col);
+                Coordinate opponentShotCoordinate = new Coordinate(row, col);
 
                 if ("You hit a single-masted ship!".equalsIgnoreCase(opponentReport)) {
 
@@ -381,13 +380,13 @@ public class ClientShipGameNetwork {
                             hitOpponentShipsBySize.computeIfAbsent(1, k -> new ArrayList<>());
 
                     SingleMastedShip newShip = new SingleMastedShip();
-                    newShip.addHit(hitCoordinate);
+                    newShip.addHit(opponentShotCoordinate);
                     hitOpponentSingleMastedShips.add(newShip);
 
                     // Mark the ship as sunk immediately because one-masted ships are destroyed with a single hit.
-                    opponentBoard[hitCoordinate.getRow()][hitCoordinate.getCol()] = hitAndSunk;
+                    opponentBoard[opponentShotCoordinate.getRow()][opponentShotCoordinate.getCol()] = hitAndSunk;
 
-                    displayEntireGameBoard(myBoard, opponentBoard, ship);
+                    printEntireGameBoard(myBoard, opponentBoard, ship);
                     Thread.sleep(500);
                     MessagePrinter.printHit();
                     Thread.sleep(1000);
@@ -422,17 +421,17 @@ public class ClientShipGameNetwork {
 
                     Optional<Ship> optionalShip = hitOpponentTwoMastedShips
                             .stream()
-                            .filter(s -> !s.getHitCoordinates().contains(hitCoordinate))
+                            .filter(s -> !s.getHitCoordinates().contains(opponentShotCoordinate))
                             .filter(s -> s.getHitCoordinates().size() == 1)
                             .filter(s -> s.getHitCoordinates().stream().anyMatch(
-                                    coordinate -> areHitCoordinatesAdjacent(coordinate, hitCoordinate)))
+                                    coordinate -> areHitCoordinatesAdjacent(coordinate, opponentShotCoordinate)))
                             .findFirst();
 
                     optionalShip.ifPresentOrElse(
-                            s -> s.addHit(hitCoordinate),
+                            s -> s.addHit(opponentShotCoordinate),
                             () -> {
                                 TwoMastedShip newShip = new TwoMastedShip();
-                                newShip.addHit(hitCoordinate);
+                                newShip.addHit(opponentShotCoordinate);
                                 hitOpponentTwoMastedShips.add(newShip);
                             }
                     );
@@ -448,7 +447,7 @@ public class ClientShipGameNetwork {
                         });
 
 
-                        displayEntireGameBoard(myBoard, opponentBoard, ship);
+                        printEntireGameBoard(myBoard, opponentBoard, ship);
                         Thread.sleep(500);
                         MessagePrinter.printHit();
                         Thread.sleep(1000);
@@ -460,9 +459,9 @@ public class ClientShipGameNetwork {
 
                     } else {
 
-                        opponentBoard[hitCoordinate.getRow()][hitCoordinate.getCol()] = HIT_MAST_CHAR;
+                        opponentBoard[opponentShotCoordinate.getRow()][opponentShotCoordinate.getCol()] = HIT_MAST_CHAR;
 
-                        displayEntireGameBoard(myBoard, opponentBoard, ship);
+                        printEntireGameBoard(myBoard, opponentBoard, ship);
                         Thread.sleep(500);
                         MessagePrinter.printHit();
                         Thread.sleep(1000);
@@ -490,16 +489,16 @@ public class ClientShipGameNetwork {
 
                     Optional<Ship> optionalShip = hitThreeMastedShips
                             .stream()
-                            .filter(s -> !s.getHitCoordinates().contains(hitCoordinate))
+                            .filter(s -> !s.getHitCoordinates().contains(opponentShotCoordinate))
                             .filter(s -> s.getHitCoordinates().size() < 3)
                             .filter(s -> s.getHitCoordinates().stream().anyMatch(
-                                    coordinate -> areHitCoordinatesAdjacent(coordinate, hitCoordinate)))
+                                    coordinate -> areHitCoordinatesAdjacent(coordinate, opponentShotCoordinate)))
                             .findFirst();
 
-                    optionalShip.ifPresentOrElse(s -> s.addHit(hitCoordinate),
+                    optionalShip.ifPresentOrElse(s -> s.addHit(opponentShotCoordinate),
                             () -> {
                                 Ship newShip = new ThreeMastedShip();
-                                newShip.addHit(hitCoordinate);
+                                newShip.addHit(opponentShotCoordinate);
                                 hitThreeMastedShips.add(newShip);
                             }
                     );
@@ -514,7 +513,7 @@ public class ClientShipGameNetwork {
                                 )
                         );
 
-                        displayEntireGameBoard(myBoard, opponentBoard, ship);
+                        printEntireGameBoard(myBoard, opponentBoard, ship);
                         Thread.sleep(500);
                         MessagePrinter.printHit();
                         Thread.sleep(1000);
@@ -526,9 +525,9 @@ public class ClientShipGameNetwork {
 
                     } else {
 
-                        opponentBoard[hitCoordinate.getRow()][hitCoordinate.getCol()] = HIT_MAST_CHAR;
+                        opponentBoard[opponentShotCoordinate.getRow()][opponentShotCoordinate.getCol()] = HIT_MAST_CHAR;
 
-                        displayEntireGameBoard(myBoard, opponentBoard, ship);
+                        printEntireGameBoard(myBoard, opponentBoard, ship);
                         Thread.sleep(500);
                         MessagePrinter.printHit();
                         Thread.sleep(1000);
@@ -557,17 +556,17 @@ public class ClientShipGameNetwork {
 
                     Optional<Ship> optionalShip = hitFourMastedShips
                             .stream()
-                            .filter(s -> !s.getHitCoordinates().contains(hitCoordinate))
+                            .filter(s -> !s.getHitCoordinates().contains(opponentShotCoordinate))
                             .filter(s -> s.getHitCoordinates().size() < 4)
                             .filter(s -> s.getHitCoordinates().stream().anyMatch(
-                                    coordinate -> areHitCoordinatesAdjacent(coordinate, hitCoordinate)))
+                                    coordinate -> areHitCoordinatesAdjacent(coordinate, opponentShotCoordinate)))
                             .findFirst();
 
                     optionalShip.ifPresentOrElse(
-                            s -> s.addHit(hitCoordinate),
+                            s -> s.addHit(opponentShotCoordinate),
                             () -> {
                                 Ship newShip = new FourMastedShip();
-                                newShip.addHit(hitCoordinate);
+                                newShip.addHit(opponentShotCoordinate);
                                 hitFourMastedShips.add(newShip);
                             }
                     );
@@ -582,7 +581,7 @@ public class ClientShipGameNetwork {
                                 )
                         );
 
-                        displayEntireGameBoard(myBoard, opponentBoard, ship);
+                        printEntireGameBoard(myBoard, opponentBoard, ship);
                         Thread.sleep(500);
                         MessagePrinter.printHit();
                         Thread.sleep(1000);
@@ -593,10 +592,10 @@ public class ClientShipGameNetwork {
                         Thread.sleep(1000);
 
                     } else {
-                        opponentBoard[hitCoordinate.getRow()][hitCoordinate.getCol()] = HIT_MAST_CHAR;
 
+                        opponentBoard[opponentShotCoordinate.getRow()][opponentShotCoordinate.getCol()] = HIT_MAST_CHAR;
 
-                        displayEntireGameBoard(myBoard, opponentBoard, ship);
+                        printEntireGameBoard(myBoard, opponentBoard, ship);
                         Thread.sleep(500);
                         MessagePrinter.printHit();
                         Thread.sleep(1000);
@@ -623,7 +622,7 @@ public class ClientShipGameNetwork {
             } else {
                 opponentBoard[row][col] = miss;
 
-                displayEntireGameBoard(myBoard, opponentBoard, ship);
+                printEntireGameBoard(myBoard, opponentBoard, ship);
                 Thread.sleep(500);
                 MessagePrinter.displayMiss();
                 Thread.sleep(1000);
@@ -637,13 +636,18 @@ public class ClientShipGameNetwork {
 
     }
 
-    private static boolean areHitCoordinatesAdjacent(Coordinate coordinate, Coordinate hitCoordinate) {
-        int differenceCol = hitCoordinate.getCol() - coordinate.getCol();
-        int differenceRow = hitCoordinate.getRow() - coordinate.getRow();
-        return differenceRow + differenceCol == 1;
+    private static boolean areHitCoordinatesAdjacent(Coordinate coordinate, Coordinate opponentShotCoordinate) {
+
+        int differenceCol = opponentShotCoordinate.getCol() - coordinate.getCol();
+        int differenceRow = opponentShotCoordinate.getRow() - coordinate.getRow();
+
+        int sum = Math.abs(differenceRow + differenceCol);
+
+        return sum >= 1 && sum <= 3;
     }
 
     private static boolean didPLayerWin(String fourthOpponentReport) throws InterruptedException {
+
         if (!fourthOpponentReport.isBlank()
                 && "All ships have been sunk. You win.".equalsIgnoreCase(fourthOpponentReport)) {
             System.out.println();
@@ -1885,7 +1889,7 @@ public class ClientShipGameNetwork {
         System.out.println();
     }
 
-    private static void displayEntireGameBoard(char[][] myBoard, char[][] opponentBoard, char ship) {
+    private static void printEntireGameBoard(char[][] myBoard, char[][] opponentBoard, char ship) {
 
         for (int i = 0; i < 2; i++) {
             System.out.println();
