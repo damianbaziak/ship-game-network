@@ -102,11 +102,6 @@ public class ClientShipGameNetwork {
             System.out.println();
             System.out.println("Opponent is firing. Waiting for their shot...");
             String opponentShot = input.readLine();
-            printEntireGameBoard(myBoard, opponentBoard, ship);
-            System.out.println();
-            Thread.sleep(500);
-            System.out.println("Opponent has fired at " + opponentShot.toUpperCase());
-            Thread.sleep(1000);
 
             String rowNumber = opponentShot.substring(1);
             int row = Integer.parseInt(rowNumber) - 1;
@@ -119,13 +114,21 @@ public class ClientShipGameNetwork {
                     .findFirst();
 
             if (myShipsHitCoordinates.contains(opponentShotCoordinate)) {
+
                 output.println("This shot has been already fired!");
                 output.println("");
                 output.println("");
                 output.println("");
+
+                printEntireGameBoard(myBoard, opponentBoard, ship);
+                System.out.println();
+                Thread.sleep(500);
+                System.out.println("Opponent has fired at " + opponentShot.toUpperCase());
+                Thread.sleep(1000);
                 System.out.println();
                 System.out.println("The opponent shot at a location that was already fired upon!".toUpperCase());
                 Thread.sleep(1000);
+
                 opponentHitYouWait = false;
 
             } else if ((!myShipsHitCoordinates.contains(opponentShotCoordinate)) && (possibleHitShip.isPresent())) {
@@ -142,6 +145,15 @@ public class ClientShipGameNetwork {
                 String secondHitMessageToDisplay = "";
                 String thirdHitMessageToDisplay = "";
                 String fourthHitMessageToDisplay;
+
+                printEntireGameBoard(myBoard, opponentBoard, ship);
+                System.out.println();
+                Thread.sleep(500);
+                System.out.println("Opponent has fired at " + opponentShot.toUpperCase());
+                Thread.sleep(1000);
+                System.out.println();
+                System.out.println("The opponent shot at a location that was already fired upon!".toUpperCase());
+                Thread.sleep(1000);
 
                 if (myShip.getSize() == 1) {
                     output.println("You hit a single-masted ship!");
@@ -259,7 +271,7 @@ public class ClientShipGameNetwork {
                             .allMatch(s -> s.getCoordinates().isEmpty());
 
                     if (allFourMastedShipsSunk) {
-                        output.println("All Four-Masted Ships have been sunk.");
+                        output.println("All Four-Masted Ships have been sunk!");
                         thirdHitMessageToDisplay = "Opponent has sunk all of your Four-Masted Ships!".toUpperCase();
 
                     } else output.println("");
@@ -284,6 +296,15 @@ public class ClientShipGameNetwork {
                 output.println("");
                 output.println("");
                 output.println("");
+
+                printEntireGameBoard(myBoard, opponentBoard, ship);
+                System.out.println();
+                Thread.sleep(500);
+                System.out.println("Opponent has fired at " + opponentShot.toUpperCase());
+                Thread.sleep(1000);
+                System.out.println();
+                System.out.println("The opponent shot at a location that was already fired upon!".toUpperCase());
+                Thread.sleep(1000);
                 System.out.println();
                 System.out.println("Opponent missed!".toUpperCase());
                 Thread.sleep(1000);
@@ -344,7 +365,7 @@ public class ClientShipGameNetwork {
 
             String myShot = scanner.nextLine();
 
-            boolean isValidInput = validateInputFields(myShot, myBoard, ship);
+            boolean isValidInput = validateInputFields(myShot, myBoard, opponentBoard, ship);
             if (!isValidInput) continue;
 
             String rowNumber = myShot.substring(1);
@@ -424,7 +445,7 @@ public class ClientShipGameNetwork {
                             .filter(s -> !s.getHitCoordinates().contains(opponentShotCoordinate))
                             .filter(s -> s.getHitCoordinates().size() == 1)
                             .filter(s -> s.getHitCoordinates().stream().anyMatch(
-                                    coordinate -> areHitCoordinatesAdjacent(coordinate, opponentShotCoordinate)))
+                                    coordinate -> areOpponentShotCoordinatesAdjacent(coordinate, opponentShotCoordinate)))
                             .findFirst();
 
                     optionalShip.ifPresentOrElse(
@@ -492,7 +513,7 @@ public class ClientShipGameNetwork {
                             .filter(s -> !s.getHitCoordinates().contains(opponentShotCoordinate))
                             .filter(s -> s.getHitCoordinates().size() < 3)
                             .filter(s -> s.getHitCoordinates().stream().anyMatch(
-                                    coordinate -> areHitCoordinatesAdjacent(coordinate, opponentShotCoordinate)))
+                                    coordinate -> areOpponentShotCoordinatesAdjacent(coordinate, opponentShotCoordinate)))
                             .findFirst();
 
                     optionalShip.ifPresentOrElse(s -> s.addHit(opponentShotCoordinate),
@@ -559,7 +580,7 @@ public class ClientShipGameNetwork {
                             .filter(s -> !s.getHitCoordinates().contains(opponentShotCoordinate))
                             .filter(s -> s.getHitCoordinates().size() < 4)
                             .filter(s -> s.getHitCoordinates().stream().anyMatch(
-                                    coordinate -> areHitCoordinatesAdjacent(coordinate, opponentShotCoordinate)))
+                                    coordinate -> areOpponentShotCoordinatesAdjacent(coordinate, opponentShotCoordinate)))
                             .findFirst();
 
                     optionalShip.ifPresentOrElse(
@@ -636,7 +657,7 @@ public class ClientShipGameNetwork {
 
     }
 
-    private static boolean areHitCoordinatesAdjacent(Coordinate coordinate, Coordinate opponentShotCoordinate) {
+    private static boolean areOpponentShotCoordinatesAdjacent(Coordinate coordinate, Coordinate opponentShotCoordinate) {
 
         int differenceCol = opponentShotCoordinate.getCol() - coordinate.getCol();
         int differenceRow = opponentShotCoordinate.getRow() - coordinate.getRow();
@@ -657,6 +678,65 @@ public class ClientShipGameNetwork {
             return true;
         }
         return false;
+    }
+
+    private static boolean validateInputFields(String input, char[][] myBoard, char[][] opponentBoard, char ship) {
+
+        if (input.length() < 2 || input.length() > 3) {
+            printEntireGameBoard(myBoard, opponentBoard, ship);
+            System.out.println("Invalid format. Enter e.g. A5 or B10");
+            System.out.println();
+            return false;
+        }
+
+        char colChar = input.charAt(0);
+
+        if (!Character.isLetter(colChar)) {
+            printEntireGameBoard(myBoard, opponentBoard, ship);
+            System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
+            System.out.println();
+            return false;
+        }
+
+        String rowNumber = input.substring(1);
+        char firstCharOfRowNumber = rowNumber.charAt(0);
+
+        int col = Character.toUpperCase(colChar) - 'A';
+
+        if (!Character.isDigit(firstCharOfRowNumber)) {
+            printEntireGameBoard(myBoard, opponentBoard, ship);
+            System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
+            System.out.println();
+            return false;
+        }
+
+        int row = Integer.parseInt(rowNumber) - 1;
+
+
+        if ((input.length() == 3) && !(rowNumber.equals("10"))) {
+            printEntireGameBoard(myBoard, opponentBoard, ship);
+            System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
+            System.out.println();
+            return false;
+        }
+
+
+        // Checking if the column letter is within A-J range
+        if ((col < 0) || (col > 9)) {
+            printEntireGameBoard(myBoard, opponentBoard, ship);
+            System.out.println("Column must be between A and J!".toUpperCase());
+            System.out.println();
+            return false;
+        }
+
+        // Checking if the row number is within 1-10 range
+        if ((row < 0) || (row > 9)) {
+            printEntireGameBoard(myBoard, opponentBoard, ship);
+            System.out.println("Row must be between 1 and 10!".toUpperCase());
+            System.out.println();
+            return false;
+        }
+        return true;
     }
 
     private static boolean validateInputFields(String input, char[][] myBoard, char ship) {
