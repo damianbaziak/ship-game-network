@@ -80,10 +80,12 @@ public class ClientShipGameNetwork {
             String whoseTurnIsIt = input.readLine();
 
             if ("Your turn.".equalsIgnoreCase(whoseTurnIsIt)) {
+                printMyBoard(myBoard, ship);
                 makeShot(myBoard, opponentBoard, scanner, input, output, ship, hitAndSunk, miss, hitOpponentShipsBySize);
             } else if ("Game over.".equalsIgnoreCase(whoseTurnIsIt)) {
                 gameRunning = false;
             } else {
+                printMyBoard(myBoard, ship);
                 opponentShot(myBoard, opponentBoard, myShips, myShipsHitCoordinates, scanner, input, output, ship, hitAndSunk);
             }
 
@@ -95,7 +97,7 @@ public class ClientShipGameNetwork {
             Scanner scanner, BufferedReader input, PrintWriter output, char ship, char hit)
             throws IOException, InterruptedException {
 
-        displayEntireGameBoard(myBoard, opponentBoard, ship);
+        // displayEntireGameBoard(myBoard, opponentBoard, ship);
 
         boolean opponentHitYouWait = true;
 
@@ -331,7 +333,7 @@ public class ClientShipGameNetwork {
             Map<Integer, List<Ship>> hitOpponentShipsBySize)
             throws IOException, InterruptedException {
 
-        displayEntireGameBoard(myBoard, opponentBoard, ship);
+        // displayEntireGameBoard(myBoard, opponentBoard, ship);
 
         boolean youHitYouTurn = true;
 
@@ -356,6 +358,8 @@ public class ClientShipGameNetwork {
             String secondOpponentReport = input.readLine();
             String thirdOpponentReport = input.readLine();
             String fourthOpponentReport = input.readLine();
+
+            System.out.println("The message from opponent after miss shot: " + opponentReport);
 
 
             if ("This shot has been already fired!".equalsIgnoreCase(opponentReport)) {
@@ -673,6 +677,14 @@ public class ClientShipGameNetwork {
         char firstCharOfRowNumber = rowNumber.charAt(0);
 
         int col = Character.toUpperCase(colChar) - 'A';
+
+        if (!Character.isDigit(firstCharOfRowNumber)) {
+            printMyBoard(myBoard, ship);
+            System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
+            System.out.println();
+            return false;
+        }
+
         int row = Integer.parseInt(rowNumber) - 1;
 
 
@@ -683,12 +695,6 @@ public class ClientShipGameNetwork {
             return false;
         }
 
-        if (!Character.isDigit(firstCharOfRowNumber)) {
-            printMyBoard(myBoard, ship);
-            System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
-            System.out.println();
-            return false;
-        }
 
         // Checking if the column letter is within A-J range
         if ((col < 0) || (col > 9)) {
@@ -840,7 +846,7 @@ public class ClientShipGameNetwork {
     private static char[][] placeTwoMastedShips(
             char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) throws InterruptedException {
 
-        Thread.sleep(1000);
+        Thread.sleep(500);
         System.out.println("All Single-Masted ships have been placed!".toUpperCase());
         Thread.sleep(1000);
         System.out.println();
@@ -1035,9 +1041,9 @@ public class ClientShipGameNetwork {
 
             placedTwoMastedShips++;
 
+            printMyBoard(myBoard, ship);
         }
 
-        printMyBoard(myBoard, ship);
 
         return placeThreeMastedShips(myBoard, water, ship, scanner, output);
     }
@@ -1045,7 +1051,7 @@ public class ClientShipGameNetwork {
     private static char[][] placeThreeMastedShips(
             char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) throws InterruptedException {
 
-        Thread.sleep(1000);
+        Thread.sleep(500);
         System.out.println("All Two-Masted ships have been placed!".toUpperCase());
         Thread.sleep(1000);
         System.out.println();
@@ -1346,6 +1352,8 @@ public class ClientShipGameNetwork {
             }
 
             placedThreeMastedShips++;
+
+            printMyBoard(myBoard, ship);
         }
 
         return placeFourMastedShips(myBoard, water, ship, scanner, output);
@@ -1354,12 +1362,13 @@ public class ClientShipGameNetwork {
     private static char[][] placeFourMastedShips(
             char[][] myBoard, char water, char ship, Scanner scanner, PrintWriter output) throws InterruptedException {
 
-        printMyBoard(myBoard, ship);
-        Thread.sleep(1000);
+        Thread.sleep(500);
         System.out.println("All Three-Masted ships have been placed!".toUpperCase());
+        Thread.sleep(1000);
         System.out.println();
         System.out.println();
         System.out.println("Place your one Four-Masted Ship");
+        Thread.sleep(1000);
         System.out.println();
 
         int placedFourMastedShips = 0;
@@ -1760,9 +1769,10 @@ public class ClientShipGameNetwork {
 
         printMyBoard(myBoard, ship);
 
-        Thread.sleep(1000);
+        Thread.sleep(500);
         System.out.println("ALL SHIPS HAVE BEEN PLACED!".toUpperCase());
         Thread.sleep(1000);
+        System.out.println();
         System.out.println("Waiting for the opponent...");
 
         output.println("Ships placed.");
