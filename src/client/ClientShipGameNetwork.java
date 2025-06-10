@@ -5,10 +5,7 @@ import client.ship.*;
 import client.ship.service.Coordinate;
 import client.ship.service.ShipService;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.*;
 
@@ -28,10 +25,12 @@ public class ClientShipGameNetwork {
     private static final ShipService shipService = new ShipService();
 
     public static void main(String[] args) throws InterruptedException {
+
         Scanner scanner = new Scanner(System.in);
+
         try (Socket socket = new Socket(SERVER_IP, SERVER_PORT);
-             BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             PrintWriter output = new PrintWriter(socket.getOutputStream(), true)) {
+             ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+             ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream())) {
 
             if (socket.isConnected()) {
                 System.out.println();
@@ -41,7 +40,7 @@ public class ClientShipGameNetwork {
             }
 
             // Odbieramy wiadomość od serwera
-            String serverMessage = input.readLine();
+            String serverMessage = (String) input.readObject();
             if ("START".equals(serverMessage)) {
                 MessagePrinter.printGreeting();
             }
@@ -51,7 +50,7 @@ public class ClientShipGameNetwork {
 
             placeShips(myBoard, water, ship, scanner, output);
 
-            String serverMessageToWarBeginning = input.readLine();
+            String serverMessageToWarBeginning = (String) input.readObject();
 
             if ("The war has begun.".equalsIgnoreCase(serverMessageToWarBeginning)) {
                 MessagePrinter.displayLetsStart();
@@ -60,14 +59,18 @@ public class ClientShipGameNetwork {
 
         } catch (IOException e) {
             System.out.println("Error connecting to server: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            System.out.println("ServerMessage not found");
+            ;
         }
     }
 
     private static void runningGame(char[][] myBoard, char[][] opponentBoard, char ship, char hitAndSunk,
-                                    char miss, Scanner scanner, BufferedReader input, PrintWriter output)
-            throws IOException, InterruptedException {
+                                    char miss, Scanner scanner, ObjectInputStream input, ObjectOutputStream output)
+            throws IOException, InterruptedException, ClassNotFoundException {
 
         List<Ship> myShips = shipService.getListOfMyCreatedShips();
+        List<Ship> copyOfMyShipsListForMessagesAfterSunk = copyMyShips(myShips);
         List<Coordinate> myShipsHitCoordinates = new ArrayList<>();
         Map<Integer, List<Ship>> hitOpponentShipsBySize = new HashMap<>();
 
@@ -77,23 +80,40 @@ public class ClientShipGameNetwork {
 
         while (gameRunning) {
 
-            String whoseTurnIsIt = input.readLine();
+            String whoseTurnIsIt = (String) input.readObject();
 
             if ("Your turn.".equalsIgnoreCase(whoseTurnIsIt)) {
                 makeShot(myBoard, opponentBoard, scanner, input, output, ship, hitAndSunk, miss, hitOpponentShipsBySize);
             } else if ("Game over.".equalsIgnoreCase(whoseTurnIsIt)) {
                 gameRunning = false;
             } else {
-                opponentShot(myBoard, opponentBoard, myShips, myShipsHitCoordinates, scanner, input, output, ship, hitAndSunk);
+                opponentShot(myBoard, opponentBoard, myShips, copyOfMyShipsListForMessagesAfterSunk,
+                        myShipsHitCoordinates, input, output, ship, hitAndSunk);
             }
 
         }
     }
 
+    private static List<Ship> copyMyShips(List<Ship> myShips) {
+        List<Ship> copyOfList = new ArrayList<>();
+        for (Ship s : myShips) {
+            if (s.getSize() == 1) {
+                copyOfList.add(new SingleMastedShip(s));
+            } else if (s.getSize() == 2) {
+                copyOfList.add(new TwoMastedShip(s));
+            } else if (s.getSize() == 3) {
+                copyOfList.add(new ThreeMastedShip(s));
+            } else copyOfList.add(new FourMastedShip(s));
+
+        }
+        return copyOfList;
+    }
+
     private static void opponentShot(
-            char[][] myBoard, char[][] opponentBoard, List<Ship> myShips, List<Coordinate> myShipsHitCoordinates,
-            Scanner scanner, BufferedReader input, PrintWriter output, char ship, char hit)
-            throws IOException, InterruptedException {
+            char[][] myBoard, char[][] opponentBoard, List<Ship> myShips,
+            List<Ship> copyOfMyShipsListForMessagesAfterSunk, List<Coordinate> myShipHitCoordinates,
+            ObjectInputStream input, ObjectOutputStream output, char ship,
+            char hit) throws IOException, InterruptedException, ClassNotFoundException {
 
         boolean opponentHitYouWait = true;
 
@@ -101,7 +121,7 @@ public class ClientShipGameNetwork {
 
             System.out.println();
             System.out.println("Opponent is firing. Waiting for their shot...");
-            String opponentShot = input.readLine();
+            String opponentShot = (String) input.readObject();
 
             String rowNumber = opponentShot.substring(1);
             int row = Integer.parseInt(rowNumber) - 1;
@@ -113,12 +133,13 @@ public class ClientShipGameNetwork {
                     .filter(s -> s.getCoordinates().contains(opponentShotCoordinate))
                     .findFirst();
 
-            if (myShipsHitCoordinates.contains(opponentShotCoordinate)) {
+            if (myShipHitCoordinates.contains(opponentShotCoordinate)) {
 
-                output.println("This shot has been already fired!");
-                output.println("");
-                output.println("");
-                output.println("");
+                output.writeObject("This shot has been already fired!");
+                output.writeObject(null);
+                output.writeObject(null);
+                output.writeObject(null);
+                output.writeObject(null);
 
                 printEntireGameBoard(myBoard, opponentBoard, ship);
                 System.out.println();
@@ -131,9 +152,9 @@ public class ClientShipGameNetwork {
 
                 opponentHitYouWait = false;
 
-            } else if ((!myShipsHitCoordinates.contains(opponentShotCoordinate)) && (possibleHitShip.isPresent())) {
+            } else if ((!myShipHitCoordinates.contains(opponentShotCoordinate)) && (possibleHitShip.isPresent())) {
 
-                myShipsHitCoordinates.add(opponentShotCoordinate);
+                myShipHitCoordinates.add(opponentShotCoordinate);
 
                 Ship myShip = possibleHitShip.get();
 
@@ -156,26 +177,35 @@ public class ClientShipGameNetwork {
                 Thread.sleep(1000);
 
                 if (myShip.getSize() == 1) {
-                    output.println("You hit a single-masted ship!");
 
+                    output.writeObject("You hit a single-masted ship!");
                     firstHitMessageToDisplay = "Opponent hit your single-masted ship!".toUpperCase();
 
                     if (myShip.getCoordinates().isEmpty()) {
-                        output.println("You've sunk a single-masted ship!");
+
+                        output.writeObject("You've sunk a single-masted ship!");
+
+                        Ship sunkShip = getSunkShip(opponentShotCoordinate, copyOfMyShipsListForMessagesAfterSunk);
+                        output.writeObject(sunkShip);
+
                         secondHitMessageToDisplay = "Opponent sunk one of your Single-Masted Ships!".toUpperCase();
                         shipService.removeShip(myShip);
 
-                    } else output.println("");
+                    } else {
+                        output.writeObject(null);
+                        output.writeObject(null);
+                    }
 
                     boolean allOneMastedShipsSunk = myShips.stream()
                             .filter(s -> s.getSize() == 1)
                             .allMatch(s -> s.getCoordinates().isEmpty());
 
                     if (allOneMastedShipsSunk) {
-                        output.println("All Single-Masted Ships have been sunk!");
+
+                        output.writeObject("All Single-Masted Ships have been sunk!");
                         thirdHitMessageToDisplay = "Opponent has sunk all of your Single-Masted Ships!".toUpperCase();
 
-                    } else output.println("");
+                    } else output.writeObject(null);
 
                     fourthHitMessageToDisplay = areAllShipsSunk(myShips, output);
 
@@ -183,6 +213,7 @@ public class ClientShipGameNetwork {
                             fourthHitMessageToDisplay);
 
                     if (fourthHitMessageToDisplay != null && !fourthHitMessageToDisplay.isEmpty()) {
+
                         MessagePrinter.printYouLose();
                         opponentHitYouWait = false;
 
@@ -190,25 +221,34 @@ public class ClientShipGameNetwork {
 
                 } else if (myShip.getSize() == 2) {
 
-                    output.println("You hit a two-masted ship!");
+                    output.writeObject("You hit a two-masted ship!");
                     firstHitMessageToDisplay = "Opponent hit your Two-Masted Ship!".toUpperCase();
 
                     if (myShip.getCoordinates().isEmpty()) {
-                        output.println("You've sunk a Two-Masted Ship!");
+
+                        output.writeObject("You've sunk a Two-Masted Ship!");
+
+                        Ship sunkTwoMastedShip = getSunkShip(
+                                opponentShotCoordinate, copyOfMyShipsListForMessagesAfterSunk);
+                        output.writeObject(sunkTwoMastedShip);
+
                         secondHitMessageToDisplay = "Opponent sunk one of your Two-Masted Ships!".toUpperCase();
                         shipService.removeShip(myShip);
 
-                    } else output.println("");
+                    } else {
+                        output.writeObject(null);
+                        output.writeObject(null);
+                    }
 
                     boolean allTwoMastedShipsSunk = myShips.stream()
                             .filter(s -> s.getSize() == 2)
                             .allMatch(s -> s.getCoordinates().isEmpty());
 
                     if (allTwoMastedShipsSunk) {
-                        output.println("All Two-Masted Ships have been sunk!");
+                        output.writeObject("All Two-Masted Ships have been sunk!");
                         thirdHitMessageToDisplay = "Opponent has sunk all of your Two-Masted Ships!".toUpperCase();
 
-                    } else output.println("");
+                    } else output.writeObject(null);
 
                     fourthHitMessageToDisplay = areAllShipsSunk(myShips, output);
 
@@ -223,25 +263,34 @@ public class ClientShipGameNetwork {
 
                 } else if (myShip.getSize() == 3) {
 
-                    output.println("You hit a three-masted ship!");
+                    output.writeObject("You hit a three-masted ship!");
                     firstHitMessageToDisplay = "Opponent hit your three-masted ship!".toUpperCase();
 
                     if (myShip.getCoordinates().isEmpty()) {
-                        output.println("You've sunk a Three-Masted Ship!");
+
+                        output.writeObject("You've sunk a Three-Masted Ship!");
+
+                        Ship sunkThreeMastedship =
+                                getSunkShip(opponentShotCoordinate, copyOfMyShipsListForMessagesAfterSunk);
+                        output.writeObject(sunkThreeMastedship);
+
                         secondHitMessageToDisplay = "Opponent sunk one of your Three-Masted Ships!".toUpperCase();
                         shipService.removeShip(myShip);
 
-                    } else output.println("");
+                    } else {
+                        output.writeObject(null);
+                        output.writeObject(null);
+                    }
 
                     boolean allThreeMastedShipsSunk = myShips.stream()
                             .filter(s -> s.getSize() == 3)
                             .allMatch(s -> s.getCoordinates().isEmpty());
 
                     if (allThreeMastedShipsSunk) {
-                        output.println("All Three-Masted Ships have been sunk!");
+                        output.writeObject("All Three-Masted Ships have been sunk!");
                         thirdHitMessageToDisplay = "Opponent has sunk all of your Three-Masted Ships!".toUpperCase();
 
-                    } else output.println("");
+                    } else output.writeObject(null);
 
                     fourthHitMessageToDisplay = areAllShipsSunk(myShips, output);
 
@@ -256,25 +305,34 @@ public class ClientShipGameNetwork {
 
                 } else if (possibleHitShip.get().getSize() == 4) {
 
-                    output.println("You hit a four-masted ship!");
+                    output.writeObject("You hit a four-masted ship!");
                     firstHitMessageToDisplay = "Opponent hit your four-masted ship!".toUpperCase();
 
                     if (myShip.getCoordinates().isEmpty()) {
-                        output.println("You've sunk a Four-Masted Ship!");
+
+                        output.writeObject("You've sunk a Four-Masted Ship!");
+
+                        Ship sunkFourMastedShip =
+                                getSunkShip(opponentShotCoordinate, copyOfMyShipsListForMessagesAfterSunk);
+                        output.writeObject(sunkFourMastedShip);
+
                         secondHitMessageToDisplay = "Opponent sunk your Four-Masted Ship!".toUpperCase();
                         shipService.removeShip(myShip);
 
-                    } else output.println("");
+                    } else {
+                        output.writeObject(null);
+                        output.writeObject(null);
+                    }
 
                     boolean allFourMastedShipsSunk = myShips.stream()
                             .filter(s -> s.getSize() == 4)
                             .allMatch(s -> s.getCoordinates().isEmpty());
 
                     if (allFourMastedShipsSunk) {
-                        output.println("All Four-Masted Ships have been sunk!");
+                        output.writeObject("All Four-Masted Ships have been sunk!");
                         thirdHitMessageToDisplay = "Opponent has sunk all of your Four-Masted Ships!".toUpperCase();
 
-                    } else output.println("");
+                    } else output.writeObject(null);
 
                     fourthHitMessageToDisplay = areAllShipsSunk(myShips, output);
 
@@ -290,12 +348,13 @@ public class ClientShipGameNetwork {
 
             } else {
 
-                myShipsHitCoordinates.add(opponentShotCoordinate);
+                myShipHitCoordinates.add(opponentShotCoordinate);
 
-                output.println("Missed.");
-                output.println("");
-                output.println("");
-                output.println("");
+                output.writeObject("Missed.");
+                output.writeObject(null);
+                output.writeObject(null);
+                output.writeObject(null);
+                output.writeObject(null);
 
                 printEntireGameBoard(myBoard, opponentBoard, ship);
                 System.out.println();
@@ -312,6 +371,14 @@ public class ClientShipGameNetwork {
                 opponentHitYouWait = false;
             }
         }
+    }
+
+    private static Ship getSunkShip(Coordinate opponentShotCoordinate, List<Ship> copyOfMyShipsListForMessagesAfterSunk) {
+        return copyOfMyShipsListForMessagesAfterSunk
+                .stream()
+                .filter(s -> s.getCoordinates().contains(opponentShotCoordinate))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Sunk ship not found in the copy ship list"));
     }
 
     private static void displayMessages(
@@ -340,13 +407,13 @@ public class ClientShipGameNetwork {
     }
 
     private static String areAllShipsSunk(
-            List<Ship> myShips, PrintWriter output) {
+            List<Ship> myShips, ObjectOutputStream output) throws IOException {
 
         if (myShips.isEmpty()) {
-            output.println("All ships have been sunk. You win!");
+            output.writeObject("All ships have been sunk. You win!");
             return "Opponent sunk all your ships. You lost the battle!".toUpperCase();
 
-        } else output.println();
+        } else output.writeObject(null);
         return null;
     }
 
@@ -662,8 +729,8 @@ public class ClientShipGameNetwork {
         int differenceCol = Math.abs(opponentShotCoordinate.getCol() - coordinate.getCol());
         int differenceRow = Math.abs(opponentShotCoordinate.getRow() - coordinate.getRow());
 
-        return (differenceRow == 0 && differenceCol >= 1 && differenceCol <=3) ||
-                (differenceCol == 0 && differenceRow >= 1 && differenceRow <=3);
+        return (differenceRow == 0 && differenceCol >= 1 && differenceCol <= 3) ||
+                (differenceCol == 0 && differenceRow >= 1 && differenceRow <= 3);
     }
 
     private static boolean didPLayerWin(String fourthOpponentReport) throws InterruptedException {

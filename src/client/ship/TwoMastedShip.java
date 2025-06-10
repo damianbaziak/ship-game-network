@@ -7,9 +7,15 @@ import java.util.ArrayList;
 public class TwoMastedShip extends Ship {
 
     public TwoMastedShip() {
+        super();
+    }
+
+    public TwoMastedShip(Ship otherShip) {
+        super(otherShip);
     }
 
     public TwoMastedShip(Coordinate firstCoordinate, Coordinate secondCoordinate) {
+        super();
         this.coordinates = new ArrayList<>();
         coordinates.add(firstCoordinate);
         coordinates.add(secondCoordinate);

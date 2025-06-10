@@ -7,6 +7,11 @@ import java.util.ArrayList;
 public class ThreeMastedShip extends Ship {
 
     public ThreeMastedShip() {
+        super();
+    }
+
+    public ThreeMastedShip(Ship otherShip) {
+        super(otherShip);
     }
 
     public ThreeMastedShip(Coordinate firstCoordinate, Coordinate secondCoordinate, Coordinate thirdCoordinate) {

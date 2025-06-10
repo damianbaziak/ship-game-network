@@ -2,10 +2,7 @@ package battleshipnetwork;
 
 import client.ship.Ship;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
@@ -38,95 +35,102 @@ public class BattleshipNetwork {
 
 
             // We create communication streams
-            BufferedReader input1 = new BufferedReader(new InputStreamReader(player1.getInputStream()));
-            PrintWriter output1 = new PrintWriter(player1.getOutputStream(), true);
+            ObjectInputStream input1 = new ObjectInputStream(player1.getInputStream());
+            ObjectOutputStream output1 = new ObjectOutputStream(player1.getOutputStream());
 
-
-            BufferedReader input2 = new BufferedReader(new InputStreamReader(player2.getInputStream()));
-            PrintWriter output2 = new PrintWriter(player2.getOutputStream(), true);
+            ObjectInputStream input2 = new ObjectInputStream(player1.getInputStream());
+            ObjectOutputStream output2 = new ObjectOutputStream(player1.getOutputStream());
 
 
             Thread.sleep(1000);
 
             // Informujemy graczy, że mogą zaczynać
-            output1.println(START);
-            output2.println(START);
+            output1.writeObject(START);
+            output2.writeObject(START);
 
             // Waiting for the players to finish placing ships
-            String messageFromPlayerOne = input1.readLine();
-            String messageFromPlayerTwo = input2.readLine();
+            String messageFromPlayerOne = (String) input1.readObject();
+            String messageFromPlayerTwo = (String) input1.readObject();
             System.out.println(messageFromPlayerTwo);
             System.out.println(messageFromPlayerOne);
 
             // Thread.sleep(2000);
 
             if (isReady(messageFromPlayerOne) && isReady(messageFromPlayerTwo)) {
-                output1.println(THE_WAR_HAS_BEGUN);
-                output2.println(THE_WAR_HAS_BEGUN);
+                output1.writeObject(THE_WAR_HAS_BEGUN);
+                output2.writeObject(THE_WAR_HAS_BEGUN);
                 Thread.sleep(1000);
             }
-            output1.println(YOU_TURN);
-            output2.println(PLEASE_WAIT);
+            output1.writeObject(YOU_TURN);
+            output2.writeObject(PLEASE_WAIT);
 
             boolean gameRunning = true;
             while (gameRunning) {
-                String playerOnesShot = input1.readLine();
-                output2.println(playerOnesShot);
+                String playerOnesShot = (String) input1.readObject();
+                output2.writeObject(playerOnesShot);
 
-                String playerTwosReport = input2.readLine();
-                output1.println(playerTwosReport);
-                String playerTwosSecondReport = input2.readLine();
-                output1.println(playerTwosSecondReport);
-                String playerTwosThirdReport = input2.readLine();
-                output1.println(playerTwosThirdReport);
-                String playerTwosFourthReport = input2.readLine();
-                output1.println(playerTwosFourthReport);
+                String playerTwosReport = (String) input2.readObject();
+                String playerTwosSecondReport = (String) input2.readObject();
+                Object playerTwosThirdReport = input2.readObject();
+                String playerTwosFourthReport = (String) input2.readObject();
+                String playerTwosFifthReport = (String) input2.readObject();
+
+                output1.writeObject(playerTwosReport);
+                output1.writeObject(playerTwosSecondReport);
+                output1.writeObject(playerTwosThirdReport);
+                output1.writeObject(playerTwosFourthReport);
+                output1.writeObject(playerTwosFifthReport);
 
                 String playerTwosTurn = "";
 
                 if (playerTwosReport.contains(ALREADY_FIRED) || playerTwosReport.contains(MISSED)) {
-                    output2.println(YOU_TURN);
-                    output1.println(PLEASE_WAIT);
+                    output2.writeObject(YOU_TURN);
+                    output1.writeObject(PLEASE_WAIT);
                     playerTwosTurn = playerTwoShooting(input2, input1, output2, output1);
                 }
 
-                if (playerTwosFourthReport.equals(YOU_WIN) || (playerTwosTurn != null &&
+                if (playerTwosFifthReport.equals(YOU_WIN) || (playerTwosTurn != null &&
                         playerTwosTurn.equals(PLAYER_TWO_WIN))) {
                     gameRunning = false;
                 }
+
             }
 
-            output2.println(GAME_OVER);
-            output1.println(GAME_OVER);
+            output2.writeObject(GAME_OVER);
+            output1.writeObject(GAME_OVER);
 
             Thread.sleep(2000);
 
 
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
     private static String playerTwoShooting(
-            BufferedReader input2, BufferedReader input1, PrintWriter output2, PrintWriter output1) throws
-            IOException {
+            ObjectInputStream input2, ObjectInputStream input1, ObjectOutputStream output2, ObjectOutputStream output1)
+            throws IOException, ClassNotFoundException {
+
         boolean playerTwoIsShooting = true;
         while (playerTwoIsShooting) {
-            String playerTwosShot = input2.readLine();
-            output1.println(playerTwosShot);
+            String playerTwosShot = (String) input2.readObject();
+            output1.writeObject(playerTwosShot);
 
-            String playerOnesReport = input1.readLine();
-            String playerOnesSecondReport = input1.readLine();
-            String playerOnesThirdReport = input1.readLine();
-            String playerOnesFourthReport = input1.readLine();
-            output2.println(playerOnesReport);
-            output2.println(playerOnesSecondReport);
-            output2.println(playerOnesThirdReport);
-            output2.println(playerOnesFourthReport);
+            String playerOnesReport = (String) input1.readObject();
+            String playerOnesSecondReport = (String) input1.readObject();
+            Object playerOnesThirdReport = input1.readObject();
+            String playerOnesFourthReport = (String) input1.readObject();
+            String playerOnesFifthReport = (String) input1.readObject();
+
+            output2.writeObject(playerOnesReport);
+            output2.writeObject(playerOnesSecondReport);
+            output2.writeObject(playerOnesThirdReport);
+            output2.writeObject(playerOnesFourthReport);
+            output2.writeObject(playerOnesFifthReport);
 
             if (playerOnesReport.contains(ALREADY_FIRED) || playerOnesReport.contains(MISSED)) {
-                output1.println(YOU_TURN);
-                output2.println(PLEASE_WAIT);
+                output1.writeObject(YOU_TURN);
+                output2.writeObject(PLEASE_WAIT);
                 playerTwoIsShooting = false;
             }
 
