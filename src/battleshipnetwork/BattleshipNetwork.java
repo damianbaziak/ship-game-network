@@ -1,15 +1,12 @@
 package battleshipnetwork;
 
 import client.ship.Ship;
-import client.ship.SingleMastedShip;
-import client.ship.service.Coordinate;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class BattleshipNetwork {
     private static final int PORT = 5050;
@@ -70,14 +67,14 @@ public class BattleshipNetwork {
 
             boolean gameRunning = true;
             while (gameRunning) {
-                String playerOnesShot = (String) input1.readObject();
+                Object playerOnesShot = input1.readObject();
                 output2.writeObject(playerOnesShot);
 
-                String playerTwosReport = (String) input2.readObject();
-                String playerTwosSecondReport = (String) input2.readObject();
-                Ship playerTwosThirdReport = (Ship) input2.readObject();
-                String playerTwosFourthReport = (String) input2.readObject();
-                String playerTwosFifthReport = (String) input2.readObject();
+                Object playerTwosReport = input2.readObject();
+                Object playerTwosSecondReport = input2.readObject();
+                Object playerTwosThirdReport = input2.readObject();
+                Object playerTwosFourthReport = input2.readObject();
+                Object playerTwosFifthReport = input2.readObject();
 
                 output1.writeObject(playerTwosReport);
                 output1.writeObject(playerTwosSecondReport);
@@ -87,13 +84,16 @@ public class BattleshipNetwork {
 
                 String playerTwosTurn = "";
 
-                if (playerTwosReport.contains(ALREADY_FIRED) || playerTwosReport.contains(MISSED)) {
-                    output2.writeObject(YOU_TURN);
-                    output1.writeObject(PLEASE_WAIT);
-                    playerTwosTurn = playerTwoShooting(input2, input1, output2, output1);
+                if (playerTwosReport != null) {
+                    if (playerTwosReport.toString().contains(ALREADY_FIRED)
+                            || playerTwosReport.toString().contains(MISSED)) {
+                        output2.writeObject(YOU_TURN);
+                        output1.writeObject(PLEASE_WAIT);
+                        playerTwosTurn = playerTwoShooting(input2, input1, output2, output1);
+                    }
                 }
 
-                if (playerTwosFifthReport.equals(YOU_WIN) || (playerTwosTurn != null &&
+                if (playerTwosFifthReport != null && playerTwosFifthReport.equals(YOU_WIN) || (playerTwosTurn != null &&
                         playerTwosTurn.equals(PLAYER_TWO_WIN))) {
                     gameRunning = false;
                 }
@@ -132,13 +132,15 @@ public class BattleshipNetwork {
             output2.writeObject(playerOnesFourthReport);
             output2.writeObject(playerOnesFifthReport);
 
-            if (playerOnesReport.contains(ALREADY_FIRED) || playerOnesReport.contains(MISSED)) {
-                output1.writeObject(YOU_TURN);
-                output2.writeObject(PLEASE_WAIT);
-                playerTwoIsShooting = false;
+            if (playerOnesReport != null) {
+                if (playerOnesReport.contains(ALREADY_FIRED) || playerOnesReport.contains(MISSED)) {
+                    output1.writeObject(YOU_TURN);
+                    output2.writeObject(PLEASE_WAIT);
+                    playerTwoIsShooting = false;
+                }
             }
 
-            if (playerOnesFourthReport.contains(YOU_WIN)) {
+            if (playerOnesFourthReport != null && playerOnesFourthReport.contains(YOU_WIN)) {
                 return PLAYER_TWO_WIN;
             }
         }

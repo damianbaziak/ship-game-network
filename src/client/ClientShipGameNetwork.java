@@ -169,15 +169,6 @@ public class ClientShipGameNetwork {
                 String thirdHitMessageToDisplay = "";
                 String fourthHitMessageToDisplay;
 
-                printEntireGameBoard(myBoard, opponentBoard, ship);
-                System.out.println();
-                Thread.sleep(500);
-                System.out.println("Opponent has fired at " + opponentShot.toUpperCase());
-                Thread.sleep(1000);
-                System.out.println();
-                System.out.println("The opponent shot at a location that was already fired upon!".toUpperCase());
-                Thread.sleep(1000);
-
                 if (myShip.getSize() == 1) {
 
                     output.writeObject("You hit a single-masted ship!");
@@ -448,9 +439,6 @@ public class ClientShipGameNetwork {
             Ship opponentSunkShip = (Ship) input.readObject();
             String fourthOpponentReport = (String) input.readObject();
             String fifthOpponentReport = (String) input.readObject();
-
-            System.out.println("The message from opponent after miss shot: " + opponentReport);
-
 
             if ("This shot has been already fired!".equalsIgnoreCase(opponentReport)) {
 
@@ -746,9 +734,9 @@ public class ClientShipGameNetwork {
     
      */
 
-    private static boolean didPLayerWin(String fourthOpponentReport) throws InterruptedException {
+    private static boolean didPLayerWin(String fifthOpponentReport) throws InterruptedException {
 
-        if ("All ships have been sunk. You win.".equalsIgnoreCase(fourthOpponentReport)) {
+        if ("All ships have been sunk. You win!".equalsIgnoreCase(fifthOpponentReport)) {
             System.out.println();
             System.out.println("All ships have been sunk. You win!".toUpperCase());
             Thread.sleep(1000);
