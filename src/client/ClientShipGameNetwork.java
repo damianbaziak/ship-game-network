@@ -169,6 +169,13 @@ public class ClientShipGameNetwork {
                 String thirdHitMessageToDisplay = "";
                 String fourthHitMessageToDisplay;
 
+                printEntireGameBoard(myBoard, opponentBoard, ship);
+                System.out.println();
+                Thread.sleep(500);
+                System.out.println("Opponent has fired at " + opponentShot.toUpperCase());
+                Thread.sleep(1000);
+                System.out.println();
+
                 if (myShip.getSize() == 1) {
 
                     output.writeObject("You hit a single-masted ship!");
