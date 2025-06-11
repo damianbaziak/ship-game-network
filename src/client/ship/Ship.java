@@ -30,6 +30,10 @@ public abstract class Ship implements Serializable {
         return hitCoordinates;
     }
 
+    public void setCoordinates(List<Coordinate> coordinates) {
+        this.coordinates = coordinates;
+    }
+
     public List<Coordinate> getCoordinates() {
         return coordinates;
     }

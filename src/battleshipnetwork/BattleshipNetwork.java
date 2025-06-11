@@ -1,10 +1,14 @@
 package battleshipnetwork;
 
 import client.ship.Ship;
+import client.ship.SingleMastedShip;
+import client.ship.service.Coordinate;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class BattleshipNetwork {
@@ -71,7 +75,7 @@ public class BattleshipNetwork {
 
                 String playerTwosReport = (String) input2.readObject();
                 String playerTwosSecondReport = (String) input2.readObject();
-                Object playerTwosThirdReport = input2.readObject();
+                Ship playerTwosThirdReport = (Ship) input2.readObject();
                 String playerTwosFourthReport = (String) input2.readObject();
                 String playerTwosFifthReport = (String) input2.readObject();
 
@@ -118,7 +122,7 @@ public class BattleshipNetwork {
 
             String playerOnesReport = (String) input1.readObject();
             String playerOnesSecondReport = (String) input1.readObject();
-            Object playerOnesThirdReport = input1.readObject();
+            Ship playerOnesThirdReport = (Ship) input1.readObject();
             String playerOnesFourthReport = (String) input1.readObject();
             String playerOnesFifthReport = (String) input1.readObject();
 
