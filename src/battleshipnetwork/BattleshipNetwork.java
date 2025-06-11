@@ -117,14 +117,14 @@ public class BattleshipNetwork {
 
         boolean playerTwoIsShooting = true;
         while (playerTwoIsShooting) {
-            String playerTwosShot = (String) input2.readObject();
+            Object playerTwosShot = input2.readObject();
             output1.writeObject(playerTwosShot);
 
-            String playerOnesReport = (String) input1.readObject();
-            String playerOnesSecondReport = (String) input1.readObject();
-            Ship playerOnesThirdReport = (Ship) input1.readObject();
-            String playerOnesFourthReport = (String) input1.readObject();
-            String playerOnesFifthReport = (String) input1.readObject();
+            Object playerOnesReport = input1.readObject();
+            Object playerOnesSecondReport = input1.readObject();
+            Object playerOnesThirdReport = input1.readObject();
+            Object playerOnesFourthReport = input1.readObject();
+            Object playerOnesFifthReport = input1.readObject();
 
             output2.writeObject(playerOnesReport);
             output2.writeObject(playerOnesSecondReport);
@@ -133,14 +133,14 @@ public class BattleshipNetwork {
             output2.writeObject(playerOnesFifthReport);
 
             if (playerOnesReport != null) {
-                if (playerOnesReport.contains(ALREADY_FIRED) || playerOnesReport.contains(MISSED)) {
+                if (playerOnesReport.toString().contains(ALREADY_FIRED) || playerOnesReport.toString().contains(MISSED)) {
                     output1.writeObject(YOU_TURN);
                     output2.writeObject(PLEASE_WAIT);
                     playerTwoIsShooting = false;
                 }
             }
 
-            if (playerOnesFourthReport != null && playerOnesFourthReport.contains(YOU_WIN)) {
+            if (playerOnesFifthReport != null && playerOnesFifthReport.toString().contains(YOU_WIN)) {
                 return PLAYER_TWO_WIN;
             }
         }
