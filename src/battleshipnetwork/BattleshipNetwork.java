@@ -42,8 +42,8 @@ public class BattleshipNetwork {
             ObjectInputStream input1 = new ObjectInputStream(player1.getInputStream());
             ObjectOutputStream output1 = new ObjectOutputStream(player1.getOutputStream());
 
-            ObjectInputStream input2 = new ObjectInputStream(player1.getInputStream());
-            ObjectOutputStream output2 = new ObjectOutputStream(player1.getOutputStream());
+            ObjectInputStream input2 = new ObjectInputStream(player2.getInputStream());
+            ObjectOutputStream output2 = new ObjectOutputStream(player2.getOutputStream());
 
 
             Thread.sleep(1000);

@@ -5,7 +5,9 @@ import client.ship.*;
 import client.ship.service.Coordinate;
 import client.ship.service.ShipService;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.*;
 
@@ -29,8 +31,8 @@ public class ClientShipGameNetwork {
         Scanner scanner = new Scanner(System.in);
 
         try (Socket socket = new Socket(SERVER_IP, SERVER_PORT);
-             ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
-             ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream())) {
+             ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream input = new ObjectInputStream(socket.getInputStream())) {
 
             if (socket.isConnected()) {
                 System.out.println();
@@ -483,7 +485,7 @@ public class ClientShipGameNetwork {
                     System.out.println("You hit a single-masted ship!".toUpperCase());
                     Thread.sleep(1000);
 
-                    if ("You've sunk a Single-Masted Ship!".equalsIgnoreCase(secondOpponentReport) 
+                    if ("You've sunk a Single-Masted Ship!".equalsIgnoreCase(secondOpponentReport)
                             && opponentSunkShip != null) {
 
                         System.out.println();
@@ -529,7 +531,7 @@ public class ClientShipGameNetwork {
                      */
 
 
-                    if ("You've sunk a Two-Masted Ship!".equalsIgnoreCase(secondOpponentReport) && 
+                    if ("You've sunk a Two-Masted Ship!".equalsIgnoreCase(secondOpponentReport) &&
                             opponentSunkShip != null) {
 
                         opponentSunkShip.getCoordinates().forEach(coordinate -> {
@@ -778,6 +780,16 @@ public class ClientShipGameNetwork {
         String rowNumber = input.substring(1);
         char firstCharOfRowNumber = rowNumber.charAt(0);
 
+        if (rowNumber.length() == 2) {
+            char secondCharOfRowNumber = rowNumber.charAt(1);
+            if (!Character.isDigit(secondCharOfRowNumber)) {
+                printMyBoard(myBoard, ship);
+                System.out.println("THE THIRD CHARACTER MUST BE A DIGIT!");
+                System.out.println();
+                return false;
+            }
+        }
+
         int col = Character.toUpperCase(colChar) - 'A';
 
         if (!Character.isDigit(firstCharOfRowNumber)) {
@@ -836,6 +848,16 @@ public class ClientShipGameNetwork {
 
         String rowNumber = input.substring(1);
         char firstCharOfRowNumber = rowNumber.charAt(0);
+
+        if (rowNumber.length() == 2) {
+            char secondCharOfRowNumber = rowNumber.charAt(1);
+            if (!Character.isDigit(secondCharOfRowNumber)) {
+                printMyBoard(myBoard, ship);
+                System.out.println("THE THIRD CHARACTER MUST BE A DIGIT!");
+                System.out.println();
+                return false;
+            }
+        }
 
         int col = Character.toUpperCase(colChar) - 'A';
 
@@ -943,6 +965,7 @@ public class ClientShipGameNetwork {
             if (possiblePlacement != water) {
                 printMyBoard(myBoard, ship);
                 System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
+                System.out.println();
                 continue;
             }
 
@@ -986,6 +1009,7 @@ public class ClientShipGameNetwork {
                 System.out.println();
                 printMyBoard(myBoard, ship);
                 System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                System.out.println();
                 continue;
             }
 
