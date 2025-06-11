@@ -748,8 +748,7 @@ public class ClientShipGameNetwork {
 
     private static boolean didPLayerWin(String fourthOpponentReport) throws InterruptedException {
 
-        if (!fourthOpponentReport.isBlank()
-                && "All ships have been sunk. You win.".equalsIgnoreCase(fourthOpponentReport)) {
+        if ("All ships have been sunk. You win.".equalsIgnoreCase(fourthOpponentReport)) {
             System.out.println();
             System.out.println("All ships have been sunk. You win!".toUpperCase());
             Thread.sleep(1000);

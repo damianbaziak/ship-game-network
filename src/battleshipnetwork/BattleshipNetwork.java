@@ -54,9 +54,9 @@ public class BattleshipNetwork {
 
             // Waiting for the players to finish placing ships
             String messageFromPlayerOne = (String) input1.readObject();
-            String messageFromPlayerTwo = (String) input1.readObject();
-            System.out.println(messageFromPlayerTwo);
+            String messageFromPlayerTwo = (String) input2.readObject();
             System.out.println(messageFromPlayerOne);
+            System.out.println(messageFromPlayerTwo);
 
             // Thread.sleep(2000);
 
