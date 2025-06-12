@@ -33,9 +33,10 @@ public class BattleshipNetwork {
             ObjectInputStream input1 = new ObjectInputStream(player1.getInputStream());
             ObjectOutputStream output1 = new ObjectOutputStream(player1.getOutputStream());
 
-            // ***************
+            /*
             output1.writeObject(START);
-            // ***************
+
+             */
 
             // Waiting for player 2
             Socket player2 = serverSocket.accept();
