@@ -26,21 +26,25 @@ public class BattleshipNetwork {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Server is running, Waiting for the players...");
 
-            // Waiting for the players
+            // Waiting for player 1
             Socket player1 = serverSocket.accept();
             System.out.println("Player 1 connected " + player1.getInetAddress());
-
-
-            Socket player2 = serverSocket.accept();
-            System.out.println("Player 2 connected " + player2.getInetAddress());
-
-
-            // We create communication streams
+            // Create communication streams for Player 1
             ObjectInputStream input1 = new ObjectInputStream(player1.getInputStream());
             ObjectOutputStream output1 = new ObjectOutputStream(player1.getOutputStream());
 
+            // ***************
+            output1.writeObject(START);
+            // ***************
+
+            // Waiting for player 2
+            Socket player2 = serverSocket.accept();
+            System.out.println("Player 2 connected " + player2.getInetAddress());
+            // Create communication streams for Player 2
             ObjectInputStream input2 = new ObjectInputStream(player2.getInputStream());
             ObjectOutputStream output2 = new ObjectOutputStream(player2.getOutputStream());
+
+
 
 
             Thread.sleep(1000);
