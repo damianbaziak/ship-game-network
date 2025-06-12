@@ -53,12 +53,12 @@ public class ClientShipGameNetwork {
             //***********
 
             List<Ship> myShipForTest = new ArrayList<>();
-            myShipForTest.add(new SingleMastedShip(new Coordinate(0,0)));
-            myShipForTest.add(new TwoMastedShip(new Coordinate(0,0), new Coordinate(1,1)));
-            myShipForTest.add(new ThreeMastedShip(new Coordinate(0,0), new Coordinate(1,1),
-                    new Coordinate(2,2)));
-            myShipForTest.add(new FourMastedShip(new Coordinate(0,0), new Coordinate(1,1),
-                    new Coordinate(2,2), new Coordinate(3,3)));
+            myShipForTest.add(new SingleMastedShip(new Coordinate(0, 0)));
+            myShipForTest.add(new TwoMastedShip(new Coordinate(0, 0), new Coordinate(1, 1)));
+            myShipForTest.add(new ThreeMastedShip(new Coordinate(0, 0), new Coordinate(1, 1),
+                    new Coordinate(2, 2)));
+            myShipForTest.add(new FourMastedShip(new Coordinate(0, 0), new Coordinate(1, 1),
+                    new Coordinate(2, 2), new Coordinate(3, 3)));
 
             printEntireGameBoard(myBoard, opponentBoard, ship, myShipForTest);
 
@@ -2090,22 +2090,23 @@ public class ClientShipGameNetwork {
         for (int i = 0; i < 2; i++) {
             System.out.println();
         }
-        System.out.println("          OPPONENT BOARD                                  MY BOARD            ");
+        System.out.println("          OPPONENT BOARD                                                          " +
+                "MY BOARD            ");
         System.out.println();
 
         // Ten kod wyswietla nazwy kolumn
         int myBoardLength = myBoard.length;
         int opponentBoardLength = opponentBoard.length;
-        char[] rowName = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', ' ', ' ', ' ', ' ', ' ',
-                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
+        char[] rowName = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+                ' ', ' ', ' ', ' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
         System.out.print("   ");
-        for (int i = 0; i < myBoardLength + 5 + opponentBoardLength; i++) {
+        for (int i = 0; i < myBoardLength + 13 + opponentBoardLength; i++) {
             System.out.print(rowName[i] + "  ");
         }
-        System.out.print("       Opponent's remaining ships:");
         System.out.println();
 
-        // Ten kod wyswietla wszystkie wiersze bez dziesiatego
+        // Ta petla wyswietla wszystkie wiersze Opponent-Board bez dziesiatego plus wiadomosci o pozostalych statkach
+        // przeciwnika plus wszystkie wiersze bez dziesiatego z My board.
         for (int row = 0; row < 9; row++) {
             System.out.print(" ");
             System.out.print(row + 1 + " ");
@@ -2116,41 +2117,70 @@ public class ClientShipGameNetwork {
                 } else {
                     System.out.print(position2 + "  ");
                 }
+
+                // Display messages about opponent's remaining ships
+                if (row == 0 && col == 9) {
+                    System.out.print("      Opponent's remaining ships:");
+                }
+
+                if (row == 2 && col == 9) {
+                    if (countSingleMastedShips == 1) {
+                        System.out.print("      " + countSingleMastedShips + " Single-Masted Ship");
+                    } else System.out.print("      " + countSingleMastedShips + " Single-Masted Ships");
+                }
+
+                if (row == 4 && col == 9) {
+                    if (countTwoMastedShips == 1) {
+                        System.out.print("      " + countTwoMastedShips + " Two-Masted Ship");
+                    } else System.out.print("      " + countTwoMastedShips + " Two-Masted Ships");
+                }
+
+                if (row == 6 && col == 9) {
+                    if (countThreeMastedShips == 1) {
+                        System.out.print("      " + countThreeMastedShips + " Three-Masted Ship");
+                    } else System.out.print("      " + countThreeMastedShips + " Three-Masted Ships");
+                }
+
+                if (row == 8 && col == 9) {
+                    if (countFourMastedShips == 1) {
+                        System.out.print("      " + countFourMastedShips + " Four-Masted Ship");
+                    } else System.out.print("      " + countFourMastedShips + " Four-Masted Ships");
+                }
             }
 
-            System.out.print("               ");
+            // This code adjusts the spacing between opponent's board and my board, as well as between messages and
+            // my board.
+            if (row == 1 || row == 3 || row == 5 || row == 7) {
+                System.out.print("                                       ");
+            } else {
+                if (row == 0) {
+                    System.out.print("      ");
+                } else if (row == 2) {
+                    if (countSingleMastedShips == 1) {
+                        System.out.print("             ");
+                    } else System.out.print("            ");
+                } else if (row == 4) {
+                    if (countTwoMastedShips == 1) {
+                        System.out.print("                ");
+                    } else System.out.print("               ");
+                } else if (row == 6) {
+                    if (countThreeMastedShips == 1) {
+                        System.out.print("              ");
+                    } else System.out.print("             ");
+                } else {
+                    if (countFourMastedShips == 1) {
+                        System.out.print("               ");
+                    } else System.out.print("              ");
+                }
+            }
 
-            // This code displays all rows without tenth.
+            // This code displays all rows of My-Board without tenth.
             for (int col = 0; col < gameBoardLength; col++) {
                 char position = myBoard[row][col];
                 if (position == ship) {
                     System.out.print(ship + "  ");
                 } else {
                     System.out.print(position + "  ");
-                }
-
-                if (row == 1 && col == 9) {
-                    if (countSingleMastedShips == 1) {
-                        System.out.print("       " + countSingleMastedShips + " Single-Masted Ship");
-                    } else System.out.print("       " + countSingleMastedShips + " Single-Masted Ships");
-                }
-
-                if (row == 3 && col == 9) {
-                    if (countTwoMastedShips == 1) {
-                        System.out.print("       " + countTwoMastedShips + " Two-Masted Ship");
-                    } else System.out.print("       " + countTwoMastedShips + " Two-Masted Ships");
-                }
-
-                if (row == 5 && col == 9) {
-                    if (countThreeMastedShips == 1) {
-                        System.out.print("       " + countThreeMastedShips + " Three-Masted Ship");
-                    } else System.out.print("       " + countThreeMastedShips + " Three-Masted Ships");
-                }
-
-                if (row == 7 && col == 9) {
-                    if (countFourMastedShips == 1) {
-                        System.out.print("       " + countFourMastedShips + " Four-Masted Ship");
-                    } else System.out.print("       " + countFourMastedShips + " Four-Masted Ships");
                 }
             }
 
@@ -2169,12 +2199,11 @@ public class ClientShipGameNetwork {
             }
         }
 
-        System.out.print("               ");
+        System.out.print("                                       ");
 
         // This code displays the tenth row of the My Board.
         for (int col = 0; col < gameBoardLength; col++) {
             char position = myBoard[9][col];
-
             if (position == ship) {
                 System.out.print(ship + "  ");
             } else {
