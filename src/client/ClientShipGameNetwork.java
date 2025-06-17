@@ -1,9 +1,14 @@
 package client;
 
 import battleshipnetwork.MessagePrinter;
-import client.ship.*;
-import client.ship.service.Coordinate;
-import client.ship.service.ShipService;
+import client.enums.BoardCell;
+import client.model.coordinate.Coordinate;
+import client.model.ship.Ship;
+import client.model.ship.implementation.FourMastedShip;
+import client.model.ship.implementation.SingleMastedShip;
+import client.model.ship.implementation.ThreeMastedShip;
+import client.model.ship.implementation.TwoMastedShip;
+import client.service.ShipService;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -13,13 +18,13 @@ import java.util.*;
 
 public class ClientShipGameNetwork {
     private static final String SERVER_IP = "localhost";  // Server IP
-    private static final int SERVER_PORT = 5050;              // Server port
+    private static final int SERVER_PORT = 5050;          // Server port
     private static final int gameBoardLength = 10;
-    private static final char water = '-';
-    private static final char ship = '#';
-    private static final char HIT_AND_SUNK_CHAR = 'X';
-    private static final char HIT_MAST_CHAR = '?';
-    private static final char miss = '0';
+    private static final char water = BoardCell.WATER.getSymbol();
+    private static final char ship = BoardCell.SHIP.getSymbol();
+    private static final char HIT_AND_SUNK_CHAR = BoardCell.HIT_AND_SUNK.getSymbol();
+    private static final char HIT_MAST_CHAR = BoardCell.HIT_MAST.getSymbol();
+    private static final char miss = BoardCell.MISS.getSymbol();
     private static final int singleMastedShipNumber = 4;
     private static final int twoMastedShipNumber = 3;
     private static final int threeMastedShipNumber = 2;
@@ -89,7 +94,7 @@ public class ClientShipGameNetwork {
         List<Ship> copyOfMyShipsForMessagesToOpponentAfterSunk = copyMyShips(myShips);
         List<Coordinate> myShipsHitCoordinates = new ArrayList<>();
         // Map<Integer, List<Ship>> hitOpponentShipsBySize = new HashMap<>();
-        List<Ship> listForCountingOfOpponentShips = createListForCountingOfOpponentShips();
+        List<Ship> remainingOpponentShips = createListOfRemainingOpponentShips();
 
         printEntireGameBoard(myBoard, opponentBoard, ship, myShips);
 
@@ -101,7 +106,7 @@ public class ClientShipGameNetwork {
 
             if ("Your turn.".equalsIgnoreCase(whoseTurnIsIt)) {
                 makeShot(myBoard, opponentBoard, scanner, input, output, ship, hitAndSunk, miss,
-                        listForCountingOfOpponentShips);
+                        remainingOpponentShips);
             } else if ("Game over.".equalsIgnoreCase(whoseTurnIsIt)) {
                 gameRunning = false;
             } else {
@@ -112,7 +117,7 @@ public class ClientShipGameNetwork {
         }
     }
 
-    private static List<Ship> createListForCountingOfOpponentShips() {
+    private static List<Ship> createListOfRemainingOpponentShips() {
         return new ArrayList<>(
                 Arrays.asList(
                         new SingleMastedShip(), new SingleMastedShip(), new SingleMastedShip(), new SingleMastedShip(),
@@ -440,7 +445,7 @@ public class ClientShipGameNetwork {
 
     private static void makeShot(
             char[][] myBoard, char[][] opponentBoard, Scanner scanner, ObjectInputStream input,
-            ObjectOutputStream output, char ship, char hitAndSunk, char miss, List<Ship> listForCountingOfOpponentShips)
+            ObjectOutputStream output, char ship, char hitAndSunk, char miss, List<Ship> remainingOpponentShips)
             throws IOException,
             InterruptedException, ClassNotFoundException {
 
@@ -454,7 +459,7 @@ public class ClientShipGameNetwork {
             String myShot = scanner.nextLine();
 
             boolean isValidInput = validateInputFields(myShot, myBoard, opponentBoard, ship,
-                    listForCountingOfOpponentShips);
+                    remainingOpponentShips);
             if (!isValidInput) continue;
 
             String rowNumber = myShot.substring(1);
@@ -472,7 +477,7 @@ public class ClientShipGameNetwork {
 
             if ("This shot has been already fired!".equalsIgnoreCase(opponentReport)) {
 
-                printEntireGameBoard(myBoard, opponentBoard, ship, listForCountingOfOpponentShips);
+                printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                 Thread.sleep(500);
                 MessagePrinter.printAlreadyHit();
                 Thread.sleep(1000);
@@ -495,16 +500,16 @@ public class ClientShipGameNetwork {
 
                      */
 
-                    listForCountingOfOpponentShips
+                    remainingOpponentShips
                             .stream()
                             .filter(s -> s.getSize() == 1)
-                            .findAny()
-                            .ifPresent(listForCountingOfOpponentShips::remove);
+                            .findFirst()
+                            .ifPresent(remainingOpponentShips::remove);
 
                     // Mark the ship as sunk immediately because one-masted ships are destroyed with a single hit.
                     opponentBoard[opponentShotCoordinate.getRow()][opponentShotCoordinate.getCol()] = hitAndSunk;
 
-                    printEntireGameBoard(myBoard, opponentBoard, ship, listForCountingOfOpponentShips);
+                    printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                     Thread.sleep(500);
                     MessagePrinter.printHit();
                     Thread.sleep(1000);
@@ -557,9 +562,14 @@ public class ClientShipGameNetwork {
                     
                      */
 
-
                     if ("You've sunk a Two-Masted Ship!".equalsIgnoreCase(secondOpponentReport) &&
                             opponentSunkShip != null) {
+
+                        remainingOpponentShips
+                                .stream()
+                                .filter(s -> s.getSize() == 2)
+                                .findFirst()
+                                .ifPresent(remainingOpponentShips::remove);
 
                         opponentSunkShip.getCoordinates().forEach(coordinate -> {
                             opponentBoard[coordinate.getRow()][coordinate.getCol()] = hitAndSunk;
@@ -575,7 +585,7 @@ public class ClientShipGameNetwork {
                          */
 
 
-                        printEntireGameBoard(myBoard, opponentBoard, ship, listForCountingOfOpponentShips);
+                        printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                         Thread.sleep(500);
                         MessagePrinter.printHit();
                         Thread.sleep(1000);
@@ -589,7 +599,7 @@ public class ClientShipGameNetwork {
 
                         opponentBoard[opponentShotCoordinate.getRow()][opponentShotCoordinate.getCol()] = HIT_MAST_CHAR;
 
-                        printEntireGameBoard(myBoard, opponentBoard, ship, listForCountingOfOpponentShips);
+                        printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                         Thread.sleep(500);
                         MessagePrinter.printHit();
                         Thread.sleep(1000);
@@ -636,11 +646,17 @@ public class ClientShipGameNetwork {
                     if ("You've sunk a Three-Masted Ship!".equalsIgnoreCase(secondOpponentReport)
                             && opponentSunkShip != null) {
 
+                        remainingOpponentShips
+                                .stream()
+                                .filter(s -> s.getSize() == 3)
+                                .findFirst()
+                                .ifPresent(remainingOpponentShips::remove);
+
                         opponentSunkShip.getCoordinates().forEach(coordinate -> {
                             opponentBoard[coordinate.getRow()][coordinate.getCol()] = hitAndSunk;
                         });
 
-                        printEntireGameBoard(myBoard, opponentBoard, ship, listForCountingOfOpponentShips);
+                        printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                         Thread.sleep(500);
                         MessagePrinter.printHit();
                         Thread.sleep(1000);
@@ -654,7 +670,7 @@ public class ClientShipGameNetwork {
 
                         opponentBoard[opponentShotCoordinate.getRow()][opponentShotCoordinate.getCol()] = HIT_MAST_CHAR;
 
-                        printEntireGameBoard(myBoard, opponentBoard, ship, listForCountingOfOpponentShips);
+                        printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                         Thread.sleep(500);
                         MessagePrinter.printHit();
                         Thread.sleep(1000);
@@ -703,11 +719,17 @@ public class ClientShipGameNetwork {
                     if ("You've sunk a Four-Masted Ship!".equalsIgnoreCase(secondOpponentReport)
                             && opponentSunkShip != null) {
 
+                        remainingOpponentShips
+                                .stream()
+                                .filter(s -> s.getSize() == 4)
+                                .findFirst()
+                                .ifPresent(remainingOpponentShips::remove);
+
                         opponentSunkShip.getCoordinates().forEach(coordinate -> {
                             opponentBoard[coordinate.getRow()][coordinate.getCol()] = hitAndSunk;
                         });
 
-                        printEntireGameBoard(myBoard, opponentBoard, ship, listForCountingOfOpponentShips);
+                        printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                         Thread.sleep(500);
                         MessagePrinter.printHit();
                         Thread.sleep(1000);
@@ -721,7 +743,7 @@ public class ClientShipGameNetwork {
 
                         opponentBoard[opponentShotCoordinate.getRow()][opponentShotCoordinate.getCol()] = HIT_MAST_CHAR;
 
-                        printEntireGameBoard(myBoard, opponentBoard, ship, listForCountingOfOpponentShips);
+                        printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                         Thread.sleep(500);
                         MessagePrinter.printHit();
                         Thread.sleep(1000);
@@ -747,7 +769,7 @@ public class ClientShipGameNetwork {
             } else {
                 opponentBoard[row][col] = miss;
 
-                printEntireGameBoard(myBoard, opponentBoard, ship, listForCountingOfOpponentShips);
+                printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                 Thread.sleep(500);
                 MessagePrinter.displayMiss();
                 Thread.sleep(1000);
@@ -2074,9 +2096,11 @@ public class ClientShipGameNetwork {
             for (int col = 0; col < gameBoardLength; col++) {
                 char position = myBoard[row][col];
                 if (position == ship) {
-                    System.out.print(ship + "  ");
+                    System.out.print("\u001B[37m" + ship + "  " + "\u001B[0m");
+                } else if (position == '1' || position == '2' || position == '3' || position == '4') {
+                    System.out.print("\u001B[37m" + position + "  " + "\u001B[0m");
                 } else {
-                    System.out.print(position + "  ");
+                    System.out.print("\u001B[34m" + position + "  " + "\u001B[0m");
                 }
             }
             System.out.println();
@@ -2087,9 +2111,11 @@ public class ClientShipGameNetwork {
         for (int col = 0; col < gameBoardLength; col++) {
             char position = myBoard[9][col];
             if (position == ship) {
-                System.out.print(ship + "  ");
+                System.out.print("\u001B[37m" + ship + "  " + "\u001B[0m");
+            } else if (position == '1' || position == '2' || position == '3' || position == '4') {
+                System.out.print("\u001B[37m" + position + "  " + "\u001B[0m");
             } else {
-                System.out.print(position + "  ");
+                System.out.print("\u001B[34m" + position + "  " + "\u001B[0m");
             }
         }
         System.out.println();
@@ -2129,11 +2155,17 @@ public class ClientShipGameNetwork {
             System.out.print(" ");
             System.out.print(row + 1 + " ");
             for (int col = 0; col < gameBoardLength; col++) {
-                char position2 = opponentBoard[row][col];
-                if (position2 == ship) {
-                    System.out.print(ship + "  ");
+                char position = opponentBoard[row][col];
+                if (position == ship) {
+                    System.out.print("\u001B[37m" + ship + "  " + "\u001B[0m");
+                } else if (position == ClientShipGameNetwork.miss) {
+                    System.out.print("\u001B[33m" + position + "  " + "\u001B[0m");
+                } else if (position == ClientShipGameNetwork.HIT_AND_SUNK_CHAR) {
+                    System.out.print("\u001B[31m" + position + "  " + "\u001B[0m");
+                } else if (position == ClientShipGameNetwork.HIT_MAST_CHAR) {
+                    System.out.print("\u001B[31m" + position + "  " + "\u001B[0m");
                 } else {
-                    System.out.print(position2 + "  ");
+                    System.out.print("\u001B[34m" + position + "  " + "\u001B[0m");
                 }
 
                 // Display messages about opponent's remaining ships
@@ -2143,26 +2175,34 @@ public class ClientShipGameNetwork {
 
                 if (row == 2 && col == 9) {
                     if (countSingleMastedShips == 1) {
-                        System.out.print("      " + countSingleMastedShips + " Single-Masted Ship");
-                    } else System.out.print("      " + countSingleMastedShips + " Single-Masted Ships");
+                        System.out.print("      " + "\u001B[37m" + countSingleMastedShips + "\u001B[0m"
+                                + " Single-Masted Ship");
+                    } else System.out.print("      " + "\u001B[34m" + countSingleMastedShips + "\u001B[0m"
+                            + " Single-Masted Ships");
                 }
 
                 if (row == 4 && col == 9) {
                     if (countTwoMastedShips == 1) {
-                        System.out.print("      " + countTwoMastedShips + " Two-Masted Ship");
-                    } else System.out.print("      " + countTwoMastedShips + " Two-Masted Ships");
+                        System.out.print("      " + "\u001B[37m" + countTwoMastedShips + "\u001B[0m"
+                                + " Two-Masted Ship");
+                    } else System.out.print("      " + "\u001B[34m" + countTwoMastedShips + "\u001B[0m"
+                            + " Two-Masted Ships");
                 }
 
                 if (row == 6 && col == 9) {
                     if (countThreeMastedShips == 1) {
-                        System.out.print("      " + countThreeMastedShips + " Three-Masted Ship");
-                    } else System.out.print("      " + countThreeMastedShips + " Three-Masted Ships");
+                        System.out.print("      " + "\u001B[37m" + countThreeMastedShips + "\u001B[0m"
+                                + " Three-Masted Ship");
+                    } else System.out.print("      " + "\u001B[34m" +  countThreeMastedShips + "\u001B[0m"
+                            + " Three-Masted Ships");
                 }
 
                 if (row == 8 && col == 9) {
                     if (countFourMastedShips == 1) {
-                        System.out.print("      " + countFourMastedShips + " Four-Masted Ship");
-                    } else System.out.print("      " + countFourMastedShips + " Four-Masted Ships");
+                        System.out.print("      " + "\u001B[37m" + countFourMastedShips + "\u001B[0m"
+                                + " Four-Masted Ship");
+                    } else System.out.print("      " + "\u001B[34m" +  countFourMastedShips + "\u001B[0m"
+                            + " Four-Masted Ships");
                 }
             }
 
@@ -2196,9 +2236,15 @@ public class ClientShipGameNetwork {
             for (int col = 0; col < gameBoardLength; col++) {
                 char position = myBoard[row][col];
                 if (position == ship) {
-                    System.out.print(ship + "  ");
+                    System.out.print("\u001B[37m" + ship + "  " + "\u001B[0m");
+                } else if (position == ClientShipGameNetwork.miss) {
+                    System.out.print("\u001B[33m" + position + "  " + "\u001B[0m");
+                } else if (position == ClientShipGameNetwork.HIT_AND_SUNK_CHAR) {
+                    System.out.print("\u001B[31m" + position + "  " + "\u001B[0m");
+                } else if (position == ClientShipGameNetwork.HIT_MAST_CHAR) {
+                    System.out.print("\u001B[31m" + position + "  " + "\u001B[0m");
                 } else {
-                    System.out.print(position + "  ");
+                    System.out.print("\u001B[34m" + position + "  " + "\u001B[0m");
                 }
             }
 
@@ -2209,11 +2255,17 @@ public class ClientShipGameNetwork {
         // This code displays the tenth row of the Opponent Board.
         System.out.print(10 + " ");
         for (int col = 0; col < gameBoardLength; col++) {
-            char position2 = opponentBoard[9][col];
-            if (position2 == ship) {
-                System.out.print(ship + "  ");
+            char position = opponentBoard[9][col];
+            if (position == ship) {
+                System.out.print("\u001B[37m" + ship + "  " + "\u001B[0m");
+            } else if (position == ClientShipGameNetwork.miss) {
+                System.out.print("\u001B[33m" + position + "  " + "\u001B[0m");
+            } else if (position == ClientShipGameNetwork.HIT_AND_SUNK_CHAR) {
+                System.out.print("\u001B[31m" + position + "  " + "\u001B[0m");
+            } else if (position == ClientShipGameNetwork.HIT_MAST_CHAR) {
+                System.out.print("\u001B[31m" + position + "  " + "\u001B[0m");
             } else {
-                System.out.print(position2 + "  ");
+                System.out.print("\u001B[34m" + position + "  " + "\u001B[0m");
             }
         }
 
@@ -2223,10 +2275,17 @@ public class ClientShipGameNetwork {
         for (int col = 0; col < gameBoardLength; col++) {
             char position = myBoard[9][col];
             if (position == ship) {
-                System.out.print(ship + "  ");
+                System.out.print("\u001B[37m" + ship + "  " + "\u001B[0m");
+            } else if (position == ClientShipGameNetwork.miss) {
+                System.out.print("\u001B[33m" + position + "  " + "\u001B[0m");
+            } else if (position == ClientShipGameNetwork.HIT_AND_SUNK_CHAR) {
+                System.out.print("\u001B[31m" + position + "  " + "\u001B[0m");
+            } else if (position == ClientShipGameNetwork.HIT_MAST_CHAR) {
+                System.out.print("\u001B[31m" + position + "  " + "\u001B[0m");
             } else {
-                System.out.print(position + "  ");
+                System.out.print("\u001B[34m" + position + "  " + "\u001B[0m");
             }
+
         }
 
         System.out.println();

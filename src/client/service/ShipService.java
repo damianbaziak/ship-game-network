@@ -1,6 +1,6 @@
-package client.ship.service;
+package client.service;
 
-import client.ship.Ship;
+import client.model.ship.Ship;
 
 import java.util.ArrayList;
 import java.util.Collections;

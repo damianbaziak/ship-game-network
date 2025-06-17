@@ -1,6 +1,7 @@
-package client.ship;
+package client.model.ship.implementation;
 
-import client.ship.service.Coordinate;
+import client.model.ship.Ship;
+import client.model.coordinate.Coordinate;
 
 import java.util.ArrayList;
 

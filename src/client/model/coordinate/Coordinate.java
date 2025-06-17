@@ -1,4 +1,4 @@
-package client.ship.service;
+package client.model.coordinate;
 
 import java.io.Serializable;
 import java.util.Objects;
