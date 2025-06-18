@@ -121,7 +121,7 @@ public class ClientShipGameNetwork {
         return new ArrayList<>(
                 Arrays.asList(
                         new SingleMastedShip(), new SingleMastedShip(), new SingleMastedShip(), new SingleMastedShip(),
-                        new TwoMastedShip(), new TwoMastedShip(), new ThreeMastedShip(), new ThreeMastedShip(),
+                        new TwoMastedShip(), new TwoMastedShip(), new TwoMastedShip(), new ThreeMastedShip(),
                         new ThreeMastedShip(), new FourMastedShip()));
     }
 
@@ -411,7 +411,7 @@ public class ClientShipGameNetwork {
             String firstHitMessageToDisplay, String secondHitMessageToDisplay,
             String thirdHitMessageToDisplay, String fourthHitMessageToDisplay) throws InterruptedException {
 
-        System.out.println();
+        // System.out.println();
         System.out.println(firstHitMessageToDisplay);
         Thread.sleep(1000);
 
@@ -1909,6 +1909,8 @@ public class ClientShipGameNetwork {
                 boolean isFourthMastAdjacent =
                         fourthRow == row && Math.abs(fourthCol - col) == 3 && Math.abs(fourthCol - thirdCol) == 1 ||
                                 fourthCol == col && Math.abs(fourthRow - row) == 3 && Math.abs(fourthRow - thirdRow) == 1 ||
+                                fourthRow == row && Math.abs(fourthCol - col) == 1 && Math.abs(fourthCol - secondCol) == 2 ||
+                                fourthCol == col && Math.abs(fourthRow - row) == 1 && Math.abs(fourthRow - secondRow) == 2 ||
                                 fourthRow == row && Math.abs(fourthCol - col) == 2 && Math.abs(fourthCol - secondCol) == 1 ||
                                 fourthCol == col && Math.abs(fourthRow - row) == 2 && Math.abs(fourthRow - secondRow) == 1 ||
                                 fourthRow == row && Math.abs(fourthCol - col) == 2 && Math.abs(fourthCol - thirdCol) == 1 ||
@@ -2177,7 +2179,7 @@ public class ClientShipGameNetwork {
                     if (countSingleMastedShips == 1) {
                         System.out.print("      " + "\u001B[37m" + countSingleMastedShips + "\u001B[0m"
                                 + " Single-Masted Ship");
-                    } else System.out.print("      " + "\u001B[34m" + countSingleMastedShips + "\u001B[0m"
+                    } else System.out.print("      " + "\u001B[37m" + countSingleMastedShips + "\u001B[0m"
                             + " Single-Masted Ships");
                 }
 
@@ -2185,7 +2187,7 @@ public class ClientShipGameNetwork {
                     if (countTwoMastedShips == 1) {
                         System.out.print("      " + "\u001B[37m" + countTwoMastedShips + "\u001B[0m"
                                 + " Two-Masted Ship");
-                    } else System.out.print("      " + "\u001B[34m" + countTwoMastedShips + "\u001B[0m"
+                    } else System.out.print("      " + "\u001B[37m" + countTwoMastedShips + "\u001B[0m"
                             + " Two-Masted Ships");
                 }
 
@@ -2193,7 +2195,7 @@ public class ClientShipGameNetwork {
                     if (countThreeMastedShips == 1) {
                         System.out.print("      " + "\u001B[37m" + countThreeMastedShips + "\u001B[0m"
                                 + " Three-Masted Ship");
-                    } else System.out.print("      " + "\u001B[34m" +  countThreeMastedShips + "\u001B[0m"
+                    } else System.out.print("      " + "\u001B[37m" + countThreeMastedShips + "\u001B[0m"
                             + " Three-Masted Ships");
                 }
 
@@ -2201,7 +2203,7 @@ public class ClientShipGameNetwork {
                     if (countFourMastedShips == 1) {
                         System.out.print("      " + "\u001B[37m" + countFourMastedShips + "\u001B[0m"
                                 + " Four-Masted Ship");
-                    } else System.out.print("      " + "\u001B[34m" +  countFourMastedShips + "\u001B[0m"
+                    } else System.out.print("      " + "\u001B[37m" + countFourMastedShips + "\u001B[0m"
                             + " Four-Masted Ships");
                 }
             }
