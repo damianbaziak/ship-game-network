@@ -2,6 +2,7 @@ package client;
 
 import battleshipnetwork.MessagePrinter;
 import client.enums.BoardCell;
+import client.enums.ShotFeedbackMessage;
 import client.model.coordinate.Coordinate;
 import client.model.ship.Ship;
 import client.model.ship.implementation.FourMastedShip;
@@ -167,7 +168,7 @@ public class ClientShipGameNetwork {
 
             if (myShipHitCoordinates.contains(opponentShotCoordinate)) {
 
-                output.writeObject("This shot has been already fired!");
+                output.writeObject(ShotFeedbackMessage.ALREADY_FIRED.getMessage());
                 output.writeObject(null);
                 output.writeObject(null);
                 output.writeObject(null);
@@ -176,10 +177,10 @@ public class ClientShipGameNetwork {
                 printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                 System.out.println();
                 Thread.sleep(500);
-                System.out.println("Opponent has fired at " + opponentShot.toUpperCase());
+                System.out.println(ShotFeedbackMessage.FIRED_AT.getFormattedOpponentFeedback(opponentShot));
                 Thread.sleep(1000);
                 System.out.println();
-                System.out.println("The opponent shot at a location that was already fired upon!".toUpperCase());
+                System.out.println(ShotFeedbackMessage.ALREADY_FIRED.getOpponentFeedback());
                 Thread.sleep(1000);
 
                 opponentHitYouWait = false;
@@ -202,23 +203,23 @@ public class ClientShipGameNetwork {
                 printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                 System.out.println();
                 Thread.sleep(500);
-                System.out.println("Opponent has fired at " + opponentShot.toUpperCase());
+                System.out.println(ShotFeedbackMessage.FIRED_AT.getFormattedOpponentFeedback(opponentShot));
                 Thread.sleep(1000);
                 System.out.println();
 
                 if (myShip.getSize() == 1) {
 
-                    output.writeObject("You hit a single-masted ship!");
-                    firstHitMessageToDisplay = "Opponent hit your single-masted ship!".toUpperCase();
+                    output.writeObject(ShotFeedbackMessage.HIT_SINGLE_MAST.getMessage());
+                    firstHitMessageToDisplay = ShotFeedbackMessage.HIT_SINGLE_MAST.getOpponentFeedback();
 
                     if (myShip.getCoordinates().isEmpty()) {
 
-                        output.writeObject("You've sunk a single-masted ship!");
+                        output.writeObject(ShotFeedbackMessage.SUNK_SINGLE_MAST_SHIP.getMessage());
 
                         Ship sunkShip = getSunkShip(opponentShotCoordinate, copyOfMyShipsListForMessagesAfterSunk);
                         output.writeObject(sunkShip);
 
-                        secondHitMessageToDisplay = "Opponent sunk one of your Single-Masted Ships!".toUpperCase();
+                        secondHitMessageToDisplay = ShotFeedbackMessage.SUNK_SINGLE_MAST_SHIP.getOpponentFeedback();
                         shipService.removeShip(myShip);
 
                     } else {
@@ -232,8 +233,9 @@ public class ClientShipGameNetwork {
 
                     if (allOneMastedShipsSunk) {
 
-                        output.writeObject("All Single-Masted Ships have been sunk!");
-                        thirdHitMessageToDisplay = "Opponent has sunk all of your Single-Masted Ships!".toUpperCase();
+                        output.writeObject(ShotFeedbackMessage.ALL_SINGLE_MAST_SHIPS_SUNK.getMessage());
+                        thirdHitMessageToDisplay =
+                                ShotFeedbackMessage.ALL_SINGLE_MAST_SHIPS_SUNK.getOpponentFeedback();
 
                     } else output.writeObject(null);
 
@@ -251,18 +253,18 @@ public class ClientShipGameNetwork {
 
                 } else if (myShip.getSize() == 2) {
 
-                    output.writeObject("You hit a two-masted ship!");
-                    firstHitMessageToDisplay = "Opponent hit your Two-Masted Ship!".toUpperCase();
+                    output.writeObject(ShotFeedbackMessage.HIT_TWO_MAST.getMessage());
+                    firstHitMessageToDisplay = ShotFeedbackMessage.HIT_TWO_MAST.getOpponentFeedback();
 
                     if (myShip.getCoordinates().isEmpty()) {
 
-                        output.writeObject("You've sunk a Two-Masted Ship!");
+                        output.writeObject(ShotFeedbackMessage.SUNK_TWO_MAST_SHIP.getMessage());
 
                         Ship sunkTwoMastedShip = getSunkShip(
                                 opponentShotCoordinate, copyOfMyShipsListForMessagesAfterSunk);
                         output.writeObject(sunkTwoMastedShip);
 
-                        secondHitMessageToDisplay = "Opponent sunk one of your Two-Masted Ships!".toUpperCase();
+                        secondHitMessageToDisplay = ShotFeedbackMessage.SUNK_TWO_MAST_SHIP.getOpponentFeedback();
                         shipService.removeShip(myShip);
 
                     } else {
@@ -275,8 +277,8 @@ public class ClientShipGameNetwork {
                             .allMatch(s -> s.getCoordinates().isEmpty());
 
                     if (allTwoMastedShipsSunk) {
-                        output.writeObject("All Two-Masted Ships have been sunk!");
-                        thirdHitMessageToDisplay = "Opponent has sunk all of your Two-Masted Ships!".toUpperCase();
+                        output.writeObject(ShotFeedbackMessage.ALL_TWO_MAST_SHIPS_SUNK.getMessage());
+                        thirdHitMessageToDisplay = ShotFeedbackMessage.ALL_TWO_MAST_SHIPS_SUNK.getOpponentFeedback();
 
                     } else output.writeObject(null);
 
@@ -293,18 +295,18 @@ public class ClientShipGameNetwork {
 
                 } else if (myShip.getSize() == 3) {
 
-                    output.writeObject("You hit a three-masted ship!");
-                    firstHitMessageToDisplay = "Opponent hit your three-masted ship!".toUpperCase();
+                    output.writeObject(ShotFeedbackMessage.HIT_THREE_MAST.getMessage());
+                    firstHitMessageToDisplay = ShotFeedbackMessage.HIT_THREE_MAST.getOpponentFeedback();
 
                     if (myShip.getCoordinates().isEmpty()) {
 
-                        output.writeObject("You've sunk a Three-Masted Ship!");
+                        output.writeObject(ShotFeedbackMessage.SUNK_THREE_MAST_SHIP.getMessage());
 
                         Ship sunkThreeMastedship =
                                 getSunkShip(opponentShotCoordinate, copyOfMyShipsListForMessagesAfterSunk);
                         output.writeObject(sunkThreeMastedship);
 
-                        secondHitMessageToDisplay = "Opponent sunk one of your Three-Masted Ships!".toUpperCase();
+                        secondHitMessageToDisplay = ShotFeedbackMessage.SUNK_THREE_MAST_SHIP.getOpponentFeedback();
                         shipService.removeShip(myShip);
 
                     } else {
@@ -317,8 +319,9 @@ public class ClientShipGameNetwork {
                             .allMatch(s -> s.getCoordinates().isEmpty());
 
                     if (allThreeMastedShipsSunk) {
-                        output.writeObject("All Three-Masted Ships have been sunk!");
-                        thirdHitMessageToDisplay = "Opponent has sunk all of your Three-Masted Ships!".toUpperCase();
+                        output.writeObject(ShotFeedbackMessage.ALL_THREE_MAST_SHIPS_SUNK.getMessage());
+                        thirdHitMessageToDisplay =
+                                ShotFeedbackMessage.ALL_THREE_MAST_SHIPS_SUNK.getOpponentFeedback();
 
                     } else output.writeObject(null);
 
@@ -335,18 +338,18 @@ public class ClientShipGameNetwork {
 
                 } else if (possibleHitShip.get().getSize() == 4) {
 
-                    output.writeObject("You hit a four-masted ship!");
-                    firstHitMessageToDisplay = "Opponent hit your four-masted ship!".toUpperCase();
+                    output.writeObject(ShotFeedbackMessage.HIT_FOUR_MAST.getMessage());
+                    firstHitMessageToDisplay = ShotFeedbackMessage.HIT_FOUR_MAST.getOpponentFeedback();
 
                     if (myShip.getCoordinates().isEmpty()) {
 
-                        output.writeObject("You've sunk a Four-Masted Ship!");
+                        output.writeObject(ShotFeedbackMessage.SUNK_FOUR_MAST_SHIP.getMessage());
 
                         Ship sunkFourMastedShip =
                                 getSunkShip(opponentShotCoordinate, copyOfMyShipsListForMessagesAfterSunk);
                         output.writeObject(sunkFourMastedShip);
 
-                        secondHitMessageToDisplay = "Opponent sunk your Four-Masted Ship!".toUpperCase();
+                        secondHitMessageToDisplay = ShotFeedbackMessage.SUNK_FOUR_MAST_SHIP.getOpponentFeedback();
                         shipService.removeShip(myShip);
 
                     } else {
@@ -359,8 +362,9 @@ public class ClientShipGameNetwork {
                             .allMatch(s -> s.getCoordinates().isEmpty());
 
                     if (allFourMastedShipsSunk) {
-                        output.writeObject("All Four-Masted Ships have been sunk!");
-                        thirdHitMessageToDisplay = "Opponent has sunk all of your Four-Masted Ships!".toUpperCase();
+                        output.writeObject(ShotFeedbackMessage.ALL_FOUR_MAST_SHIPS_SUNK.getMessage());
+                        thirdHitMessageToDisplay =
+                                ShotFeedbackMessage.ALL_FOUR_MAST_SHIPS_SUNK.getOpponentFeedback();
 
                     } else output.writeObject(null);
 
@@ -380,7 +384,7 @@ public class ClientShipGameNetwork {
 
                 myShipHitCoordinates.add(opponentShotCoordinate);
 
-                output.writeObject("Missed.");
+                output.writeObject(ShotFeedbackMessage.MISS.getMessage());
                 output.writeObject(null);
                 output.writeObject(null);
                 output.writeObject(null);
@@ -389,10 +393,10 @@ public class ClientShipGameNetwork {
                 printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                 System.out.println();
                 Thread.sleep(500);
-                System.out.println("Opponent has fired at " + opponentShot.toUpperCase());
+                System.out.println(ShotFeedbackMessage.FIRED_AT.getFormattedOpponentFeedback(opponentShot));
                 Thread.sleep(1000);
                 System.out.println();
-                System.out.println("Opponent missed!".toUpperCase());
+                System.out.println(ShotFeedbackMessage.MISS.getOpponentFeedback());
                 Thread.sleep(1000);
 
                 opponentHitYouWait = false;
