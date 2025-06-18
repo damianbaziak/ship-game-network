@@ -25,7 +25,7 @@ public class ThreeMastedShip extends Ship {
 
     @Override
     public boolean isSunk() {
-        return coordinates.size() == 3;
+        return hitCoordinates.size() == 3;
     }
 
     @Override

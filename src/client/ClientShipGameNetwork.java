@@ -96,7 +96,7 @@ public class ClientShipGameNetwork {
         // Map<Integer, List<Ship>> hitOpponentShipsBySize = new HashMap<>();
         List<Ship> remainingOpponentShips = createListOfRemainingOpponentShips();
 
-        printEntireGameBoard(myBoard, opponentBoard, ship, myShips);
+        printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
 
         boolean gameRunning = true;
 
@@ -110,8 +110,8 @@ public class ClientShipGameNetwork {
             } else if ("Game over.".equalsIgnoreCase(whoseTurnIsIt)) {
                 gameRunning = false;
             } else {
-                opponentShot(myBoard, opponentBoard, myShips, copyOfMyShipsForMessagesToOpponentAfterSunk,
-                        myShipsHitCoordinates, input, output, ship, hitAndSunk);
+                opponentShot(myBoard, opponentBoard, myShips, remainingOpponentShips,
+                        copyOfMyShipsForMessagesToOpponentAfterSunk, myShipsHitCoordinates, input, output, ship, hitAndSunk);
             }
 
         }
@@ -121,8 +121,9 @@ public class ClientShipGameNetwork {
         return new ArrayList<>(
                 Arrays.asList(
                         new SingleMastedShip(), new SingleMastedShip(), new SingleMastedShip(), new SingleMastedShip(),
-                        new TwoMastedShip(), new TwoMastedShip(), new TwoMastedShip(), new ThreeMastedShip(),
-                        new ThreeMastedShip(), new FourMastedShip()));
+                        new TwoMastedShip(), new TwoMastedShip(), new TwoMastedShip(),
+                        new ThreeMastedShip(), new ThreeMastedShip(),
+                        new FourMastedShip()));
     }
 
     private static List<Ship> copyMyShips(List<Ship> myShips) {
@@ -141,7 +142,7 @@ public class ClientShipGameNetwork {
     }
 
     private static void opponentShot(
-            char[][] myBoard, char[][] opponentBoard, List<Ship> myShips,
+            char[][] myBoard, char[][] opponentBoard, List<Ship> myShips, List<Ship> remainingOpponentShips,
             List<Ship> copyOfMyShipsListForMessagesAfterSunk, List<Coordinate> myShipHitCoordinates,
             ObjectInputStream input, ObjectOutputStream output, char ship,
             char hit) throws IOException, InterruptedException, ClassNotFoundException {
@@ -172,7 +173,7 @@ public class ClientShipGameNetwork {
                 output.writeObject(null);
                 output.writeObject(null);
 
-                printEntireGameBoard(myBoard, opponentBoard, ship, myShips);
+                printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                 System.out.println();
                 Thread.sleep(500);
                 System.out.println("Opponent has fired at " + opponentShot.toUpperCase());
@@ -198,7 +199,7 @@ public class ClientShipGameNetwork {
                 String thirdHitMessageToDisplay = "";
                 String fourthHitMessageToDisplay;
 
-                printEntireGameBoard(myBoard, opponentBoard, ship, myShips);
+                printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                 System.out.println();
                 Thread.sleep(500);
                 System.out.println("Opponent has fired at " + opponentShot.toUpperCase());
@@ -385,7 +386,7 @@ public class ClientShipGameNetwork {
                 output.writeObject(null);
                 output.writeObject(null);
 
-                printEntireGameBoard(myBoard, opponentBoard, ship, myShips);
+                printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                 System.out.println();
                 Thread.sleep(500);
                 System.out.println("Opponent has fired at " + opponentShot.toUpperCase());
@@ -808,10 +809,10 @@ public class ClientShipGameNetwork {
     }
 
     private static boolean validateInputFields(
-            String input, char[][] myBoard, char[][] opponentBoard, char ship, List<Ship> listForCountingOfOpponentShips) {
+            String input, char[][] myBoard, char[][] opponentBoard, char ship, List<Ship> remainingOpponentShips) {
 
         if (input.length() < 2 || input.length() > 3) {
-            printEntireGameBoard(myBoard, opponentBoard, ship, listForCountingOfOpponentShips);
+            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
             System.out.println("Invalid format. Enter e.g. A5 or B10");
             System.out.println();
             return false;
@@ -820,7 +821,7 @@ public class ClientShipGameNetwork {
         char colChar = input.charAt(0);
 
         if (!Character.isLetter(colChar)) {
-            printEntireGameBoard(myBoard, opponentBoard, ship, listForCountingOfOpponentShips);
+            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
             System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
             System.out.println();
             return false;
@@ -842,7 +843,7 @@ public class ClientShipGameNetwork {
         int col = Character.toUpperCase(colChar) - 'A';
 
         if (!Character.isDigit(firstCharOfRowNumber)) {
-            printEntireGameBoard(myBoard, opponentBoard, ship, listForCountingOfOpponentShips);
+            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
             System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
             System.out.println();
             return false;
@@ -852,7 +853,7 @@ public class ClientShipGameNetwork {
 
 
         if ((input.length() == 3) && !(rowNumber.equals("10"))) {
-            printEntireGameBoard(myBoard, opponentBoard, ship, listForCountingOfOpponentShips);
+            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
             System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
             System.out.println();
             return false;
@@ -861,7 +862,7 @@ public class ClientShipGameNetwork {
 
         // Checking if the column letter is within A-J range
         if ((col < 0) || (col > 9)) {
-            printEntireGameBoard(myBoard, opponentBoard, ship, listForCountingOfOpponentShips);
+            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
             System.out.println("Column must be between A and J!".toUpperCase());
             System.out.println();
             return false;
@@ -869,7 +870,7 @@ public class ClientShipGameNetwork {
 
         // Checking if the row number is within 1-10 range
         if ((row < 0) || (row > 9)) {
-            printEntireGameBoard(myBoard, opponentBoard, ship, listForCountingOfOpponentShips);
+            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
             System.out.println("Row must be between 1 and 10!".toUpperCase());
             System.out.println();
             return false;
@@ -1939,22 +1940,26 @@ public class ClientShipGameNetwork {
                 // Sprawdzanie dolnego pola
                 if (fourthRow < myBoard.length - 1 && myBoard[fourthRow + 1][fourthCol] != water) {
                     canPlaceFourthMast = myBoard[fourthRow + 1][fourthCol] == '2' ||
-                            myBoard[fourthRow + 1][fourthCol] == '3';
+                            myBoard[fourthRow + 1][fourthCol] == '3' ||
+                            myBoard[fourthRow + 1][fourthCol] == '1';
                 }
                 // Sprawdzanie górnego pola
                 if (fourthRow > 0 && myBoard[fourthRow - 1][fourthCol] != water) {
                     canPlaceFourthMast = myBoard[fourthRow - 1][fourthCol] == '2' ||
-                            myBoard[fourthRow - 1][fourthCol] == '3';
+                            myBoard[fourthRow - 1][fourthCol] == '3' ||
+                            myBoard[fourthRow - 1][fourthCol] == '1';
                 }
                 // Sprawdzanie lewego pola
                 if (fourthCol > 0 && myBoard[fourthRow][fourthCol - 1] != water) {
                     canPlaceFourthMast = myBoard[fourthRow][fourthCol - 1] == '2' ||
-                            myBoard[fourthRow][fourthCol - 1] == '3';
+                            myBoard[fourthRow][fourthCol - 1] == '3' ||
+                            myBoard[fourthRow][fourthCol - 1] == '1';
                 }
                 // Sprawdzanie prawego pola
                 if (fourthCol < myBoard[0].length - 1 && myBoard[fourthRow][fourthCol + 1] != water) {
                     canPlaceFourthMast = myBoard[fourthRow][fourthCol + 1] == '2' ||
-                            myBoard[fourthRow][fourthCol + 1] == '3';
+                            myBoard[fourthRow][fourthCol + 1] == '3' ||
+                            myBoard[fourthRow][fourthCol + 1] == '1';
                 }
                 // Lewo-góra
                 if (fourthRow > 0 && fourthCol > 0 && myBoard[fourthRow - 1][fourthCol - 1] != water) {
@@ -2126,12 +2131,12 @@ public class ClientShipGameNetwork {
     }
 
     private static void printEntireGameBoard(char[][] myBoard, char[][] opponentBoard, char ship, List<Ship>
-            listForCountingOfOpponentShips) {
+            remainingOpponentShips) {
 
-        long countSingleMastedShips = listForCountingOfOpponentShips.stream().filter(s -> s.getSize() == 1).count();
-        long countTwoMastedShips = listForCountingOfOpponentShips.stream().filter(s -> s.getSize() == 2).count();
-        long countThreeMastedShips = listForCountingOfOpponentShips.stream().filter(s -> s.getSize() == 3).count();
-        long countFourMastedShips = listForCountingOfOpponentShips.stream().filter(s -> s.getSize() == 4).count();
+        long countSingleMastedShips = remainingOpponentShips.stream().filter(s -> s.getSize() == 1).count();
+        long countTwoMastedShips = remainingOpponentShips.stream().filter(s -> s.getSize() == 2).count();
+        long countThreeMastedShips = remainingOpponentShips.stream().filter(s -> s.getSize() == 3).count();
+        long countFourMastedShips = remainingOpponentShips.stream().filter(s -> s.getSize() == 4).count();
 
         for (int i = 0; i < 2; i++) {
             System.out.println();
