@@ -20,6 +20,12 @@ public enum GameStateMessage {
     LAST_MAST_REMOVE("THE LAST PLACED MAST REMOVED!"),
     NO_MAST_TO_REMOVE("NO MAST FOUND TO REMOVE!"),
     WRONG_OPTION("WRONG OPTION SELECTED!"),
+    AVAILABLE_OPTIONS("""
+                    Available OPTIONS:
+                    1. Remove the last placed mast.
+                    2. Remove the last placed ship.
+                    Select an option. Enter 1 or 2:
+                    """),
     CONNECTED_TO_SERVER("Connected to server :)"),
     SCANNING_HORIZON("Scanning the horizon... the opponent hasn't shown up yet."),
     WAITING_FOR_OPPONENT("Waiting for the opponent...");

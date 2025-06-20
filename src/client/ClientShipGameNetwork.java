@@ -865,8 +865,8 @@ public class ClientShipGameNetwork {
 
         while (placedShips < singleMastedShipNumber) {
 
-            System.out.printf(GameStateMessage.ENTER_COORDINATES_SINGLE_MAST_SHIPS.getMessage(), placedShips + 1 +
-                    "                         " + GameStateMessage.ENTER_OPTIONS.getMessage());
+            System.out.printf(GameStateMessage.ENTER_COORDINATES_SINGLE_MAST_SHIPS.getMessage() +
+                    "                         " + GameStateMessage.ENTER_OPTIONS.getMessage(), placedShips + 1);
             String input = scanner.nextLine();
 
             boolean isRemoved = selectMastOrShipToRemove(input, myBoard, scanner);
@@ -954,12 +954,7 @@ public class ClientShipGameNetwork {
     private static boolean selectMastOrShipToRemove(String input, char[][] myBoard, Scanner scanner) {
 
         if (input.length() == 7 && "Options".equalsIgnoreCase(input)) {
-            System.out.println("""
-                    Available OPTIONS:
-                    1. Remove the last placed mast.
-                    2. Remove the last placed ship.
-                    Select an option. Enter 1 or 2:
-                    """);
+            System.out.println(GameStateMessage.AVAILABLE_OPTIONS.getMessage());
 
             String selectedOption = "";
 
