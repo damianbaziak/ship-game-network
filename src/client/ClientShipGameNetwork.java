@@ -956,19 +956,18 @@ public class ClientShipGameNetwork {
         if (input.length() == 7 && "Options".equalsIgnoreCase(input)) {
             System.out.println(GameStateMessage.AVAILABLE_OPTIONS.getMessage());
 
+            char colChar = input.charAt(0);
+
+            String rowNumber = input.substring(1);
+
+            int col = Character.toUpperCase(colChar) - 'A';
+            int row = Integer.parseInt(rowNumber) - 1;
+
             String selectedOption = "";
 
             while (!selectedOption.equals("1") && !selectedOption.equals("2")) {
 
                 selectedOption = scanner.nextLine();
-
-                char colChar = input.charAt(0);
-
-                String rowNumber = input.substring(1);
-
-                int col = Character.toUpperCase(colChar) - 'A';
-                int row = Integer.parseInt(rowNumber) - 1;
-
 
                 switch (selectedOption) {
                     case "1":

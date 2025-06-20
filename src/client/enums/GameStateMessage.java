@@ -22,8 +22,10 @@ public enum GameStateMessage {
     WRONG_OPTION("WRONG OPTION SELECTED!"),
     AVAILABLE_OPTIONS("""
                     Available OPTIONS:
+                    
                     1. Remove the last placed mast.
                     2. Remove the last placed ship.
+                    
                     Select an option. Enter 1 or 2:
                     """),
     CONNECTED_TO_SERVER("Connected to server :)"),
