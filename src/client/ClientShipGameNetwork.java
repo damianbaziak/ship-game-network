@@ -58,21 +58,6 @@ public class ClientShipGameNetwork {
             char[][] myBoard = createBoard();
             char[][] opponentBoard = createBoard();
 
-            /*
-
-            List<Ship> myShipForTest = new ArrayList<>();
-            myShipForTest.add(new SingleMastedShip(new Coordinate(0, 0)));
-            myShipForTest.add(new TwoMastedShip(new Coordinate(0, 0), new Coordinate(1, 1)));
-            myShipForTest.add(new ThreeMastedShip(new Coordinate(0, 0), new Coordinate(1, 1),
-                    new Coordinate(2, 2)));
-            myShipForTest.add(new FourMastedShip(new Coordinate(0, 0), new Coordinate(1, 1),
-                    new Coordinate(2, 2), new Coordinate(3, 3)));
-
-            printEntireGameBoard(myBoard, opponentBoard, ship, myShipForTest);
-
-             */
-
-
             placeShips(myBoard, water, ship, scanner, output);
 
             String serverMessageToWarBeginning = (String) input.readObject();
@@ -867,10 +852,13 @@ public class ClientShipGameNetwork {
 
             System.out.printf(GameStateMessage.ENTER_COORDINATES_SINGLE_MAST_SHIPS.getMessage() +
                     "                         " + GameStateMessage.ENTER_OPTIONS.getMessage(), placedShips + 1);
+
             String input = scanner.nextLine();
 
-            boolean isRemoved = selectMastOrShipToRemove(input, myBoard, scanner);
-            if (isRemoved) continue;
+            if ("Options".equalsIgnoreCase(input)) {
+                boolean isRemoved = selectMastOrShipToRemove(myBoard, scanner);
+                if (isRemoved) continue;
+            }
 
             boolean isValidInput = validateInputFields(input, myBoard, ship);
             if (!isValidInput) continue;
@@ -882,8 +870,8 @@ public class ClientShipGameNetwork {
             int col = Character.toUpperCase(colChar) - 'A';
             int row = Integer.parseInt(rowNumber) - 1;
 
-
             char possiblePlacement = myBoard[row][col];
+
 
             if (possiblePlacement != water) {
                 printMyBoard(myBoard, ship);
@@ -946,67 +934,66 @@ public class ClientShipGameNetwork {
             shipService.addShip(singleMastedShip);
 
         }
-
         placeTwoMastedShips(myBoard, water, ship, scanner, output);
 
     }
 
-    private static boolean selectMastOrShipToRemove(String input, char[][] myBoard, Scanner scanner) {
+    private static boolean selectMastOrShipToRemove(char[][] myBoard, Scanner scanner) {
 
-        if (input.length() == 7 && "Options".equalsIgnoreCase(input)) {
+        List<Ship> listOfShips = shipService.getListOfMyCreatedShips();
+
+        String selectedOption = "";
+
+        while (!List.of("1", "2").contains(selectedOption)) {
+
             System.out.println(GameStateMessage.AVAILABLE_OPTIONS.getMessage());
 
-            char colChar = input.charAt(0);
+            selectedOption = scanner.nextLine();
 
-            String rowNumber = input.substring(1);
-
-            int col = Character.toUpperCase(colChar) - 'A';
-            int row = Integer.parseInt(rowNumber) - 1;
-
-            String selectedOption = "";
-
-            while (!selectedOption.equals("1") && !selectedOption.equals("2")) {
-
-                selectedOption = scanner.nextLine();
-
-                switch (selectedOption) {
-                    case "1":
-
-                        if (myBoard[row][col] == ship) {
-
-                            myBoard[row][col] = water;
-
-                            shipService.getShip(new Coordinate(row, col)).ifPresentOrElse(
-                                    s -> {
-                                        shipService.removeShip(s);
-                                        System.out.println(GameStateMessage.LAST_MAST_REMOVE.getMessage());
-                                    },
-                                    () -> System.out.println(GameStateMessage.NO_MAST_TO_REMOVE.getMessage()));
-                            return true;
-                        }
-                        break;
-
-                    case "2":
-
-                        if (myBoard[row][col] == ship) {
-
-                            myBoard[row][col] = water;
-
-                            shipService.getShip(new Coordinate(row, col)).ifPresentOrElse(
-                                    s -> {
-                                        System.out.println(GameStateMessage.LAST_SHIP_REMOVED.getMessage());
-                                    },
-                                    () -> System.out.println(GameStateMessage.NO_SHIP_TO_REMOVE.getMessage()));
-                            return true;
-                        }
-                        break;
-
-                    default:
-                        System.out.println(GameStateMessage.WRONG_OPTION.getMessage());
-                }
-
+            if (listOfShips.isEmpty()) {
+                System.out.println(GameStateMessage.NO_MAST_TO_REMOVE.getMessage());
+                return true;
             }
+
+            Ship lastShip = listOfShips.getLast();
+            List<Coordinate> coordinatesOfLastShip = lastShip.getCoordinates();
+
+            if (coordinatesOfLastShip.isEmpty()) {
+                System.out.println(GameStateMessage.NO_SHIP_TO_REMOVE.getMessage());
+                return true;
+            }
+
+            switch (selectedOption) {
+
+                case "1":
+                    Coordinate lastCoordinate = coordinatesOfLastShip.getLast();
+
+                    myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
+
+                    if (lastShip.getSize() == 1) {
+                        listOfShips.remove(lastShip);
+                    }
+
+                    System.out.println(GameStateMessage.LAST_MAST_REMOVED.getMessage());
+                    return true;
+
+                case "2":
+
+                    coordinatesOfLastShip.forEach(coordinate -> {
+                        myBoard[coordinate.getRow()][coordinate.getCol()] = water;
+                    });
+
+                    listOfShips.remove(lastShip);
+
+                    System.out.println(GameStateMessage.LAST_SHIP_REMOVED.getMessage());
+                    return true;
+
+                default:
+                    System.out.println(GameStateMessage.WRONG_OPTION.getMessage());
+            }
+
         }
+
         return false;
     }
 
