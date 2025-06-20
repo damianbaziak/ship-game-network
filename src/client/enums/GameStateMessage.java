@@ -14,6 +14,12 @@ public enum GameStateMessage {
     TWO_MAST_SHIPS_PLACED("ALL TWO-MASTED SHIPS HAVE BEEN PLACED!"),
     THREE_MAST_SHIPS_PLACED("ALL THREE-MASTED SHIPS HAVE BEEN PLACED!"),
     ALL_SHIPS_PLACED("ALL SHIPS HAVE BEEN PLACED!"),
+    ENTER_OPTIONS("or enter 'Options' to delete ships or masts:%n"),
+    NO_SHIP_TO_REMOVE("NO SHIP FOUND TO REMOVE!"),
+    LAST_SHIP_REMOVED("THE LAST PLACED SHIP REMOVED!"),
+    LAST_MAST_REMOVE("THE LAST PLACED MAST REMOVED!"),
+    NO_MAST_TO_REMOVE("NO MAST FOUND TO REMOVE!"),
+    WRONG_OPTION("WRONG OPTION SELECTED!"),
     CONNECTED_TO_SERVER("Connected to server :)"),
     SCANNING_HORIZON("Scanning the horizon... the opponent hasn't shown up yet."),
     WAITING_FOR_OPPONENT("Waiting for the opponent...");

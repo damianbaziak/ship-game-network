@@ -116,7 +116,7 @@ public class ClientShipGameNetwork {
                         hitAndSunk);
             } else if (ServerMessage.GAME_OVER.getMessage().equals(whoseTurnIsIt)) {
                 gameRunning = false;
-            }
+            } else System.out.println("Something is wrong. No message has been received from the server.");
         }
     }
 
@@ -854,7 +854,8 @@ public class ClientShipGameNetwork {
     }
 
     private static void placeShips(
-            char[][] myBoard, char water, char ship, Scanner scanner, ObjectOutputStream output) throws InterruptedException, IOException {
+            char[][] myBoard, char water, char ship, Scanner scanner, ObjectOutputStream output)
+            throws InterruptedException, IOException {
 
         int placedShips = 0;
 
@@ -864,8 +865,12 @@ public class ClientShipGameNetwork {
 
         while (placedShips < singleMastedShipNumber) {
 
-            System.out.printf(GameStateMessage.ENTER_COORDINATES_SINGLE_MAST_SHIPS.getMessage(), placedShips + 1);
+            System.out.printf(GameStateMessage.ENTER_COORDINATES_SINGLE_MAST_SHIPS.getMessage(), placedShips + 1 +
+                    "                         " + GameStateMessage.ENTER_OPTIONS.getMessage());
             String input = scanner.nextLine();
+
+            boolean isRemoved = selectMastOrShipToRemove(input, myBoard, scanner);
+            if (isRemoved) continue;
 
             boolean isValidInput = validateInputFields(input, myBoard, ship);
             if (!isValidInput) continue;
@@ -944,6 +949,71 @@ public class ClientShipGameNetwork {
 
         placeTwoMastedShips(myBoard, water, ship, scanner, output);
 
+    }
+
+    private static boolean selectMastOrShipToRemove(String input, char[][] myBoard, Scanner scanner) {
+
+        if (input.length() == 7 && "Options".equalsIgnoreCase(input)) {
+            System.out.println("""
+                    Available OPTIONS:
+                    1. Remove the last placed mast.
+                    2. Remove the last placed ship.
+                    Select an option. Enter 1 or 2:
+                    """);
+
+            String selectedOption = "";
+
+            while (!selectedOption.equals("1") && !selectedOption.equals("2")) {
+
+                selectedOption = scanner.nextLine();
+
+                char colChar = input.charAt(0);
+
+                String rowNumber = input.substring(1);
+
+                int col = Character.toUpperCase(colChar) - 'A';
+                int row = Integer.parseInt(rowNumber) - 1;
+
+
+                switch (selectedOption) {
+                    case "1":
+
+                        if (myBoard[row][col] == ship) {
+
+                            myBoard[row][col] = water;
+
+                            shipService.getShip(new Coordinate(row, col)).ifPresentOrElse(
+                                    s -> {
+                                        shipService.removeShip(s);
+                                        System.out.println(GameStateMessage.LAST_MAST_REMOVE.getMessage());
+                                    },
+                                    () -> System.out.println(GameStateMessage.NO_MAST_TO_REMOVE.getMessage()));
+                            return true;
+                        }
+                        break;
+
+                    case "2":
+
+                        if (myBoard[row][col] == ship) {
+
+                            myBoard[row][col] = water;
+
+                            shipService.getShip(new Coordinate(row, col)).ifPresentOrElse(
+                                    s -> {
+                                        System.out.println(GameStateMessage.LAST_SHIP_REMOVED.getMessage());
+                                    },
+                                    () -> System.out.println(GameStateMessage.NO_SHIP_TO_REMOVE.getMessage()));
+                            return true;
+                        }
+                        break;
+
+                    default:
+                        System.out.println(GameStateMessage.WRONG_OPTION.getMessage());
+                }
+
+            }
+        }
+        return false;
     }
 
     private static void placeTwoMastedShips(
