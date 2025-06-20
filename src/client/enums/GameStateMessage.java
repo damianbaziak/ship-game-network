@@ -21,8 +21,8 @@ public enum GameStateMessage {
     LAST_MAST_REMOVED("THE LAST PLACED MAST REMOVED!"),
     WRONG_OPTION("WRONG OPTION SELECTED!"),
     AVAILABLE_OPTIONS("""
-                    Available OPTIONS:
                     
+                    Available OPTIONS:
                     1. Remove the last placed mast.
                     2. Remove the last placed ship.
                     

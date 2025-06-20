@@ -971,7 +971,7 @@ public class ClientShipGameNetwork {
                     myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
 
                     if (lastShip.getSize() == 1) {
-                        listOfShips.remove(lastShip);
+                        shipService.removeShip(lastShip);
                     }
 
                     System.out.println(GameStateMessage.LAST_MAST_REMOVED.getMessage());
@@ -983,7 +983,7 @@ public class ClientShipGameNetwork {
                         myBoard[coordinate.getRow()][coordinate.getCol()] = water;
                     });
 
-                    listOfShips.remove(lastShip);
+                    shipService.removeShip(lastShip);
 
                     System.out.println(GameStateMessage.LAST_SHIP_REMOVED.getMessage());
                     return true;
