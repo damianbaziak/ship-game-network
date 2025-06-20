@@ -4,6 +4,7 @@ public enum GameStateMessage {
     YOUR_TURN("Your turn! Enter the target coordinates (e.g., B7): "),
     OPPONENT_IS_FIRING("Opponent is firing. Waiting for their shot..."),
     PLACE_YOUR_SHIPS("Place your %d %s-Masted Ships%n"),
+    PLACE_YOUR_FOUR_MASTED("Place your %d %s-Masted Ship%n"),
     ENTER_COORDINATES_FOR_FIRST_MAST("Enter coordinates for the FIRST MAST of the %d of %d %s-Masted Ships (e.g., A5):%n"),
     ENTER_COORDINATES_FOR_SECOND_MAST("Enter coordinates for the SECOND MAST of the %d of %d %s-Masted Ships (e.g., A5):%n"),
     ENTER_COORDINATES_FOR_THIRD_MAST("Enter coordinates for the THIRD MAST of the %d of %d %s-Masted Ships (e.g., A5):%n"),

@@ -8,15 +8,15 @@ import java.net.Socket;
 
 public class BattleshipNetwork {
     private static final int PORT = 5050;
-    private static final String YOU_TURN = "Your turn.";
-    private static final String START = "START";
+    private static final String YOUR_TURN = "Your turn.";
+    private static final String START = "Start.";
     private static final String PLEASE_WAIT = "Please wait.";
-    private static final String ALREADY_FIRED = "already fired";
-    private static final String MISSED = "Missed.";
+    private static final String ALREADY_FIRED = "ALREADY FIRED!";
+    private static final String MISSED = "MISSED!";
     private static final String SHIPS_PLACED = "Ships placed.";
     private static final String THE_WAR_HAS_BEGUN = "The war has begun.";
-    private static final String YOU_WIN = "You win";
-    private static final String PLAYER_TWO_WIN = "Player 2 win";
+    private static final String YOU_WIN = "YOU WIN!";
+    private static final String PLAYER_TWO_WIN = "Player 2 win.";
     private static final String GAME_OVER = "Game over.";
 
     public static void main(String[] args) throws IOException {
@@ -65,7 +65,7 @@ public class BattleshipNetwork {
                 output2.writeObject(THE_WAR_HAS_BEGUN);
                 Thread.sleep(1000);
             }
-            output1.writeObject(YOU_TURN);
+            output1.writeObject(YOUR_TURN);
             output2.writeObject(PLEASE_WAIT);
 
             boolean gameRunning = true;
@@ -90,14 +90,14 @@ public class BattleshipNetwork {
                 if (playerTwosReport != null) {
                     if (playerTwosReport.toString().contains(ALREADY_FIRED)
                             || playerTwosReport.toString().contains(MISSED)) {
-                        output2.writeObject(YOU_TURN);
+                        output2.writeObject(YOUR_TURN);
                         output1.writeObject(PLEASE_WAIT);
                         playerTwosTurn = playerTwoShooting(input2, input1, output2, output1);
                     }
                 }
 
-                if (playerTwosFifthReport != null && playerTwosFifthReport.equals(YOU_WIN) || (playerTwosTurn != null &&
-                        playerTwosTurn.equals(PLAYER_TWO_WIN))) {
+                if (playerTwosFifthReport != null && playerTwosFifthReport.toString().contains(YOU_WIN)
+                        || (playerTwosTurn != null && playerTwosTurn.equals(PLAYER_TWO_WIN))) {
                     gameRunning = false;
                 }
 
@@ -137,7 +137,7 @@ public class BattleshipNetwork {
 
             if (playerOnesReport != null) {
                 if (playerOnesReport.toString().contains(ALREADY_FIRED) || playerOnesReport.toString().contains(MISSED)) {
-                    output1.writeObject(YOU_TURN);
+                    output1.writeObject(YOUR_TURN);
                     output2.writeObject(PLEASE_WAIT);
                     playerTwoIsShooting = false;
                 }

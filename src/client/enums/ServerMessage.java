@@ -1,11 +1,12 @@
 package client.enums;
 
 public enum ServerMessage {
-    START("START"),
+    START("Start."),
     THE_WAR_BEGUN("The war has begun."),
     GAME_OVER("Game over."),
-    YOU_TURN("You turn."),
-    SHIPS_PLACED("Ships placed.");
+    YOUR_TURN("Your turn."),
+    SHIPS_PLACED("Ships placed."),
+    PLEASE_WAIT("Please wait.");
 
     private final String message;
 

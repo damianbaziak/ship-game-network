@@ -107,16 +107,16 @@ public class ClientShipGameNetwork {
 
             String whoseTurnIsIt = (String) input.readObject();
 
-            if (ServerMessage.YOU_TURN.getMessage().equals(whoseTurnIsIt)) {
+            if (ServerMessage.YOUR_TURN.getMessage().equals(whoseTurnIsIt)) {
                 makeShot(myBoard, opponentBoard, scanner, input, output, ship, hitAndSunk, miss,
                         remainingOpponentShips);
+            } else if (ServerMessage.PLEASE_WAIT.getMessage().equals(whoseTurnIsIt)) {
+                opponentShot(myBoard, opponentBoard, myShips, remainingOpponentShips,
+                        copyOfMyShipsForMessagesToOpponentAfterSunk, myShipsHitCoordinates, input, output, ship,
+                        hitAndSunk);
             } else if (ServerMessage.GAME_OVER.getMessage().equals(whoseTurnIsIt)) {
                 gameRunning = false;
-            } else {
-                opponentShot(myBoard, opponentBoard, myShips, remainingOpponentShips,
-                        copyOfMyShipsForMessagesToOpponentAfterSunk, myShipsHitCoordinates, input, output, ship, hitAndSunk);
             }
-
         }
     }
 
@@ -1470,7 +1470,7 @@ public class ClientShipGameNetwork {
         Thread.sleep(1000);
         System.out.println();
         System.out.println();
-        System.out.printf(GameStateMessage.PLACE_YOUR_SHIPS.getMessage(), fourMastedShipNumber, "Four");
+        System.out.printf(GameStateMessage.PLACE_YOUR_FOUR_MASTED.getMessage(), fourMastedShipNumber, "Four");
         Thread.sleep(1000);
         System.out.println();
 
@@ -1886,7 +1886,7 @@ public class ClientShipGameNetwork {
         System.out.println();
         System.out.println(GameStateMessage.WAITING_FOR_OPPONENT.getMessage());
 
-        output.writeObject(ServerMessage.SHIPS_PLACED);
+        output.writeObject(ServerMessage.SHIPS_PLACED.getMessage());
 
     }
 
