@@ -856,7 +856,7 @@ public class ClientShipGameNetwork {
             String input = scanner.nextLine();
 
             if ("Options".equalsIgnoreCase(input)) {
-                boolean isRemoved = selectMastOrShipToRemove(myBoard, scanner);
+                boolean isRemoved = selectMastOrShipToRemove(myBoard, scanner, ship);
                 if (isRemoved) continue;
             }
 
@@ -938,7 +938,7 @@ public class ClientShipGameNetwork {
 
     }
 
-    private static boolean selectMastOrShipToRemove(char[][] myBoard, Scanner scanner) {
+    private static boolean selectMastOrShipToRemove(char[][] myBoard, Scanner scanner, char ship) {
 
         List<Ship> listOfShips = shipService.getListOfMyCreatedShips();
 
@@ -974,7 +974,9 @@ public class ClientShipGameNetwork {
                         shipService.removeShip(lastShip);
                     }
 
+                    printMyBoard(myBoard,ship);
                     System.out.println(GameStateMessage.LAST_MAST_REMOVED.getMessage());
+                    System.out.println();
                     return true;
 
                 case "2":
@@ -985,11 +987,15 @@ public class ClientShipGameNetwork {
 
                     shipService.removeShip(lastShip);
 
+                    printMyBoard(myBoard, ship);
                     System.out.println(GameStateMessage.LAST_SHIP_REMOVED.getMessage());
+                    System.out.println();
                     return true;
 
                 default:
+                    printMyBoard(myBoard, ship);
                     System.out.println(GameStateMessage.WRONG_OPTION.getMessage());
+                    System.out.println();
             }
 
         }
