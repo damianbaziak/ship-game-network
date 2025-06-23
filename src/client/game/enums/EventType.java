@@ -1,4 +1,4 @@
-package client.enums;
+package client.game.enums;
 
 public enum EventType {
     HIT,

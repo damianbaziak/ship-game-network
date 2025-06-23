@@ -1,10 +1,11 @@
 package client;
 
 import battleshipnetwork.MessagePrinter;
-import client.enums.BoardCell;
-import client.enums.GameStateMessage;
-import client.enums.ServerMessage;
-import client.enums.ShotFeedbackMessage;
+import client.game.enums.BoardCell;
+import client.game.logic.ShipRemoval;
+import client.game.messages.GameStateMessage;
+import client.game.messages.ServerMessage;
+import client.game.messages.ShotFeedbackMessage;
 import client.model.coordinate.Coordinate;
 import client.model.ship.Ship;
 import client.model.ship.implementation.FourMastedShip;
@@ -58,7 +59,8 @@ public class ClientShipGameNetwork {
             char[][] myBoard = createBoard();
             char[][] opponentBoard = createBoard();
 
-            placeShips(myBoard, water, ship, scanner, output);
+            boolean isShipDeployingFromStart = true;
+            placeShips(myBoard, water, ship, scanner, output, isShipDeployingFromStart);
 
             String serverMessageToWarBeginning = (String) input.readObject();
 
@@ -839,25 +841,35 @@ public class ClientShipGameNetwork {
     }
 
     private static void placeShips(
-            char[][] myBoard, char water, char ship, Scanner scanner, ObjectOutputStream output)
-            throws InterruptedException, IOException {
-
-        int placedShips = 0;
+            char[][] myBoard, char water, char ship, Scanner scanner, ObjectOutputStream output,
+            boolean shipDeploymentFromStart) throws InterruptedException, IOException {
 
         printMyBoard(myBoard, ship);
         System.out.printf(GameStateMessage.PLACE_YOUR_SHIPS.getMessage(), singleMastedShipNumber, "Single");
         System.out.println();
 
+        int placedShips;
+        if (shipDeploymentFromStart) {
+            placedShips = 0;
+        } else placedShips = 3;
+
         while (placedShips < singleMastedShipNumber) {
 
-            System.out.printf(GameStateMessage.ENTER_COORDINATES_SINGLE_MAST_SHIPS.getMessage() +
-                    "                         " + GameStateMessage.ENTER_OPTIONS.getMessage(), placedShips + 1);
+            System.out.printf(GameStateMessage.ENTER_COORDINATES_SINGLE_MAST_SHIPS.getMessage(), placedShips + 1);
+            System.out.printf("                         " + GameStateMessage.ENTER_OPTIONS.getMessage());
 
             String input = scanner.nextLine();
 
+            ShipRemoval removal = new ShipRemoval();
+
             if ("Options".equalsIgnoreCase(input)) {
-                boolean isRemoved = selectMastOrShipToRemove(myBoard, scanner, ship);
-                if (isRemoved) continue;
+                selectMastOrShipToRemove(myBoard, scanner, ship, removal);
+                if (removal.isWasRemoved()) {
+                    switch (removal.getWhatWasDeleted()) {
+                        case MAST, SHIP -> placedShips--;
+                    }
+                    continue;
+                }
             }
 
             boolean isValidInput = validateInputFields(input, myBoard, ship);
@@ -934,11 +946,12 @@ public class ClientShipGameNetwork {
             shipService.addShip(singleMastedShip);
 
         }
-        placeTwoMastedShips(myBoard, water, ship, scanner, output);
+        shipDeploymentFromStart = true;
+        placeTwoMastedShips(myBoard, water, ship, scanner, output, shipDeploymentFromStart);
 
     }
 
-    private static boolean selectMastOrShipToRemove(char[][] myBoard, Scanner scanner, char ship) {
+    private static void selectMastOrShipToRemove(char[][] myBoard, Scanner scanner, char ship, ShipRemoval removal) {
 
         List<Ship> listOfShips = shipService.getListOfMyCreatedShips();
 
@@ -946,21 +959,35 @@ public class ClientShipGameNetwork {
 
         while (!List.of("1", "2").contains(selectedOption)) {
 
-            System.out.println(GameStateMessage.AVAILABLE_OPTIONS.getMessage());
+            System.out.print(GameStateMessage.AVAILABLE_OPTIONS.getMessage());
 
             selectedOption = scanner.nextLine();
 
+            if (selectedOption.length() > 1 || selectedOption.isBlank()) {
+                printMyBoard(myBoard, ship);
+                System.out.println(GameStateMessage.WRONG_OPTION.getMessage());
+                continue;
+            }
+
             if (listOfShips.isEmpty()) {
+                printMyBoard(myBoard, ship);
                 System.out.println(GameStateMessage.NO_MAST_TO_REMOVE.getMessage());
-                return true;
+                System.out.println();
+                removal.setWasRemoved(false);
+                removal.setWhatWasDeleted(ShipRemoval.RemovalSource.NONE);
+                break;
             }
 
             Ship lastShip = listOfShips.getLast();
             List<Coordinate> coordinatesOfLastShip = lastShip.getCoordinates();
 
             if (coordinatesOfLastShip.isEmpty()) {
+                printMyBoard(myBoard, ship);
                 System.out.println(GameStateMessage.NO_SHIP_TO_REMOVE.getMessage());
-                return true;
+                System.out.println();
+                removal.setWasRemoved(false);
+                removal.setWhatWasDeleted(ShipRemoval.RemovalSource.NONE);
+                break;
             }
 
             switch (selectedOption) {
@@ -977,7 +1004,9 @@ public class ClientShipGameNetwork {
                     printMyBoard(myBoard,ship);
                     System.out.println(GameStateMessage.LAST_MAST_REMOVED.getMessage());
                     System.out.println();
-                    return true;
+                    removal.setWasRemoved(true);
+                    removal.setWhatWasDeleted(ShipRemoval.RemovalSource.MAST);
+                    break;
 
                 case "2":
 
@@ -990,21 +1019,23 @@ public class ClientShipGameNetwork {
                     printMyBoard(myBoard, ship);
                     System.out.println(GameStateMessage.LAST_SHIP_REMOVED.getMessage());
                     System.out.println();
-                    return true;
+                    removal.setWasRemoved(true);
+                    removal.setWhatWasDeleted(ShipRemoval.RemovalSource.SHIP);
+                    break;
 
                 default:
                     printMyBoard(myBoard, ship);
                     System.out.println(GameStateMessage.WRONG_OPTION.getMessage());
-                    System.out.println();
             }
 
         }
-
-        return false;
     }
 
     private static void placeTwoMastedShips(
-            char[][] myBoard, char water, char ship, Scanner scanner, ObjectOutputStream output) throws InterruptedException, IOException {
+            char[][] myBoard, char water, char ship, Scanner scanner, ObjectOutputStream output,
+            boolean shipDeploymentFromStart) throws InterruptedException, IOException {
+
+        ShipRemoval removal = new ShipRemoval();
 
         Thread.sleep(500);
         System.out.println(GameStateMessage.SINGLE_MAST_SHIPS_PLACED.getMessage());
@@ -1015,16 +1046,48 @@ public class ClientShipGameNetwork {
         Thread.sleep(1000);
         System.out.println();
 
-        int placedTwoMastedShips = 0;
+        int placedTwoMastedShips;
+        if (shipDeploymentFromStart) {
+            placedTwoMastedShips = 0;
+        } else placedTwoMastedShips = 2;
+
+        String mastToPlace = "";
 
 
         while (placedTwoMastedShips < twoMastedShipNumber) {
 
             // ******************* INPUT AND VALIDATION FOR THE FIRST MAST **********************
+            mastToPlace = "FIRST";
 
-            System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_FIRST_MAST.getMessage(), placedTwoMastedShips + 1,
-                    twoMastedShipNumber, "Two");
+            System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_MAST.getMessage(), mastToPlace,
+                    placedTwoMastedShips + 1, twoMastedShipNumber, "Two");
+            System.out.printf("                         " + GameStateMessage.ENTER_OPTIONS.getMessage());
+
             String firstInput = scanner.nextLine();
+
+            removal.setWasRemoved(false);
+            removal.setWhatWasDeleted(ShipRemoval.RemovalSource.NONE);
+
+            if ("Options".equalsIgnoreCase(firstInput)) {
+                selectMastOrShipToRemove(myBoard, scanner, ship, removal);
+                if (placedTwoMastedShips == 0 && removal.isWasRemoved()) {
+                    switch (removal.getWhatWasDeleted()) {
+                        case MAST:
+                            shipDeploymentFromStart = false;
+                            placeShips(myBoard, water, ship, scanner, output, shipDeploymentFromStart);
+                        case SHIP:
+                            shipDeploymentFromStart = false;
+                            placeShips(myBoard, water, ship, scanner, output, shipDeploymentFromStart);
+                    }
+                } else if (placedTwoMastedShips > 0 && removal.isWasRemoved()) {
+                    switch (removal.getWhatWasDeleted()) {
+                        case SHIP:
+                            placedTwoMastedShips--;
+                            continue;
+                    }
+                    placedTwoMastedShips--;
+                }
+            }
 
             boolean isValidInput = validateInputFields(firstInput, myBoard, ship);
             if (!isValidInput) continue;
@@ -1097,13 +1160,36 @@ public class ClientShipGameNetwork {
 
             // ******************* INPUT AND VALIDATION FOR THE SECOND MAST **********************
 
-            boolean secondMastIsNotPlced = true;
+            boolean secondMastIsNotPlaced = true;
 
-            while (secondMastIsNotPlced) {
+            while (secondMastIsNotPlaced) {
 
-                System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_SECOND_MAST.getMessage(),
+                mastToPlace = "SECOND";
+
+                System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_MAST.getMessage(), mastToPlace,
                         placedTwoMastedShips + 1, twoMastedShipNumber, "Two");
+                System.out.printf("                         " + GameStateMessage.ENTER_OPTIONS.getMessage());
+
                 String secondInput = scanner.nextLine();
+
+                removal.setWasRemoved(false);
+                removal.setWhatWasDeleted(ShipRemoval.RemovalSource.NONE);
+
+                if ("Options".equalsIgnoreCase(secondInput)) {
+                    selectMastOrShipToRemove(myBoard, scanner, ship, removal);
+                    if (removal.isWasRemoved()) {
+                        switch (removal.getWhatWasDeleted()) {
+                            case SHIP:
+                                placedTwoMastedShips--;
+                                break;
+                        }
+                        continue;
+                    }
+
+                }
+
+
+
 
                 boolean isValidSecondInput = validateInputFields(secondInput, myBoard, ship);
                 if (!isValidSecondInput) continue;
@@ -1111,7 +1197,6 @@ public class ClientShipGameNetwork {
                 char secondColChar = secondInput.charAt(0);
 
                 String secondRowNumber = secondInput.substring(1);
-                // char firstCharOfRowNumber = rowNumber.charAt(0);
 
 
                 int secondCol = Character.toUpperCase(secondColChar) - 'A';
@@ -1189,7 +1274,7 @@ public class ClientShipGameNetwork {
 
                 myBoard[row][col] = ship;
                 myBoard[secondRow][secondCol] = ship;
-                secondMastIsNotPlced = false;
+                secondMastIsNotPlaced = false;
 
                 Coordinate firstCoordinate = new Coordinate(row, col);
                 Coordinate secondCoordinate = new Coordinate(secondRow, secondCol);
@@ -1202,7 +1287,7 @@ public class ClientShipGameNetwork {
             printMyBoard(myBoard, ship);
         }
 
-
+        // shipDeploymentFromStart = true;
         placeThreeMastedShips(myBoard, water, ship, scanner, output);
     }
 
