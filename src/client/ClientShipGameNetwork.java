@@ -2,7 +2,7 @@ package client;
 
 import battleshipnetwork.MessagePrinter;
 import client.game.enums.BoardCell;
-import client.game.logic.ShipRemoval;
+import client.game.logic.ShipRemovalStatus;
 import client.game.messages.GameStateMessage;
 import client.game.messages.ServerMessage;
 import client.game.messages.ShotFeedbackMessage;
@@ -393,50 +393,6 @@ public class ClientShipGameNetwork {
         }
     }
 
-    private static Ship getSunkShip(Coordinate opponentShotCoordinate, List<Ship> copyOfMyShipsListForMessagesAfterSunk) {
-        return copyOfMyShipsListForMessagesAfterSunk
-                .stream()
-                .filter(s -> s.getCoordinates().contains(opponentShotCoordinate))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Sunk ship not found in the copy ship list"));
-    }
-
-    private static void displayMessages(
-            String firstHitMessageToDisplay, String secondHitMessageToDisplay,
-            String thirdHitMessageToDisplay, String fourthHitMessageToDisplay) throws InterruptedException {
-
-        // System.out.println();
-        System.out.println(firstHitMessageToDisplay);
-        Thread.sleep(1000);
-
-        if (!secondHitMessageToDisplay.isEmpty()) {
-            System.out.println();
-            System.out.println(secondHitMessageToDisplay);
-            Thread.sleep(1000);
-        }
-        if (!thirdHitMessageToDisplay.isEmpty()) {
-            System.out.println();
-            System.out.println(thirdHitMessageToDisplay);
-            Thread.sleep(1000);
-        }
-        if (fourthHitMessageToDisplay != null && !fourthHitMessageToDisplay.isEmpty()) {
-            System.out.println();
-            System.out.println(fourthHitMessageToDisplay);
-            Thread.sleep(1000);
-        }
-    }
-
-    private static String areAllShipsSunk(
-            List<Ship> myShips, ObjectOutputStream output) throws IOException {
-
-        if (myShips.isEmpty()) {
-            output.writeObject(ShotFeedbackMessage.ALL_SHIPS_SUNK.getMessage());
-            return ShotFeedbackMessage.ALL_SHIPS_SUNK.getOpponentFeedback();
-
-        } else output.writeObject(null);
-        return null;
-    }
-
     private static void makeShot(
             char[][] myBoard, char[][] opponentBoard, Scanner scanner, ObjectInputStream input,
             ObjectOutputStream output, char ship, char hitAndSunk, char miss, List<Ship> remainingOpponentShips)
@@ -689,169 +645,23 @@ public class ClientShipGameNetwork {
 
     }
 
-    private static boolean didPLayerWin(String fifthOpponentReport) throws InterruptedException {
-
-        if (ShotFeedbackMessage.ALL_SHIPS_SUNK.getMessage().equals(fifthOpponentReport)) {
-            System.out.println();
-            System.out.println(ShotFeedbackMessage.ALL_SHIPS_SUNK.getMessage());
-            Thread.sleep(1000);
-            MessagePrinter.printYouWin();
-            return true;
-        }
-        return false;
-    }
-
-    private static boolean validateInputFields(
-            String input, char[][] myBoard, char[][] opponentBoard, char ship, List<Ship> remainingOpponentShips) {
-
-        if (input.length() < 2 || input.length() > 3) {
-            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
-            System.out.println("Invalid format. Enter e.g. A5 or B10");
-            System.out.println();
-            return false;
-        }
-
-        char colChar = input.charAt(0);
-
-        if (!Character.isLetter(colChar)) {
-            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
-            System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
-            System.out.println();
-            return false;
-        }
-
-        String rowNumber = input.substring(1);
-        char firstCharOfRowNumber = rowNumber.charAt(0);
-
-        if (rowNumber.length() == 2) {
-            char secondCharOfRowNumber = rowNumber.charAt(1);
-            if (!Character.isDigit(secondCharOfRowNumber)) {
-                printMyBoard(myBoard, ship);
-                System.out.println("THE THIRD CHARACTER MUST BE A DIGIT!");
-                System.out.println();
-                return false;
-            }
-        }
-
-        int col = Character.toUpperCase(colChar) - 'A';
-
-        if (!Character.isDigit(firstCharOfRowNumber)) {
-            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
-            System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
-            System.out.println();
-            return false;
-        }
-
-        int row = Integer.parseInt(rowNumber) - 1;
-
-
-        if ((input.length() == 3) && !(rowNumber.equals("10"))) {
-            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
-            System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
-            System.out.println();
-            return false;
-        }
-
-
-        // Checking if the column letter is within A-J range
-        if ((col < 0) || (col > 9)) {
-            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
-            System.out.println("Column must be between A and J!".toUpperCase());
-            System.out.println();
-            return false;
-        }
-
-        // Checking if the row number is within 1-10 range
-        if ((row < 0) || (row > 9)) {
-            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
-            System.out.println("Row must be between 1 and 10!".toUpperCase());
-            System.out.println();
-            return false;
-        }
-        return true;
-    }
-
-    private static boolean validateInputFields(String input, char[][] myBoard, char ship) {
-
-        if (input.length() < 2 || input.length() > 3) {
-            printMyBoard(myBoard, ship);
-            System.out.println("Invalid format. Enter e.g. A5 or B10");
-            System.out.println();
-            return false;
-        }
-
-        char colChar = input.charAt(0);
-
-        if (!Character.isLetter(colChar)) {
-            printMyBoard(myBoard, ship);
-            System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
-            System.out.println();
-            return false;
-        }
-
-        String rowNumber = input.substring(1);
-        char firstCharOfRowNumber = rowNumber.charAt(0);
-
-        if (rowNumber.length() == 2) {
-            char secondCharOfRowNumber = rowNumber.charAt(1);
-            if (!Character.isDigit(secondCharOfRowNumber)) {
-                printMyBoard(myBoard, ship);
-                System.out.println("THE THIRD CHARACTER MUST BE A DIGIT!");
-                System.out.println();
-                return false;
-            }
-        }
-
-        int col = Character.toUpperCase(colChar) - 'A';
-
-        if (!Character.isDigit(firstCharOfRowNumber)) {
-            printMyBoard(myBoard, ship);
-            System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
-            System.out.println();
-            return false;
-        }
-
-        int row = Integer.parseInt(rowNumber) - 1;
-
-
-        if ((input.length() == 3) && !(rowNumber.equals("10"))) {
-            printMyBoard(myBoard, ship);
-            System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
-            System.out.println();
-            return false;
-        }
-
-
-        // Checking if the column letter is within A-J range
-        if ((col < 0) || (col > 9)) {
-            printMyBoard(myBoard, ship);
-            System.out.println("Column must be between A and J!".toUpperCase());
-            System.out.println();
-            return false;
-        }
-
-        // Checking if the row number is within 1-10 range
-        if ((row < 0) || (row > 9)) {
-            printMyBoard(myBoard, ship);
-            System.out.println("Row must be between 1 and 10!".toUpperCase());
-            System.out.println();
-            return false;
-        }
-        return true;
-    }
-
     private static void placeShips(
             char[][] myBoard, char water, char ship, Scanner scanner, ObjectOutputStream output,
             boolean shipDeploymentFromStart) throws InterruptedException, IOException {
 
+        System.out.printf(GameStateMessage.PLACE_YOUR_SHIPS.getMessage(), singleMastedShipNumber, "Single");
+        System.out.println();
+
+        ShipRemovalStatus removalStatus = ShipRemovalStatus.INSTANCE;
+        removalStatus.setWasRemoved(false);
+        removalStatus.setWhatWasDeleted(ShipRemovalStatus.RemovalSource.NONE);
+
         int placedShips;
+
         if (shipDeploymentFromStart) {
             printMyBoard(myBoard, ship);
             placedShips = 0;
         } else placedShips = 3;
-
-        System.out.printf(GameStateMessage.PLACE_YOUR_SHIPS.getMessage(), singleMastedShipNumber, "Single");
-        System.out.println();
 
         while (placedShips < singleMastedShipNumber) {
 
@@ -860,12 +670,10 @@ public class ClientShipGameNetwork {
 
             String input = scanner.nextLine();
 
-            ShipRemoval removal = new ShipRemoval();
-
             if ("Options".equalsIgnoreCase(input)) {
-                selectAndRemoveMastOrShip(myBoard, scanner, ship, removal);
-                if (removal.isWasRemoved()) {
-                    switch (removal.getWhatWasDeleted()) {
+                selectAndRemoveMastOrShip(myBoard, scanner, ship, removalStatus);
+                if (removalStatus.isWasRemoved()) {
+                    switch (removalStatus.getWhatWasDeleted()) {
                         case MAST, SHIP -> placedShips--;
                     }
                 }
@@ -946,247 +754,15 @@ public class ClientShipGameNetwork {
             shipService.addShip(singleMastedShip);
 
         }
-        shipDeploymentFromStart = true;
-        placeTwoMastedShips(myBoard, water, ship, scanner, output, shipDeploymentFromStart);
+        boolean deploymentFromStart = true;
+        placeTwoMastedShips(myBoard, water, ship, scanner, output, deploymentFromStart);
 
-    }
-
-    private static void selectAndRemoveMastOrShip(
-            char[][] myBoard, Scanner scanner, char ship, ShipRemoval removal) {
-
-        List<Ship> listOfShips = shipService.getListOfMyCreatedShips();
-
-        String selectedOption = "";
-
-        while (!List.of("1", "2").contains(selectedOption)) {
-
-            System.out.print(GameStateMessage.AVAILABLE_OPTIONS.getMessage());
-
-            selectedOption = scanner.nextLine();
-
-            if (selectedOption.length() > 1 || selectedOption.isBlank()) {
-                printMyBoard(myBoard, ship);
-                System.out.println(GameStateMessage.WRONG_OPTION.getMessage());
-                continue;
-            }
-
-            if (listOfShips.isEmpty()) {
-                printMyBoard(myBoard, ship);
-                System.out.println(GameStateMessage.NO_MAST_TO_REMOVE.getMessage());
-                System.out.println();
-                removal.setWasRemoved(false);
-                removal.setWhatWasDeleted(ShipRemoval.RemovalSource.NONE);
-                break;
-            }
-
-            Ship lastShip = listOfShips.getLast();
-            List<Coordinate> coordinatesOfLastShip = lastShip.getCoordinates();
-
-            // W razie czego sprawdzam wspolrzedne gdyby ostatni statek, ktory nie ma zadnych przypisanych wspolrzednych
-            // byl jakims cudem jeszcze w liscie i usuwamy go. Normalnie pusty statek powinien byc usuniety.
-            if (coordinatesOfLastShip.isEmpty()) {
-                shipService.removeShip(lastShip);
-                printMyBoard(myBoard, ship);
-                System.out.println(GameStateMessage.NO_SHIP_TO_REMOVE.getMessage());
-                System.out.println();
-                removal.setWasRemoved(false);
-                removal.setWhatWasDeleted(ShipRemoval.RemovalSource.NONE);
-                break;
-            }
-
-            switch (selectedOption) {
-
-                case "1":
-                    Coordinate lastCoordinate = coordinatesOfLastShip.getLast();
-
-                    // myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
-
-                    // Ta metoda usunie statek jednomasztowy z pamieci listy bo ma tylko jeden maszt i to jest tak
-                    // jakbym usunal caly statek.
-                    if (lastShip.getSize() == 1) {
-                        myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
-                        shipService.removeShip(lastShip);
-                    }
-
-                    // Ta metoda usunie statek dwumasztowy z pamieci listy i oznaczy pierwszy maszt jedynka ‘1'
-                    if (lastShip.getSize() == 2) {
-                        if (coordinatesOfLastShip.size() == 2) {
-                            myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
-                            shipService.removeShip(lastShip);
-                            Coordinate firstMastCoordinates = lastShip.getCoordinates().get(0);
-                            myBoard[firstMastCoordinates.getRow()][firstMastCoordinates.getCol()] = '1';
-                        }
-                    }
-
-                    // Ta metoda usunie statek trzymasztowy z pamieci  listy i oznaczy pierwszy maszt jedynka ‘1'
-                    // i drugi maszt '2'
-                    if (lastShip.getSize() == 3) {
-                        if (coordinatesOfLastShip.size() == 3) {
-                            myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
-                            shipService.removeShip(lastShip);
-                            Coordinate firstMastCoordinates = lastShip.getCoordinates().get(0);
-                            Coordinate secondMastCoordinates = lastShip.getCoordinates().get(1);
-                            myBoard[firstMastCoordinates.getRow()][firstMastCoordinates.getCol()] = '1';
-                            myBoard[secondMastCoordinates.getRow()][secondMastCoordinates.getCol()] = '2';
-                        }
-                    }
-
-
-                    printMyBoard(myBoard, ship);
-                    System.out.println(GameStateMessage.LAST_MAST_REMOVED.getMessage());
-                    System.out.println();
-                    removal.setWasRemoved(true);
-                    removal.setWhatWasDeleted(ShipRemoval.RemovalSource.MAST);
-                    break;
-
-                case "2":
-
-                    coordinatesOfLastShip.forEach(coordinate -> {
-                        myBoard[coordinate.getRow()][coordinate.getCol()] = water;
-                    });
-
-                    shipService.removeShip(lastShip);
-
-                    printMyBoard(myBoard, ship);
-                    System.out.println(GameStateMessage.LAST_SHIP_REMOVED.getMessage());
-                    System.out.println();
-                    removal.setWasRemoved(true);
-                    removal.setWhatWasDeleted(ShipRemoval.RemovalSource.SHIP);
-                    break;
-
-                default:
-                    printMyBoard(myBoard, ship);
-                    System.out.println(GameStateMessage.WRONG_OPTION.getMessage());
-            }
-
-        }
-    }
-
-    private static void selectAndRemoveMastOrShip(
-            char[][] myBoard, Scanner scanner, char ship, ShipRemoval removal, int penultimateRow, int penultimateCol) {
-
-        List<Ship> listOfShips = shipService.getListOfMyCreatedShips();
-
-        String selectedOption = "";
-
-        while (!List.of("1", "2").contains(selectedOption)) {
-
-            System.out.print(GameStateMessage.AVAILABLE_OPTIONS.getMessage());
-
-            selectedOption = scanner.nextLine();
-
-            if (selectedOption.length() > 1 || selectedOption.isBlank()) {
-                printMyBoard(myBoard, ship);
-                System.out.println(GameStateMessage.WRONG_OPTION.getMessage());
-                continue;
-            }
-
-            if (listOfShips.isEmpty()) {
-                printMyBoard(myBoard, ship);
-                System.out.println(GameStateMessage.NO_MAST_TO_REMOVE.getMessage());
-                System.out.println();
-                removal.setWasRemoved(false);
-                removal.setWhatWasDeleted(ShipRemoval.RemovalSource.NONE);
-                break;
-            }
-
-            Ship lastShip = listOfShips.getLast();
-            List<Coordinate> coordinatesOfLastShip = lastShip.getCoordinates();
-
-            // W razie czego sprawdzam wspolrzedne gdyby ostatni statek, ktory nie ma zadnych przypisanych wspolrzednych
-            // byl jakims cudem jeszcze w liscie i usuwamy go. Normalnie pusty statek powinien byc usuniety.
-            if (coordinatesOfLastShip.isEmpty()) {
-                shipService.removeShip(lastShip);
-                printMyBoard(myBoard, ship);
-                System.out.println(GameStateMessage.NO_SHIP_TO_REMOVE.getMessage());
-                System.out.println();
-                removal.setWasRemoved(false);
-                removal.setWhatWasDeleted(ShipRemoval.RemovalSource.NONE);
-                break;
-            }
-
-            switch (selectedOption) {
-
-                case "1":
-
-                    /*
-                    Coordinate lastCoordinate = coordinatesOfLastShip.getLast();
-
-                    // myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
-
-                    // Ta metoda usunie statek jednomasztowy z pamieci listy bo ma tylko jeden maszt i to jest tak
-                    // jakbym usunal caly statek.
-                    if (lastShip.getSize() == 1) {
-                        myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
-                        shipService.removeShip(lastShip);
-                    }
-
-                    // Ta metoda usunie statek dwumasztowy z pamieci listy i oznaczy pierwszy maszt jedynka ‘1'
-                    if (lastShip.getSize() == 2) {
-                        if (coordinatesOfLastShip.size() == 2) {
-                            myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
-                            shipService.removeShip(lastShip);
-                            Coordinate firstMastCoordinates = lastShip.getCoordinates().get(0);
-                            myBoard[firstMastCoordinates.getRow()][firstMastCoordinates.getCol()] = '1';
-                        }
-                    }
-
-                    // Ta metoda usunie statek trzymasztowy z pamieci  listy i oznaczy pierwszy maszt jedynka ‘1'
-                    // i drugi maszt '2'
-                    if (lastShip.getSize() == 3) {
-                        if (coordinatesOfLastShip.size() == 3) {
-                            myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
-                            shipService.removeShip(lastShip);
-                            Coordinate firstMastCoordinates = lastShip.getCoordinates().get(0);
-                            Coordinate secondMastCoordinates = lastShip.getCoordinates().get(1);
-                            myBoard[firstMastCoordinates.getRow()][firstMastCoordinates.getCol()] = '1';
-                            myBoard[secondMastCoordinates.getRow()][secondMastCoordinates.getCol()] = '2';
-                        }
-                    }
-
-                     */
-
-                    myBoard[penultimateRow][penultimateCol] = water;
-
-
-                    printMyBoard(myBoard, ship);
-                    System.out.println(GameStateMessage.LAST_MAST_REMOVED.getMessage());
-                    System.out.println();
-                    removal.setWasRemoved(true);
-                    removal.setWhatWasDeleted(ShipRemoval.RemovalSource.MAST);
-                    break;
-
-                case "2":
-
-                    myBoard[penultimateRow][penultimateCol] = water;
-
-                    coordinatesOfLastShip.forEach(coordinate -> {
-                        myBoard[coordinate.getRow()][coordinate.getCol()] = water;
-                    });
-
-                    shipService.removeShip(lastShip);
-
-                    printMyBoard(myBoard, ship);
-                    System.out.println(GameStateMessage.LAST_SHIP_REMOVED.getMessage());
-                    System.out.println();
-                    removal.setWasRemoved(true);
-                    removal.setWhatWasDeleted(ShipRemoval.RemovalSource.SHIP);
-                    break;
-
-                default:
-                    printMyBoard(myBoard, ship);
-                    System.out.println(GameStateMessage.WRONG_OPTION.getMessage());
-            }
-
-        }
     }
 
 
     private static void placeTwoMastedShips(
             char[][] myBoard, char water, char ship, Scanner scanner, ObjectOutputStream output,
             boolean shipDeploymentFromStart) throws InterruptedException, IOException {
-
-        ShipRemoval removal = new ShipRemoval();
 
         Thread.sleep(500);
         System.out.println(GameStateMessage.SINGLE_MAST_SHIPS_PLACED.getMessage());
@@ -1197,13 +773,15 @@ public class ClientShipGameNetwork {
         Thread.sleep(1000);
         System.out.println();
 
-
-        // ******************* INPUT AND VALIDATION FOR THE FIRST MAST **********************
+        ShipRemovalStatus removalStatus = ShipRemovalStatus.INSTANCE;
 
         int placedTwoMastedShips;
 
         if (shipDeploymentFromStart) {
             placedTwoMastedShips = 0;
+            removalStatus.setWasRemoved(false);
+            removalStatus.setWhatWasDeleted(ShipRemovalStatus.RemovalSource.NONE);
+
         } else placedTwoMastedShips = 2;
 
         String mastToPlace = "";
@@ -1213,6 +791,12 @@ public class ClientShipGameNetwork {
 
         while (placedTwoMastedShips < twoMastedShipNumber) {
 
+            if (placedTwoMastedShips != 2
+                    && removalStatus.getWhatWasDeleted() != ShipRemovalStatus.RemovalSource.MAST &&
+                    !shipDeploymentFromStart)
+
+            // ******************* INPUT AND VALIDATION FOR THE FIRST MAST **********************
+
             mastToPlace = "FIRST";
 
             System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_MAST.getMessage(), mastToPlace,
@@ -1221,22 +805,23 @@ public class ClientShipGameNetwork {
 
             String firstInput = scanner.nextLine();
 
-            removal.setWasRemoved(false);
-            removal.setWhatWasDeleted(ShipRemoval.RemovalSource.NONE);
+            // Get the coordinates of the first mast of the last placed two-masted ship.
+            Coordinate penultimateCoordinate = getFirstMastCoordinates();
 
-            Coordinate penultimateCoordinate = getPenultimateCoordinate();
+            removalStatus.setWasRemoved(false);
+            removalStatus.setWhatWasDeleted(ShipRemovalStatus.RemovalSource.NONE);
 
             if ("Options".equalsIgnoreCase(firstInput)) {
-                selectAndRemoveMastOrShip(myBoard, scanner, ship, removal);
-                if (placedTwoMastedShips == 0 && removal.isWasRemoved()) {
-                    switch (removal.getWhatWasDeleted()) {
+                selectAndRemoveMastOrShip(myBoard, scanner, ship, removalStatus);
+                if (placedTwoMastedShips == 0 && removalStatus.isWasRemoved()) {
+                    switch (removalStatus.getWhatWasDeleted()) {
                         case MAST, SHIP:
                             boolean deploymentFromStart = false;
                             placeShips(myBoard, water, ship, scanner, output, deploymentFromStart);
                             return;
                     }
-                } else if (placedTwoMastedShips > 0 && removal.isWasRemoved()) {
-                    switch (removal.getWhatWasDeleted()) {
+                } else if (placedTwoMastedShips > 0 && removalStatus.isWasRemoved()) {
+                    switch (removalStatus.getWhatWasDeleted()) {
                         case SHIP:
                             placedTwoMastedShips--;
                             continue;
@@ -1247,13 +832,12 @@ public class ClientShipGameNetwork {
                             }
                             row = penultimateCoordinate.getRow();
                             col = penultimateCoordinate.getCol();
-                            // myBoard[row][col] = '1';
                             break;
                     }
                 }
             }
 
-            if (!removal.isWasRemoved() && removal.getWhatWasDeleted() == ShipRemoval.RemovalSource.NONE) {
+            if (!removalStatus.isWasRemoved() && removalStatus.getWhatWasDeleted() == ShipRemovalStatus.RemovalSource.NONE) {
 
                 boolean isValidInput = validateInputFields(firstInput, myBoard, ship);
                 if (!isValidInput) continue;
@@ -1339,13 +923,13 @@ public class ClientShipGameNetwork {
 
                 String secondInput = scanner.nextLine();
 
-                removal.setWasRemoved(false);
-                removal.setWhatWasDeleted(ShipRemoval.RemovalSource.NONE);
+                removalStatus.setWasRemoved(false);
+                removalStatus.setWhatWasDeleted(ShipRemovalStatus.RemovalSource.NONE);
 
                 if ("Options".equalsIgnoreCase(secondInput)) {
-                    selectAndRemoveMastOrShip(myBoard, scanner, ship, removal, row, col);
-                    if (placedTwoMastedShips == 0 && removal.isWasRemoved()) {
-                        switch (removal.getWhatWasDeleted()) {
+                    selectAndRemoveMastOrShip(myBoard, scanner, ship, removalStatus, row, col);
+                    if (placedTwoMastedShips == 0 && removalStatus.isWasRemoved()) {
+                        switch (removalStatus.getWhatWasDeleted()) {
                             case MAST:
                                 break;
                             case SHIP:
@@ -1353,8 +937,8 @@ public class ClientShipGameNetwork {
                                 placeShips(myBoard, water, ship, scanner, output, deploymentFromStart);
                                 return;
                         }
-                    } else if (placedTwoMastedShips > 0 && removal.isWasRemoved()) {
-                        switch (removal.getWhatWasDeleted()) {
+                    } else if (placedTwoMastedShips > 0 && removalStatus.isWasRemoved()) {
+                        switch (removalStatus.getWhatWasDeleted()) {
                             case MAST:
                                 break;
                             case SHIP:
@@ -1364,7 +948,7 @@ public class ClientShipGameNetwork {
                     }
                 }
 
-                if (removal.isWasRemoved()) break;
+                if (removalStatus.isWasRemoved()) break;
 
 
                 boolean isValidSecondInput = validateInputFields(secondInput, myBoard, ship);
@@ -1460,28 +1044,20 @@ public class ClientShipGameNetwork {
                 placedTwoMastedShips++;
             }
 
-            if (removal.isWasRemoved()) continue;
+            if (removalStatus.isWasRemoved()) continue;
 
             printMyBoard(myBoard, ship);
         }
 
-        // shipDeploymentFromStart = true;
-        placeThreeMastedShips(myBoard, water, ship, scanner, output);
-    }
-
-    private static Coordinate getPenultimateCoordinate() {
-        Ship lastShip = shipService.getListOfMyCreatedShips().getLast();
-        List<Coordinate> coordinatesOfLastShip = lastShip.getCoordinates();
-
-        if (lastShip.getCoordinates().size() > 1) {
-            return coordinatesOfLastShip.get(coordinatesOfLastShip.size() - 2);
-        }
-        return null;
+        boolean deploymentFromStart = true;
+        placeThreeMastedShips(myBoard, water, ship, scanner, output, deploymentFromStart);
     }
 
     private static void placeThreeMastedShips(
-            char[][] myBoard, char water, char ship, Scanner scanner, ObjectOutputStream output) throws
-            InterruptedException, IOException {
+            char[][] myBoard, char water, char ship, Scanner scanner, ObjectOutputStream output,
+            boolean shipDeploymentFromStart) throws InterruptedException, IOException {
+
+        ShipRemovalStatus removal = new ShipRemovalStatus();
 
         Thread.sleep(500);
         System.out.println(GameStateMessage.TWO_MAST_SHIPS_PLACED.getMessage());
@@ -1492,89 +1068,138 @@ public class ClientShipGameNetwork {
         Thread.sleep(1000);
         System.out.println();
 
+        // Set the variable to '0', if ship placement start from the beginning. Set variable to '1' if it resumes after
+        // removing the last ship.
+        int placedThreeMastedShips;
+        if (shipDeploymentFromStart) {
+            placedThreeMastedShips = 0;
+        } else placedThreeMastedShips = 1;
 
-        int placedThreeMastedShips = 0;
+        String mastToPlace = "";
+
+        int row = 0;
+        int col = 0;
+
+        int secondRow = 0;
+        int secondCol = 0;
+
 
         while (placedThreeMastedShips < threeMastedShipNumber) {
 
-            // ******************* INPUT AND VALIDATION FOR THE SECOND MAST **********************
+            // ******************* INPUT AND VALIDATION FOR THE FIRST MAST **********************
 
-            System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_FIRST_MAST.getMessage(),
+            mastToPlace = "FIRST";
+
+            System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_MAST.getMessage(), mastToPlace,
                     placedThreeMastedShips + 1, threeMastedShipNumber, "Three");
 
             String firstInput = scanner.nextLine();
 
+            // Get the coordinates of the last placed three-masted ship.
+            List<Coordinate> lastShipCoordinates = getCoordinatesOfTheLastShip(3);
 
-            boolean isValidInput = validateInputFields(firstInput, myBoard, ship);
-            if (!isValidInput) continue;
+            removal.setWasRemoved(false);
+            removal.setWhatWasDeleted(ShipRemovalStatus.RemovalSource.NONE);
 
-            char colChar = firstInput.charAt(0);
+            if ("Options".equalsIgnoreCase(firstInput)) {
 
-            String rowNumber = firstInput.substring(1);
+                selectAndRemoveMastOrShip(myBoard, scanner, ship, removal);
 
-            int col = Character.toUpperCase(colChar) - 'A';
-            int row = Integer.parseInt(rowNumber) - 1;
+                if (placedThreeMastedShips == 0 && removal.isWasRemoved()) {
+                    switch (removal.getWhatWasDeleted()) {
+                        case MAST:
 
-            char possiblePlacement = myBoard[row][col];
+                        case SHIP:
+                            boolean deploymentFromStart = false;
+                            placeTwoMastedShips(myBoard, water, ship, scanner, output, deploymentFromStart);
+                            return;
+                    }
+                } else if (placedThreeMastedShips > 0 && removal.isWasRemoved()) {
+                    switch (removal.getWhatWasDeleted()) {
+                        case SHIP:
+                            placedThreeMastedShips--;
+                            continue;
+                        case MAST:
+                            placedThreeMastedShips--;
+                            if (lastShipSecondMastCoordinates == null) {
+                                throw new IllegalStateException("Penultimate coordinate cannot be null here");
+                            }
+                            secondRow = lastShipCoordinates.get(1).getRow();
+                            secondCol = lastShipCoordinates.get(1).getCol();
+                            break;
+                    }
+                }
+            }
 
-            if (possiblePlacement != water) {
+            if (!removal.isWasRemoved() && removal.getWhatWasDeleted() == ShipRemovalStatus.RemovalSource.NONE) {
+
+                boolean isValidInput = validateInputFields(firstInput, myBoard, ship);
+                if (!isValidInput) continue;
+
+                char colChar = firstInput.charAt(0);
+
+                String rowNumber = firstInput.substring(1);
+
+                col = Character.toUpperCase(colChar) - 'A';
+                row = Integer.parseInt(rowNumber) - 1;
+
+                char possiblePlacement = myBoard[row][col];
+
+                if (possiblePlacement != water) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
+                    System.out.println();
+                    continue;
+                }
+
+                // Sprawdzamy sąsiednie pola, czy są wolne
+                boolean canPlaceFirstMast = true;
+
+                // Sprawdzanie dolnego pola
+                if (row < myBoard.length - 1 && myBoard[row + 1][col] != water) {
+                    canPlaceFirstMast = false;
+                }
+                // Sprawdzanie górnego pola
+                if (row > 0 && myBoard[row - 1][col] != water) {
+                    canPlaceFirstMast = false;
+                }
+                // Sprawdzanie lewego pola
+                if (col > 0 && myBoard[row][col - 1] != water) {
+                    canPlaceFirstMast = false;
+                }
+                // Sprawdzanie prawego pola
+                if (col < myBoard[0].length - 1 && myBoard[row][col + 1] != water) {
+                    canPlaceFirstMast = false;
+                }
+                // Lewo-góra
+                if (row > 0 && col > 0 && myBoard[row - 1][col - 1] != water) {
+                    canPlaceFirstMast = false;
+                }
+                // Lewo-dół
+                if (row < myBoard.length - 1 && col > 0 && myBoard[row + 1][col - 1] != water) {
+                    canPlaceFirstMast = false;
+                }
+                // Prawo-góra
+                if (row > 0 && col < myBoard[0].length - 1 && myBoard[row - 1][col + 1] != water) {
+                    canPlaceFirstMast = false;
+                }
+                // Prawo-dół
+                if (row < myBoard.length - 1 && col < myBoard[0].length - 1 && myBoard[row + 1][col + 1] != water) {
+                    canPlaceFirstMast = false;
+                }
+                // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
+                if (!canPlaceFirstMast) {
+                    printMyBoard(myBoard, ship);
+                    System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
+                    System.out.println();
+                    continue;
+                }
+
+                myBoard[row][col] = '1';
                 printMyBoard(myBoard, ship);
-                System.out.println("CANNOT PLACE SHIP HERE, POSITION ALREADY TAKEN!");
-                System.out.println();
-                continue;
             }
-
-            // Sprawdzamy sąsiednie pola, czy są wolne
-            boolean canPlaceFirstMast = true;
-
-            // Sprawdzanie dolnego pola
-            if (row < myBoard.length - 1 && myBoard[row + 1][col] != water) {
-                canPlaceFirstMast = false;
-            }
-            // Sprawdzanie górnego pola
-            if (row > 0 && myBoard[row - 1][col] != water) {
-                canPlaceFirstMast = false;
-            }
-            // Sprawdzanie lewego pola
-            if (col > 0 && myBoard[row][col - 1] != water) {
-                canPlaceFirstMast = false;
-            }
-            // Sprawdzanie prawego pola
-            if (col < myBoard[0].length - 1 && myBoard[row][col + 1] != water) {
-                canPlaceFirstMast = false;
-            }
-            // Lewo-góra
-            if (row > 0 && col > 0 && myBoard[row - 1][col - 1] != water) {
-                canPlaceFirstMast = false;
-            }
-            // Lewo-dół
-            if (row < myBoard.length - 1 && col > 0 && myBoard[row + 1][col - 1] != water) {
-                canPlaceFirstMast = false;
-            }
-            // Prawo-góra
-            if (row > 0 && col < myBoard[0].length - 1 && myBoard[row - 1][col + 1] != water) {
-                canPlaceFirstMast = false;
-            }
-            // Prawo-dół
-            if (row < myBoard.length - 1 && col < myBoard[0].length - 1 && myBoard[row + 1][col + 1] != water) {
-                canPlaceFirstMast = false;
-            }
-            // Jeśli statki są zbyt blisko siebie, nie pozwalamy na umieszczenie statku
-            if (!canPlaceFirstMast) {
-                printMyBoard(myBoard, ship);
-                System.out.println("Cannot place ship here. There is another ship nearby!".toUpperCase());
-                System.out.println();
-                continue;
-            }
-
-            myBoard[row][col] = '1';
-            printMyBoard(myBoard, ship);
-
 
             // ******************* INPUT AND VALIDATION FOR THE SECOND MAST **********************
-
-            int secondRow = 0;
-            int secondCol = 0;
 
             boolean secondMastNotIsPlaced = true;
 
@@ -1582,7 +1207,37 @@ public class ClientShipGameNetwork {
 
                 System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_SECOND_MAST.getMessage(),
                         placedThreeMastedShips + 1, threeMastedShipNumber, "Three");
+
                 String secondInput = scanner.nextLine();
+
+                removal.setWasRemoved(false);
+                removal.setWhatWasDeleted(ShipRemovalStatus.RemovalSource.NONE);
+
+                if ("Options".equalsIgnoreCase(secondInput)) {
+
+                    selectAndRemoveMastOrShip(myBoard, scanner, ship, removal);
+
+                    if (placedThreeMastedShips == 0 && removal.isWasRemoved()) {
+                        switch (removal.getWhatWasDeleted()) {
+                            case MAST:
+                                break;
+                            case SHIP:
+                                boolean deploymentFromStart = false;
+                                placeShips(myBoard, water, ship, scanner, output, deploymentFromStart);
+                                return;
+                        }
+                    } else if (placedThreeMastedShips > 0 && removal.isWasRemoved()) {
+                        switch (removal.getWhatWasDeleted()) {
+                            case MAST:
+                                break;
+                            case SHIP:
+                                placedThreeMastedShips--;
+                                break;
+                        }
+                    }
+                }
+
+                if (removal.isWasRemoved()) break;
 
                 boolean isValidSecondInput = validateInputFields(secondInput, myBoard, ship);
                 if (!isValidSecondInput) continue;
@@ -1667,6 +1322,8 @@ public class ClientShipGameNetwork {
 
                 printMyBoard(myBoard, ship);
             }
+
+            if (removal.isWasRemoved()) continue;
 
 
             // ******************* INPUT AND VALIDATION FOR THE THIRD MAST **********************
@@ -1791,6 +1448,13 @@ public class ClientShipGameNetwork {
         }
 
         placeFourMastedShips(myBoard, water, ship, scanner, output);
+    }
+
+    private static List<Coordinate> getCoordinatesOfTheLastShip(int shipSize) {
+        Ship lastShip = shipService.getListOfMyCreatedShips().getLast();
+        if (lastShip.getSize() == shipSize) {
+            return lastShip.getCoordinates();
+        } else throw new IllegalStateException("The last ship doesn't match the required size.");
     }
 
     private static void placeFourMastedShips(
@@ -2222,6 +1886,201 @@ public class ClientShipGameNetwork {
 
     }
 
+    private static Ship getSunkShip(Coordinate opponentShotCoordinate, List<Ship> copyOfMyShipsListForMessagesAfterSunk) {
+        return copyOfMyShipsListForMessagesAfterSunk
+                .stream()
+                .filter(s -> s.getCoordinates().contains(opponentShotCoordinate))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Sunk ship not found in the copy ship list"));
+    }
+
+    private static void displayMessages(
+            String firstHitMessageToDisplay, String secondHitMessageToDisplay,
+            String thirdHitMessageToDisplay, String fourthHitMessageToDisplay) throws InterruptedException {
+
+        // System.out.println();
+        System.out.println(firstHitMessageToDisplay);
+        Thread.sleep(1000);
+
+        if (!secondHitMessageToDisplay.isEmpty()) {
+            System.out.println();
+            System.out.println(secondHitMessageToDisplay);
+            Thread.sleep(1000);
+        }
+        if (!thirdHitMessageToDisplay.isEmpty()) {
+            System.out.println();
+            System.out.println(thirdHitMessageToDisplay);
+            Thread.sleep(1000);
+        }
+        if (fourthHitMessageToDisplay != null && !fourthHitMessageToDisplay.isEmpty()) {
+            System.out.println();
+            System.out.println(fourthHitMessageToDisplay);
+            Thread.sleep(1000);
+        }
+    }
+
+    private static String areAllShipsSunk(
+            List<Ship> myShips, ObjectOutputStream output) throws IOException {
+
+        if (myShips.isEmpty()) {
+            output.writeObject(ShotFeedbackMessage.ALL_SHIPS_SUNK.getMessage());
+            return ShotFeedbackMessage.ALL_SHIPS_SUNK.getOpponentFeedback();
+
+        } else output.writeObject(null);
+        return null;
+    }
+
+    private static boolean didPLayerWin(String fifthOpponentReport) throws InterruptedException {
+
+        if (ShotFeedbackMessage.ALL_SHIPS_SUNK.getMessage().equals(fifthOpponentReport)) {
+            System.out.println();
+            System.out.println(ShotFeedbackMessage.ALL_SHIPS_SUNK.getMessage());
+            Thread.sleep(1000);
+            MessagePrinter.printYouWin();
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean validateInputFields(
+            String input, char[][] myBoard, char[][] opponentBoard, char ship, List<Ship> remainingOpponentShips) {
+
+        if (input.length() < 2 || input.length() > 3) {
+            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
+            System.out.println("Invalid format. Enter e.g. A5 or B10");
+            System.out.println();
+            return false;
+        }
+
+        char colChar = input.charAt(0);
+
+        if (!Character.isLetter(colChar)) {
+            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
+            System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
+            System.out.println();
+            return false;
+        }
+
+        String rowNumber = input.substring(1);
+        char firstCharOfRowNumber = rowNumber.charAt(0);
+
+        if (rowNumber.length() == 2) {
+            char secondCharOfRowNumber = rowNumber.charAt(1);
+            if (!Character.isDigit(secondCharOfRowNumber)) {
+                printMyBoard(myBoard, ship);
+                System.out.println("THE THIRD CHARACTER MUST BE A DIGIT!");
+                System.out.println();
+                return false;
+            }
+        }
+
+        int col = Character.toUpperCase(colChar) - 'A';
+
+        if (!Character.isDigit(firstCharOfRowNumber)) {
+            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
+            System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
+            System.out.println();
+            return false;
+        }
+
+        int row = Integer.parseInt(rowNumber) - 1;
+
+
+        if ((input.length() == 3) && !(rowNumber.equals("10"))) {
+            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
+            System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
+            System.out.println();
+            return false;
+        }
+
+
+        // Checking if the column letter is within A-J range
+        if ((col < 0) || (col > 9)) {
+            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
+            System.out.println("Column must be between A and J!".toUpperCase());
+            System.out.println();
+            return false;
+        }
+
+        // Checking if the row number is within 1-10 range
+        if ((row < 0) || (row > 9)) {
+            printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
+            System.out.println("Row must be between 1 and 10!".toUpperCase());
+            System.out.println();
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean validateInputFields(String input, char[][] myBoard, char ship) {
+
+        if (input.length() < 2 || input.length() > 3) {
+            printMyBoard(myBoard, ship);
+            System.out.println("Invalid format. Enter e.g. A5 or B10");
+            System.out.println();
+            return false;
+        }
+
+        char colChar = input.charAt(0);
+
+        if (!Character.isLetter(colChar)) {
+            printMyBoard(myBoard, ship);
+            System.out.println("THE FIRST CHARACTER MUST BE A LETTER!");
+            System.out.println();
+            return false;
+        }
+
+        String rowNumber = input.substring(1);
+        char firstCharOfRowNumber = rowNumber.charAt(0);
+
+        if (rowNumber.length() == 2) {
+            char secondCharOfRowNumber = rowNumber.charAt(1);
+            if (!Character.isDigit(secondCharOfRowNumber)) {
+                printMyBoard(myBoard, ship);
+                System.out.println("THE THIRD CHARACTER MUST BE A DIGIT!");
+                System.out.println();
+                return false;
+            }
+        }
+
+        int col = Character.toUpperCase(colChar) - 'A';
+
+        if (!Character.isDigit(firstCharOfRowNumber)) {
+            printMyBoard(myBoard, ship);
+            System.out.println("THE SECOND CHARACTER MUST BE A DIGIT!");
+            System.out.println();
+            return false;
+        }
+
+        int row = Integer.parseInt(rowNumber) - 1;
+
+
+        if ((input.length() == 3) && !(rowNumber.equals("10"))) {
+            printMyBoard(myBoard, ship);
+            System.out.println("THE SECOND AND THIRD CHARACTER MUST BE '10'!");
+            System.out.println();
+            return false;
+        }
+
+
+        // Checking if the column letter is within A-J range
+        if ((col < 0) || (col > 9)) {
+            printMyBoard(myBoard, ship);
+            System.out.println("Column must be between A and J!".toUpperCase());
+            System.out.println();
+            return false;
+        }
+
+        // Checking if the row number is within 1-10 range
+        if ((row < 0) || (row > 9)) {
+            printMyBoard(myBoard, ship);
+            System.out.println("Row must be between 1 and 10!".toUpperCase());
+            System.out.println();
+            return false;
+        }
+        return true;
+    }
+
     private static char[][] createBoard() {
         char[][] gameBoard = new char[gameBoardLength][gameBoardLength];
         for (char[] row : gameBoard) {
@@ -2447,6 +2306,250 @@ public class ClientShipGameNetwork {
 
         System.out.println();
         System.out.println();
+    }
+
+    private static Coordinate getFirstMastCoordinates() {
+
+        Ship lastShip = shipService.getListOfMyCreatedShips().getLast();
+        List<Coordinate> coordinatesOfLastShip = lastShip.getCoordinates();
+
+        if (lastShip.getCoordinates().size() > 1) {
+            return coordinatesOfLastShip.get(coordinatesOfLastShip.size() - 2);
+        }
+        return null;
+    }
+
+    private static void selectAndRemoveMastOrShip(
+            char[][] myBoard, Scanner scanner, char ship, ShipRemovalStatus removalStatus) {
+
+        List<Ship> listOfShips = shipService.getListOfMyCreatedShips();
+
+        String selectedOption = "";
+
+        while (!List.of("1", "2").contains(selectedOption)) {
+
+            System.out.print(GameStateMessage.AVAILABLE_OPTIONS.getMessage());
+
+            selectedOption = scanner.nextLine();
+
+            if (selectedOption.length() > 1 || selectedOption.isBlank()) {
+                printMyBoard(myBoard, ship);
+                System.out.println(GameStateMessage.WRONG_OPTION.getMessage());
+                continue;
+            }
+
+            if (listOfShips.isEmpty()) {
+                printMyBoard(myBoard, ship);
+                System.out.println(GameStateMessage.NO_MAST_TO_REMOVE.getMessage());
+                System.out.println();
+                removalStatus.setWasRemoved(false);
+                removalStatus.setWhatWasDeleted(ShipRemovalStatus.RemovalSource.NONE);
+                break;
+            }
+
+            Ship lastShip = listOfShips.getLast();
+            List<Coordinate> coordinatesOfLastShip = lastShip.getCoordinates();
+
+            // W razie czego sprawdzam wspolrzedne gdyby ostatni statek, ktory nie ma zadnych przypisanych wspolrzednych
+            // byl jakims cudem jeszcze w liscie i usuwamy go. Normalnie pusty statek powinien byc usuniety.
+            if (coordinatesOfLastShip.isEmpty()) {
+                shipService.removeShip(lastShip);
+                printMyBoard(myBoard, ship);
+                System.out.println(GameStateMessage.NO_SHIP_TO_REMOVE.getMessage());
+                System.out.println();
+                removalStatus.setWasRemoved(false);
+                removalStatus.setWhatWasDeleted(ShipRemovalStatus.RemovalSource.NONE);
+                break;
+            }
+
+            switch (selectedOption) {
+                // First case: Remove the last placed mast.
+                case "1":
+
+                    Coordinate lastCoordinate = coordinatesOfLastShip.getLast();
+
+                    // Ta metoda usunie statek jednomasztowy z pamieci listy bo ma tylko jeden maszt i to jest tak
+                    // jakbym usunal caly statek.
+                    if (lastShip.getSize() == 1) {
+                        myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
+                        shipService.removeShip(lastShip);
+                    }
+
+                    // Ta metoda usunie statek dwumasztowy z pamieci listy i oznaczy pierwszy maszt jedynka ‘1'
+                    if (lastShip.getSize() == 2) {
+                        if (coordinatesOfLastShip.size() == 2) {
+                            myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
+                            shipService.removeShip(lastShip);
+                            Coordinate firstMastCoordinates = lastShip.getCoordinates().get(0);
+                            myBoard[firstMastCoordinates.getRow()][firstMastCoordinates.getCol()] = '1';
+                        }
+                    }
+
+                    // Ta metoda usunie statek trzymasztowy z pamieci  listy i oznaczy pierwszy maszt jedynka ‘1'
+                    // i drugi maszt '2'
+                    if (lastShip.getSize() == 3) {
+                        if (coordinatesOfLastShip.size() == 3) {
+                            myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
+                            shipService.removeShip(lastShip);
+                            Coordinate firstMastCoordinates = lastShip.getCoordinates().get(0);
+                            Coordinate secondMastCoordinates = lastShip.getCoordinates().get(1);
+                            myBoard[firstMastCoordinates.getRow()][firstMastCoordinates.getCol()] = '1';
+                            myBoard[secondMastCoordinates.getRow()][secondMastCoordinates.getCol()] = '2';
+                        }
+                    }
+
+
+                    printMyBoard(myBoard, ship);
+                    System.out.println(GameStateMessage.LAST_MAST_REMOVED.getMessage());
+                    System.out.println();
+
+                    removalStatus.setWasRemoved(true);
+                    removalStatus.setWhatWasDeleted(ShipRemovalStatus.RemovalSource.MAST);
+                    break;
+
+                // Second case: Remove the last placed ship.
+                case "2":
+
+                    coordinatesOfLastShip.forEach(coordinate -> {
+                        myBoard[coordinate.getRow()][coordinate.getCol()] = water;
+                    });
+
+                    shipService.removeShip(lastShip);
+
+                    printMyBoard(myBoard, ship);
+                    System.out.println(GameStateMessage.LAST_SHIP_REMOVED.getMessage());
+                    System.out.println();
+
+                    removalStatus.setWasRemoved(true);
+                    removalStatus.setWhatWasDeleted(ShipRemovalStatus.RemovalSource.SHIP);
+                    break;
+
+                default:
+                    printMyBoard(myBoard, ship);
+                    System.out.println(GameStateMessage.WRONG_OPTION.getMessage());
+            }
+
+        }
+    }
+
+    private static void selectAndRemoveMastOrShip(
+            char[][] myBoard, Scanner scanner, char ship, ShipRemovalStatus removalStatus, int penultimateRow,
+            int penultimateCol) {
+
+        List<Ship> listOfShips = shipService.getListOfMyCreatedShips();
+
+        String selectedOption = "";
+
+        while (!List.of("1", "2").contains(selectedOption)) {
+
+            System.out.print(GameStateMessage.AVAILABLE_OPTIONS.getMessage());
+
+            selectedOption = scanner.nextLine();
+
+            if (selectedOption.length() > 1 || selectedOption.isBlank()) {
+                printMyBoard(myBoard, ship);
+                System.out.println(GameStateMessage.WRONG_OPTION.getMessage());
+                continue;
+            }
+
+            if (listOfShips.isEmpty()) {
+                printMyBoard(myBoard, ship);
+                System.out.println(GameStateMessage.NO_MAST_TO_REMOVE.getMessage());
+                System.out.println();
+                removalStatus.setWasRemoved(false);
+                removalStatus.setWhatWasDeleted(ShipRemovalStatus.RemovalSource.NONE);
+                break;
+            }
+
+            Ship lastShip = listOfShips.getLast();
+            List<Coordinate> coordinatesOfLastShip = lastShip.getCoordinates();
+
+            // W razie czego sprawdzam wspolrzedne gdyby ostatni statek, ktory nie ma zadnych przypisanych wspolrzednych
+            // byl jakims cudem jeszcze w liscie i usuwamy go. Normalnie pusty statek powinien byc usuniety.
+            if (coordinatesOfLastShip.isEmpty()) {
+                shipService.removeShip(lastShip);
+                printMyBoard(myBoard, ship);
+                System.out.println(GameStateMessage.NO_SHIP_TO_REMOVE.getMessage());
+                System.out.println();
+                removalStatus.setWasRemoved(false);
+                removalStatus.setWhatWasDeleted(ShipRemovalStatus.RemovalSource.NONE);
+                break;
+            }
+
+            switch (selectedOption) {
+
+                case "1":
+
+                    /*
+                    Coordinate lastCoordinate = coordinatesOfLastShip.getLast();
+
+                    // myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
+
+                    // Ta metoda usunie statek jednomasztowy z pamieci listy bo ma tylko jeden maszt i to jest tak
+                    // jakbym usunal caly statek.
+                    if (lastShip.getSize() == 1) {
+                        myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
+                        shipService.removeShip(lastShip);
+                    }
+
+                    // Ta metoda usunie statek dwumasztowy z pamieci listy i oznaczy pierwszy maszt jedynka ‘1'
+                    if (lastShip.getSize() == 2) {
+                        if (coordinatesOfLastShip.size() == 2) {
+                            myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
+                            shipService.removeShip(lastShip);
+                            Coordinate firstMastCoordinates = lastShip.getCoordinates().get(0);
+                            myBoard[firstMastCoordinates.getRow()][firstMastCoordinates.getCol()] = '1';
+                        }
+                    }
+
+                    // Ta metoda usunie statek trzymasztowy z pamieci  listy i oznaczy pierwszy maszt jedynka ‘1'
+                    // i drugi maszt '2'
+                    if (lastShip.getSize() == 3) {
+                        if (coordinatesOfLastShip.size() == 3) {
+                            myBoard[lastCoordinate.getRow()][lastCoordinate.getCol()] = water;
+                            shipService.removeShip(lastShip);
+                            Coordinate firstMastCoordinates = lastShip.getCoordinates().get(0);
+                            Coordinate secondMastCoordinates = lastShip.getCoordinates().get(1);
+                            myBoard[firstMastCoordinates.getRow()][firstMastCoordinates.getCol()] = '1';
+                            myBoard[secondMastCoordinates.getRow()][secondMastCoordinates.getCol()] = '2';
+                        }
+                    }
+
+                     */
+
+                    myBoard[penultimateRow][penultimateCol] = water;
+
+
+                    printMyBoard(myBoard, ship);
+                    System.out.println(GameStateMessage.LAST_MAST_REMOVED.getMessage());
+                    System.out.println();
+                    removalStatus.setWasRemoved(true);
+                    removalStatus.setWhatWasDeleted(ShipRemovalStatus.RemovalSource.MAST);
+                    break;
+
+                case "2":
+
+                    myBoard[penultimateRow][penultimateCol] = water;
+
+                    coordinatesOfLastShip.forEach(coordinate -> {
+                        myBoard[coordinate.getRow()][coordinate.getCol()] = water;
+                    });
+
+                    shipService.removeShip(lastShip);
+
+                    printMyBoard(myBoard, ship);
+                    System.out.println(GameStateMessage.LAST_SHIP_REMOVED.getMessage());
+                    System.out.println();
+                    removalStatus.setWasRemoved(true);
+                    removalStatus.setWhatWasDeleted(ShipRemovalStatus.RemovalSource.SHIP);
+                    break;
+
+                default:
+                    printMyBoard(myBoard, ship);
+                    System.out.println(GameStateMessage.WRONG_OPTION.getMessage());
+            }
+
+        }
     }
 
 }

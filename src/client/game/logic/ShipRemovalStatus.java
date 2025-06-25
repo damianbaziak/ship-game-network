@@ -1,8 +1,9 @@
 package client.game.logic;
 
-public class ShipRemoval {
+public enum ShipRemovalStatus {
+    INSTANCE;
     private boolean wasRemoved = false;
-    private RemovalSource whatWasDeleted = RemovalSource.NONE;
+    private RemovalSource whatWasDeleted= RemovalSource.NONE;
 
     public boolean isWasRemoved() {
         return wasRemoved;
