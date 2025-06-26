@@ -4,8 +4,8 @@ public enum ShipRemovalStatus {
     INSTANCE;
 
     private boolean wasRemoved = false;
-    private RemovalSource whatWasDeleted = RemovalSource.NONE;
-    private WhereWasDeleted whereWasDeleted = WhereWasDeleted.NONE;
+    private WhatWasRemove whatWasRemoved = WhatWasRemove.NONE;
+    private WhereWasDeleted whereWasRemove = WhereWasDeleted.NONE;
 
 
     public boolean isWasRemoved() {
@@ -16,24 +16,24 @@ public enum ShipRemovalStatus {
         this.wasRemoved = wasRemoved;
     }
 
-    public RemovalSource getWhatWasDeleted() {
-        return whatWasDeleted;
+    public WhatWasRemove getWhatWasRemoved() {
+        return whatWasRemoved;
     }
 
-    public void setWhatWasDeleted(RemovalSource whatWasDeleted) {
-        this.whatWasDeleted = whatWasDeleted;
+    public void setWhatWasRemoved(WhatWasRemove whatWasRemoved) {
+        this.whatWasRemoved = whatWasRemoved;
     }
 
-    public WhereWasDeleted getWhereWasDeleted() {
-        return whereWasDeleted;
+    public WhereWasDeleted getWhereWasRemove() {
+        return whereWasRemove;
     }
 
-    public void setWhereWasDeleted(WhereWasDeleted whereWasDeleted) {
-        this.whereWasDeleted = whereWasDeleted;
+    public void setWhereWasRemove(WhereWasDeleted whereWasRemove) {
+        this.whereWasRemove = whereWasRemove;
     }
 
 
-    public enum RemovalSource {
+    public enum WhatWasRemove {
         NONE, MAST, SHIP
 
     }
