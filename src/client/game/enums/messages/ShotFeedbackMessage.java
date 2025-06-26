@@ -1,6 +1,4 @@
-package client.game.messages;
-
-import client.game.enums.EventType;
+package client.game.enums.messages;
 
 public enum ShotFeedbackMessage {
     HIT_SINGLE_MAST("YOU HIT A SINGLE-MASTED SHIP!",
@@ -62,5 +60,9 @@ public enum ShotFeedbackMessage {
 
     public EventType getEventType() {
         return eventType;
+    }
+
+    public enum EventType {
+        HIT, SUNK, MISS, ALREADY_FIRED, NONE;
     }
 }

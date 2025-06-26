@@ -1,4 +1,4 @@
-package client.game.messages;
+package client.game.enums.messages;
 
 public enum ServerMessage {
     START("Start."),

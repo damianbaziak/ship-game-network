@@ -1,4 +1,4 @@
-package client.game.messages;
+package client.game.enums.messages;
 
 public enum GameStateMessage {
     YOUR_TURN("Your turn! Enter the target coordinates (e.g., B7): "),
@@ -26,8 +26,9 @@ public enum GameStateMessage {
                     Available OPTIONS:
                     1. Remove the last placed mast.
                     2. Remove the last placed ship.
+                    3. Exit.
                     
-                    Select an option. Enter 1 or 2:"""),
+                    Select an option. Enter 1, 2 or 3:"""),
     CONNECTED_TO_SERVER("Connected to server :)"),
     SCANNING_HORIZON("Scanning the horizon... the opponent hasn't shown up yet."),
     WAITING_FOR_OPPONENT("Waiting for the opponent...");

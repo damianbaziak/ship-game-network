@@ -1,9 +1,12 @@
-package client.game.logic;
+package client.game.enums.logic;
 
 public enum ShipRemovalStatus {
     INSTANCE;
+
     private boolean wasRemoved = false;
-    private RemovalSource whatWasDeleted= RemovalSource.NONE;
+    private RemovalSource whatWasDeleted = RemovalSource.NONE;
+    private WhereWasDeleted whereWasDeleted = WhereWasDeleted.NONE;
+
 
     public boolean isWasRemoved() {
         return wasRemoved;
@@ -21,8 +24,21 @@ public enum ShipRemovalStatus {
         this.whatWasDeleted = whatWasDeleted;
     }
 
-    public enum RemovalSource {
-        NONE, MAST, SHIP;
+    public WhereWasDeleted getWhereWasDeleted() {
+        return whereWasDeleted;
+    }
 
+    public void setWhereWasDeleted(WhereWasDeleted whereWasDeleted) {
+        this.whereWasDeleted = whereWasDeleted;
+    }
+
+
+    public enum RemovalSource {
+        NONE, MAST, SHIP
+
+    }
+
+    public enum WhereWasDeleted {
+        CURRENT_METHOD, ANOTHER_METHOD, NONE
     }
 }
