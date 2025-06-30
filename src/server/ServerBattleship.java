@@ -1,4 +1,4 @@
-package battleshipnetwork;
+package server;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -6,7 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class BattleshipNetwork {
+public class ServerBattleship {
     private static final int PORT = 5050;
     private static final String YOUR_TURN = "Your turn.";
     private static final String START = "Start.";

@@ -21,7 +21,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.*;
 
-public class ClientShipGameNetwork {
+public class ClientBattleship {
     private static final String SERVER_IP = "localhost";  // Server IP
     private static final int SERVER_PORT = 5050;          // Server port
     private static final int gameBoardLength = 10;
@@ -800,8 +800,8 @@ public class ClientShipGameNetwork {
 
         String mastToPlace = "";
 
-        int firstMastRow = UNSET;
-        int firstMastCol = UNSET;
+        int firstMastRow = 0;
+        int firstMastCol = 0;
 
         if (removalStatus.getWhereRemoved() == ShipRemovalStatus.WhereIsRemoved.ANOTHER_METHOD
                 && removalStatus.getWhatRemoved() == ShipRemovalStatus.WhatIsRemoved.MAST) {
@@ -2438,11 +2438,11 @@ public class ClientShipGameNetwork {
                 char position = opponentBoard[row][col];
                 if (position == ship) {
                     System.out.print("\u001B[37m" + ship + "  " + "\u001B[0m");
-                } else if (position == ClientShipGameNetwork.miss) {
+                } else if (position == ClientBattleship.miss) {
                     System.out.print("\u001B[33m" + position + "  " + "\u001B[0m");
-                } else if (position == ClientShipGameNetwork.HIT_AND_SUNK_CHAR) {
+                } else if (position == ClientBattleship.HIT_AND_SUNK_CHAR) {
                     System.out.print("\u001B[31m" + position + "  " + "\u001B[0m");
-                } else if (position == ClientShipGameNetwork.HIT_MAST_CHAR) {
+                } else if (position == ClientBattleship.HIT_MAST_CHAR) {
                     System.out.print("\u001B[31m" + position + "  " + "\u001B[0m");
                 } else {
                     System.out.print("\u001B[34m" + position + "  " + "\u001B[0m");
@@ -2517,11 +2517,11 @@ public class ClientShipGameNetwork {
                 char position = myBoard[row][col];
                 if (position == ship) {
                     System.out.print("\u001B[37m" + ship + "  " + "\u001B[0m");
-                } else if (position == ClientShipGameNetwork.miss) {
+                } else if (position == ClientBattleship.miss) {
                     System.out.print("\u001B[33m" + position + "  " + "\u001B[0m");
-                } else if (position == ClientShipGameNetwork.HIT_AND_SUNK_CHAR) {
+                } else if (position == ClientBattleship.HIT_AND_SUNK_CHAR) {
                     System.out.print("\u001B[31m" + position + "  " + "\u001B[0m");
-                } else if (position == ClientShipGameNetwork.HIT_MAST_CHAR) {
+                } else if (position == ClientBattleship.HIT_MAST_CHAR) {
                     System.out.print("\u001B[31m" + position + "  " + "\u001B[0m");
                 } else {
                     System.out.print("\u001B[34m" + position + "  " + "\u001B[0m");
@@ -2538,11 +2538,11 @@ public class ClientShipGameNetwork {
             char position = opponentBoard[9][col];
             if (position == ship) {
                 System.out.print("\u001B[37m" + ship + "  " + "\u001B[0m");
-            } else if (position == ClientShipGameNetwork.miss) {
+            } else if (position == ClientBattleship.miss) {
                 System.out.print("\u001B[33m" + position + "  " + "\u001B[0m");
-            } else if (position == ClientShipGameNetwork.HIT_AND_SUNK_CHAR) {
+            } else if (position == ClientBattleship.HIT_AND_SUNK_CHAR) {
                 System.out.print("\u001B[31m" + position + "  " + "\u001B[0m");
-            } else if (position == ClientShipGameNetwork.HIT_MAST_CHAR) {
+            } else if (position == ClientBattleship.HIT_MAST_CHAR) {
                 System.out.print("\u001B[31m" + position + "  " + "\u001B[0m");
             } else {
                 System.out.print("\u001B[34m" + position + "  " + "\u001B[0m");
@@ -2556,11 +2556,11 @@ public class ClientShipGameNetwork {
             char position = myBoard[9][col];
             if (position == ship) {
                 System.out.print("\u001B[37m" + ship + "  " + "\u001B[0m");
-            } else if (position == ClientShipGameNetwork.miss) {
+            } else if (position == ClientBattleship.miss) {
                 System.out.print("\u001B[33m" + position + "  " + "\u001B[0m");
-            } else if (position == ClientShipGameNetwork.HIT_AND_SUNK_CHAR) {
+            } else if (position == ClientBattleship.HIT_AND_SUNK_CHAR) {
                 System.out.print("\u001B[31m" + position + "  " + "\u001B[0m");
-            } else if (position == ClientShipGameNetwork.HIT_MAST_CHAR) {
+            } else if (position == ClientBattleship.HIT_MAST_CHAR) {
                 System.out.print("\u001B[31m" + position + "  " + "\u001B[0m");
             } else {
                 System.out.print("\u001B[34m" + position + "  " + "\u001B[0m");
