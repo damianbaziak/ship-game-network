@@ -1,4 +1,4 @@
-package client.game.enums.logic;
+package client.game.logic;
 
 import client.model.coordinate.Coordinate;
 

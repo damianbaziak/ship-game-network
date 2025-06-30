@@ -1,4 +1,4 @@
-package battleshipnetwork;
+package client.game.messages;
 
 public class MessagePrinter {
 

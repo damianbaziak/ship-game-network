@@ -1,4 +1,4 @@
-package client.game.enums;
+package client.game;
 
 public enum BoardCell {
 

@@ -1,4 +1,4 @@
-package client.game.enums.messages;
+package client.game.messages;
 
 public enum ShotFeedbackMessage {
     HIT_SINGLE_MAST("YOU HIT A SINGLE-MASTED SHIP!",

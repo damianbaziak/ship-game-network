@@ -1,4 +1,4 @@
-package client.service;
+package client.game.service;
 
 import client.model.coordinate.Coordinate;
 import client.model.ship.Ship;

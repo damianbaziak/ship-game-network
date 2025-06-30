@@ -1,19 +1,19 @@
 package client;
 
-import battleshipnetwork.MessagePrinter;
-import client.game.enums.BoardCell;
-import client.game.enums.logic.LastShipCoordinatesRegister;
-import client.game.enums.logic.ShipRemovalStatus;
-import client.game.enums.messages.GameStateMessage;
-import client.game.enums.messages.ServerMessage;
-import client.game.enums.messages.ShotFeedbackMessage;
+import client.game.messages.MessagePrinter;
+import client.game.BoardCell;
+import client.game.logic.LastShipCoordinatesRegister;
+import client.game.logic.ShipRemovalStatus;
+import client.game.messages.GameStateMessage;
+import client.game.messages.ServerMessage;
+import client.game.messages.ShotFeedbackMessage;
 import client.model.coordinate.Coordinate;
 import client.model.ship.Ship;
 import client.model.ship.implementation.FourMastedShip;
 import client.model.ship.implementation.SingleMastedShip;
 import client.model.ship.implementation.ThreeMastedShip;
 import client.model.ship.implementation.TwoMastedShip;
-import client.service.ShipService;
+import client.game.service.ShipService;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -135,7 +135,7 @@ public class ClientShipGameNetwork {
 
     private static void opponentShot(
             char[][] myBoard, char[][] opponentBoard, List<Ship> myShips, List<Ship> remainingOpponentShips,
-            List<Ship> copyOfMyShipsListForMessagesAfterSunk, List<Coordinate> myShipHitCoordinates,
+            List<Ship> copyOfMyShipsListForMessagesAfterSunk, List<Coordinate> alreadyHitCoordinates,
             ObjectInputStream input, ObjectOutputStream output, char ship,
             char hit) throws IOException, InterruptedException, ClassNotFoundException {
 
@@ -157,7 +157,7 @@ public class ClientShipGameNetwork {
                     .filter(s -> s.getCoordinates().contains(opponentShotCoordinate))
                     .findFirst();
 
-            if (myShipHitCoordinates.contains(opponentShotCoordinate)) {
+            if (alreadyHitCoordinates.contains(opponentShotCoordinate)) {
 
                 output.writeObject(ShotFeedbackMessage.ALREADY_FIRED.getMessage());
                 output.writeObject(null);
@@ -176,9 +176,9 @@ public class ClientShipGameNetwork {
 
                 opponentHitYouWait = false;
 
-            } else if ((!myShipHitCoordinates.contains(opponentShotCoordinate)) && (possibleHitShip.isPresent())) {
+            } else if ((!alreadyHitCoordinates.contains(opponentShotCoordinate)) && (possibleHitShip.isPresent())) {
 
-                myShipHitCoordinates.add(opponentShotCoordinate);
+                alreadyHitCoordinates.add(opponentShotCoordinate);
 
                 Ship myShip = possibleHitShip.get();
 
@@ -373,7 +373,7 @@ public class ClientShipGameNetwork {
 
             } else {
 
-                myShipHitCoordinates.add(opponentShotCoordinate);
+                alreadyHitCoordinates.add(opponentShotCoordinate);
 
                 output.writeObject(ShotFeedbackMessage.MISS.getMessage());
                 output.writeObject(null);
@@ -814,8 +814,7 @@ public class ClientShipGameNetwork {
 
         while (placedTwoMastedShips < twoMastedShipNumber) {
 
-            if (!(removalStatus.getWhereRemoved() == ShipRemovalStatus.WhereIsRemoved.ANOTHER_METHOD
-                    && removalStatus.getWhatRemoved() == ShipRemovalStatus.WhatIsRemoved.MAST)) {
+            if (myBoard[firstMastRow][firstMastCol] != '1') {
 
                 // ******************* INPUT AND VALIDATION FOR THE FIRST MAST **********************
 
@@ -826,12 +825,6 @@ public class ClientShipGameNetwork {
                 System.out.printf("                         " + GameStateMessage.ENTER_OPTIONS.getMessage());
 
                 String firstInput = scanner.nextLine();
-
-                /*
-                // Get the coordinates of the last removed ship.
-                List<Coordinate> removedShipCoordinates = registerTheLastShipCoordinates().getLastShipCoordinates();
-
-                 */
 
                 removalStatus.setWasRemoved(false);
                 removalStatus.setWhatRemoved(ShipRemovalStatus.WhatIsRemoved.NONE);
@@ -873,8 +866,7 @@ public class ClientShipGameNetwork {
                 }
 
 
-                if (!(removalStatus.getWhatRemoved() == ShipRemovalStatus.WhatIsRemoved.MAST
-                        && removalStatus.getWhereRemoved() == ShipRemovalStatus.WhereIsRemoved.CURRENT_METHOD)) {
+                if (myBoard[firstMastRow][firstMastCol] != '1') {
 
                     boolean isValidInput = validateInputFields(firstInput, myBoard, ship);
                     if (!isValidInput) continue;
@@ -1144,8 +1136,8 @@ public class ClientShipGameNetwork {
 
         while (placedThreeMastedShips < threeMastedShipNumber) {
 
-            if (!(removalStatus.getWhereRemoved() == ShipRemovalStatus.WhereIsRemoved.ANOTHER_METHOD
-                    && removalStatus.getWhatRemoved() == ShipRemovalStatus.WhatIsRemoved.MAST)) {
+            //if (!(removalStatus.getWhereRemoved() == ShipRemovalStatus.WhereIsRemoved.ANOTHER_METHOD
+            //        && removalStatus.getWhatRemoved() == ShipRemovalStatus.WhatIsRemoved.MAST)) {
 
                 if (!(myBoard[firstMastRow][firstMastCol] == '1')) {
 
@@ -1411,7 +1403,7 @@ public class ClientShipGameNetwork {
                 }
 
 
-            }
+            //}
 
             // ******************* INPUT AND VALIDATION FOR THE THIRD MAST **********************
 
@@ -2163,7 +2155,7 @@ public class ClientShipGameNetwork {
                 .stream()
                 .filter(s -> s.getCoordinates().contains(opponentShotCoordinate))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Sunk ship not found in the copy ship list"));
+                .orElseThrow(() -> new IllegalStateException("Sunken ship not found in the ship list copy."));
     }
 
     private static void displayMessages(
