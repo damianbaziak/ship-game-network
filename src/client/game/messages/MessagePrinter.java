@@ -98,7 +98,7 @@ public class MessagePrinter {
         clearScreen();
     }
 
-    public static void displayMiss() {
+    public static void displayMiss() throws InterruptedException {
         String[] miss = {
                 "╔╦╗ ╦ ╔═╗ ╔═╗  ┬",
                 "║║║ ║ ╚═╗ ╚═╗  │",
@@ -116,7 +116,7 @@ public class MessagePrinter {
         printMessage(hit);
     }
 
-    public static void printAlreadyHit() {
+    public static void printAlreadyHit() throws InterruptedException {
         String[] alreadyHit = {
                 "╔═╗ ╦   ╦═╗ ╔═╗ ╔═╗╔╦╗ ╦ ╦   ╦ ╦ ╦ ╔╦╗ ┬",
                 "╠═╣ ║   ╠╦╝ ║╣  ╠═╣ ║║ ╚╦╝   ╠═╣ ║  ║  │",

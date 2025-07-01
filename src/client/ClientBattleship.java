@@ -429,6 +429,7 @@ public class ClientBattleship {
 
             if (ShotFeedbackMessage.ALREADY_FIRED.getMessage().equals(opponentReport)) {
 
+                Thread.sleep(500);
                 printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                 Thread.sleep(500);
                 MessagePrinter.printAlreadyHit();
@@ -470,7 +471,7 @@ public class ClientBattleship {
                     if (ShotFeedbackMessage.ALL_SINGLE_MAST_SHIPS_SUNK.getMessage().equals(fourthOpponentReport)) {
 
                         System.out.println();
-                        System.out.println(ShotFeedbackMessage.ALL_SINGLE_MAST_SHIPS_SUNK);
+                        System.out.println(ShotFeedbackMessage.ALL_SINGLE_MAST_SHIPS_SUNK.getMessage());
                         Thread.sleep(1000);
                     }
 
@@ -633,6 +634,7 @@ public class ClientBattleship {
             } else {
                 opponentBoard[row][col] = miss;
 
+                Thread.sleep(500);
                 printEntireGameBoard(myBoard, opponentBoard, ship, remainingOpponentShips);
                 Thread.sleep(500);
                 MessagePrinter.displayMiss();
@@ -671,7 +673,7 @@ public class ClientBattleship {
         while (placedSingleMastedShips < singleMastedShipNumber) {
 
             System.out.printf(GameStateMessage.ENTER_COORDINATES_SINGLE_MAST_SHIPS.getMessage(), placedSingleMastedShips + 1);
-            System.out.printf("                         " + GameStateMessage.ENTER_OPTIONS.getMessage());
+            System.out.printf(GameStateMessage.ENTER_OPTIONS.getMessage());
 
             String input = scanner.nextLine();
 
@@ -822,7 +824,7 @@ public class ClientBattleship {
 
                 System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_MAST.getMessage(), mastToPlace,
                         placedTwoMastedShips + 1, twoMastedShipNumber, "Two");
-                System.out.printf("                         " + GameStateMessage.ENTER_OPTIONS.getMessage());
+                System.out.printf(GameStateMessage.ENTER_OPTIONS.getMessage());
 
                 String firstInput = scanner.nextLine();
 
@@ -949,7 +951,7 @@ public class ClientBattleship {
 
                 System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_MAST.getMessage(), mastToPlace,
                         placedTwoMastedShips + 1, twoMastedShipNumber, "Two");
-                System.out.printf("                         " + GameStateMessage.ENTER_OPTIONS.getMessage());
+                System.out.printf(GameStateMessage.ENTER_OPTIONS.getMessage());
 
                 String secondInput = scanner.nextLine();
 
@@ -1147,7 +1149,7 @@ public class ClientBattleship {
 
                     System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_MAST.getMessage(), mastToPlace,
                             placedThreeMastedShips + 1, threeMastedShipNumber, "Three");
-                    System.out.printf("                         " + GameStateMessage.ENTER_OPTIONS.getMessage());
+                    System.out.printf(GameStateMessage.ENTER_OPTIONS.getMessage());
 
                     String firstInput = scanner.nextLine();
 
@@ -1276,7 +1278,7 @@ public class ClientBattleship {
 
                         System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_MAST.getMessage(), mastToPlace,
                                 placedThreeMastedShips + 1, threeMastedShipNumber, "Two");
-                        System.out.printf("                         " + GameStateMessage.ENTER_OPTIONS.getMessage());
+                        System.out.printf(GameStateMessage.ENTER_OPTIONS.getMessage());
 
                         String secondInput = scanner.nextLine();
 
@@ -1415,7 +1417,7 @@ public class ClientBattleship {
 
                 System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_MAST.getMessage(), mastToPlace,
                         placedThreeMastedShips + 1, threeMastedShipNumber, "Three");
-                System.out.printf("                         " + GameStateMessage.ENTER_OPTIONS.getMessage());
+                System.out.printf(GameStateMessage.ENTER_OPTIONS.getMessage());
 
                 String thirdInput = scanner.nextLine();
 
@@ -1627,7 +1629,7 @@ public class ClientBattleship {
 
                 System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_MAST.getMessage(), mastToPlace,
                         placedFourMastedShips + 1, fourMastedShipNumber, "Four");
-                System.out.println("                         " + GameStateMessage.ENTER_OPTIONS.getMessage());
+                System.out.println(GameStateMessage.ENTER_OPTIONS.getMessage());
 
                 String firstInput = scanner.nextLine();
 
@@ -1732,7 +1734,7 @@ public class ClientBattleship {
 
                     System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_MAST.getMessage(), mastToPlace,
                             placedFourMastedShips + 1, fourMastedShipNumber, "Four");
-                    System.out.printf("                         " + GameStateMessage.ENTER_OPTIONS.getMessage());
+                    System.out.printf(GameStateMessage.ENTER_OPTIONS.getMessage());
 
                     String secondInput = scanner.nextLine();
 
@@ -1858,7 +1860,7 @@ public class ClientBattleship {
 
                     System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_MAST.getMessage(), mastToPlace,
                             placedFourMastedShips + 1, fourMastedShipNumber, "Four");
-                    System.out.printf("                         " + GameStateMessage.ENTER_OPTIONS.getMessage());
+                    System.out.printf(GameStateMessage.ENTER_OPTIONS.getMessage());
 
                     String thirdInput = scanner.nextLine();
 
@@ -1996,7 +1998,7 @@ public class ClientBattleship {
 
                 System.out.printf(GameStateMessage.ENTER_COORDINATES_FOR_MAST.getMessage(), mastToPlace,
                         placedFourMastedShips + 1, fourMastedShipNumber, "Four");
-                System.out.println("                         " + GameStateMessage.ENTER_OPTIONS.getMessage());
+                System.out.println(GameStateMessage.ENTER_OPTIONS.getMessage());
 
                 String fourthInput = scanner.nextLine();
 
