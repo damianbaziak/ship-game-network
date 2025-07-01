@@ -11,7 +11,7 @@ public enum GameStateMessage {
     TWO_MAST_SHIPS_PLACED("ALL TWO-MASTED SHIPS HAVE BEEN PLACED!"),
     THREE_MAST_SHIPS_PLACED("ALL THREE-MASTED SHIPS HAVE BEEN PLACED!"),
     ALL_SHIPS_PLACED("ALL SHIPS HAVE BEEN PLACED!"),
-    ENTER_OPTIONS("                    Or enter 'Options' to remove ships or masts:%n"),
+    ENTER_OPTIONS("                   Or enter 'Options' to remove ships/masts:%n"),
     NO_SHIP_TO_REMOVE("NO SHIP FOUND TO REMOVE!"),
     NO_MAST_TO_REMOVE("NO MAST FOUND TO REMOVE!"),
     LAST_SHIP_REMOVED("THE LAST PLACED SHIP REMOVED!"),
